@@ -4,7 +4,7 @@ import days from './data/days.mock.json'; // ← коли Data готовий: '
 import { makeReducer } from './game/reducer.js';
 import { createGame } from './game/gameEngine.js';
 import { loadProgress, saveProgress } from './game/storage.js';
-import { makeT } from './i18n/index.js';
+import { makeT, registerDayEvents } from './i18n/index.js';
 import { mockState } from './dev/mockState.js';
 
 import Start from './components/Start.jsx';
@@ -19,6 +19,8 @@ import Certificate from './components/Certificate.jsx';
 import Launch from './components/Launch.jsx';
 import Sources from './components/Sources.jsx';
 import Meters from './components/Meters.jsx';
+
+registerDayEvents(days); // для запасних текстів days.events.<тип> в i18n
 
 const SCREENS = {
   start: Start, map: MissionMap, briefing: Briefing, decision: Decision,
