@@ -7,7 +7,7 @@
 // Формат у src/i18n/<lang>/days.json (заповнює Content):
 //   "events": { "SEP": { "text": "...", "lesson": "..." }, "QUIET": { ... } }
 // Ключі — типи з EVENT_TYPES (src/game/contracts.js).
-// Типи подій дня рушій реєструє через registerDayEvents(days) (див. src/game/reducer.js).
+// Типи подій дня реєструються через registerDayEvents(days) (див. src/App.jsx).
 const files = import.meta.glob('./*/*.json', { eager: true });
 
 const dict = {};
