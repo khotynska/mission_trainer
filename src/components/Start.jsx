@@ -1,5 +1,8 @@
-import { PatchBadge, PATCHES } from './MissionMap';
+// Власник: Dev 6 (Progress UI). Пропси за контрактом: { state, dispatch, t } (src/game/contracts.js).
+import { ACTIONS } from '../game/contracts.js';
 import { saveLang } from '../game/storage';
+import PatchBadge from './PatchBadge.jsx';
+import { PATCHES } from './patches.js';
 
 // Розкладка (ноутбук):
 //   ┌───────────────────────────────────┐
@@ -8,20 +11,20 @@ import { saveLang } from '../game/storage';
 //   │  нашивки               │ кнопки   │
 //   └──────── пейзаж внизу ─────────────┘
 // Усе лежить у звичайному потоці, нічого не накладається одне на одне.
+// Кольори інтерфейсу — токени з theme.css (--px-*); літерали лишились лише в ілюстраціях
+// (планета, зорі, пейзаж). Шрифти підключає theme.css.
 const CSS = `
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-
 .ja-start {
   position: relative;
-  width: 100vw;
+  box-sizing: border-box;
+  /* На всю ширину вікна: компенсуємо бічний відступ оболонки .app (без 100vw → без горизонтального скролу) */
+  margin-inline: calc(-1 * var(--app-gutter, 0px));
   min-height: 100vh;
   min-height: 100svh;
-  margin-left: calc(50% - 50vw);
   overflow: hidden;
-  box-sizing: border-box;
-  font-family: 'Press Start 2P', monospace;
-  color: #fff0d0;
-  background: linear-gradient(180deg, #080b2c 0%, #101b55 38%, #174b91 72%, #bd493f 100%);
+  font-family: var(--font-pixel);
+  color: var(--px-cream);
+  background: var(--sky);
   image-rendering: pixelated;
   display: flex;
   /* знизу залишаємо місце під пейзаж, щоб він не перекривав кнопки */
@@ -42,9 +45,9 @@ const CSS = `
 
 /* Сітка сторінки */
 .ja-wrap {
-  position: relative; z-index: 2; width: 100%;
+  position: relative; z-index: 2; width: 100%; min-width: 0;
   display: grid;
-  grid-template-columns: 1.25fr .75fr;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, .75fr);
   grid-template-rows: auto 1fr;
   column-gap: 6%;
   align-items: center;
@@ -54,34 +57,36 @@ const CSS = `
 .ja-lang { grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 12px; }
 .ja-lang button {
   font: inherit; font-size: 10px; min-width: 55px; min-height: 45px;
-  background: rgba(7,10,34,.8); color: #fff0d0; border: 3px solid #79baff;
-  cursor: pointer; box-shadow: 3px 3px 0 #07113a;
+  background: rgba(7,10,34,.8); color: var(--px-cream); border: 3px solid var(--px-blue);
+  cursor: pointer; box-shadow: 3px 3px 0 var(--px-blue-shadow);
 }
-.ja-lang button[aria-pressed=true] { background: #79baff; color: #0a0f33; }
+.ja-lang button[aria-pressed=true] { background: var(--px-blue); color: var(--px-ink); }
 
 /* Ліва колонка: заголовок, підзаголовок, історія, нашивки */
 .ja-content {
-  grid-column: 1; grid-row: 2;
+  grid-column: 1; grid-row: 2; min-width: 0;
   display: flex; flex-direction: column; align-items: center; text-align: center;
 }
 .ja-title {
-  margin: 0 0 16px; font-size: clamp(30px, 4.2vw, 64px); line-height: 1.4; color: #ffd48b;
-  letter-spacing: 2px;
-  text-shadow: 3px 0 #e66a48, -3px 0 #e66a48, 0 3px #e66a48, 0 -3px #e66a48, 6px 6px 0 #6c253b;
+  margin: 0 0 16px; font-size: clamp(30px, 4.2vw, 64px); line-height: 1.4; color: var(--px-gold);
+  font-weight: 400; letter-spacing: 2px; overflow-wrap: break-word; max-width: 100%;
+  text-shadow: 3px 0 var(--px-red), -3px 0 var(--px-red), 0 3px var(--px-red), 0 -3px var(--px-red), 6px 6px 0 var(--px-wine);
 }
-.ja-sub { margin: 0 0 24px; font-size: clamp(11px, 1.2vw, 16px); color: #ff9870; line-height: 1.8; text-shadow: 2px 2px 0 #3a1408; }
+.ja-sub { margin: 0 0 24px; font-size: clamp(11px, 1.2vw, 16px); color: var(--px-coral); line-height: 1.8; text-shadow: 2px 2px 0 #3a1408; }
+/* Історію читають діти 7–12: довгий текст — читабельним піксельним Tiny5, а не дрібним Press Start 2P */
 .ja-story {
   width: 100%; max-width: 780px; box-sizing: border-box; margin: 0;
-  font-size: clamp(10px, 1vw, 13px); line-height: 2.1; padding: 22px;
-  background: rgba(5,10,42,.85); border: 3px solid #ff9d65; box-shadow: 5px 5px 0 #642a46;
+  font-family: var(--font); font-size: clamp(1.0625rem, 0.95rem + 0.4vw, 1.3125rem); line-height: 1.5; padding: 22px;
+  background: rgba(5,10,42,.85); border: 3px solid var(--px-peach); box-shadow: 5px 5px 0 var(--px-wine);
+  overflow-wrap: break-word; hyphens: auto;
 }
-.ja-bold { color: #ffb25e; }
-.ja-patches-box { margin-top: 20px; font-size: 10px; }
+.ja-bold { color: var(--px-orange); }
+.ja-patches-box { margin-top: 20px; font-size: 10px; line-height: 1.8; }
 .ja-patches { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 10px; }
 
 /* Права колонка: планета зверху, під нею кнопки */
 .ja-actions {
-  grid-column: 2; grid-row: 2;
+  grid-column: 2; grid-row: 2; min-width: 0;
   display: flex; flex-direction: column; align-items: center; gap: 28px;
 }
 .ja-orbit { position: relative; width: clamp(120px, 15vw, 220px); aspect-ratio: 1; flex: none; }
@@ -97,16 +102,16 @@ const CSS = `
 .ja-btns { display: flex; flex-direction: column; gap: 16px; width: 100%; max-width: 440px; }
 .ja-btn {
   width: 100%; font: inherit; font-size: clamp(10px, 1vw, 13px); min-height: 60px; padding: 14px 18px;
-  cursor: pointer; color: #fff0d0; background: #101b55; border: 4px solid #ffad70;
-  box-shadow: 5px 5px 0 #642a46; text-transform: uppercase; line-height: 1.8; text-align: center;
-  transition: background .15s, transform .15s;
+  cursor: pointer; color: var(--px-cream); background: var(--px-navy); border: 4px solid var(--px-orange);
+  box-shadow: 5px 5px 0 var(--px-wine); text-transform: uppercase; line-height: 1.8; text-align: center;
+  overflow-wrap: break-word; transition: background .15s, transform .15s;
 }
-.ja-btn:hover, .ja-btn:focus-visible { background: #ffad70; color: #2a0e06; outline: none; }
+.ja-btn:hover, .ja-btn:focus-visible { background: var(--px-orange); color: #2a0e06; outline: none; }
 .ja-btn:active { transform: translate(3px, 3px); box-shadow: 1px 1px 0 #3a1408; }
-.ja-btn.main { background: #ffad70; color: #351323; border-color: #ffd48b; box-shadow: 5px 5px 0 #7d3039; }
-.ja-btn.main:hover { background: #ffd48b; }
-.ja-btn.alt { border-color: #79baff; box-shadow: 5px 5px 0 #07113a; }
-.ja-btn.alt:hover { background: #79baff; color: #0a0f33; }
+.ja-btn.main { background: var(--px-orange); color: #351323; border-color: var(--px-gold); box-shadow: 5px 5px 0 var(--px-plum); }
+.ja-btn.main:hover { background: var(--px-gold); }
+.ja-btn.alt { border-color: var(--px-blue); box-shadow: 5px 5px 0 var(--px-blue-shadow); }
+.ja-btn.alt:hover { background: var(--px-blue); color: var(--px-ink); }
 
 /* Невисокі екрани ноутбуків */
 @media (min-width: 701px) and (max-height: 750px) {
@@ -122,12 +127,12 @@ const CSS = `
 
 /* Телефон: одна колонка зверху вниз */
 @media (max-width: 700px) {
-  .ja-start { width: 100%; margin-left: 0; padding: 16px 16px 24vh; }
+  .ja-start { padding: 16px 16px 24vh; }
   .ja-wrap { display: flex; flex-direction: column; align-items: center; gap: 20px; }
   .ja-lang { width: 100%; }
-  .ja-title { font-size: clamp(22px, 8vw, 36px); }
+  .ja-title { font-size: clamp(20px, 7.5vw, 36px); letter-spacing: 1px; }
   .ja-sub { font-size: 10px; margin-bottom: 14px; }
-  .ja-story { font-size: 9px; line-height: 1.9; padding: 14px; }
+  .ja-story { font-size: 1.0625rem; padding: 14px; }
   .ja-orbit { width: 100px; }
   .ja-actions { width: 100%; gap: 20px; }
   .ja-btn { min-height: 54px; font-size: 9px; }
@@ -144,10 +149,11 @@ const STARS = [
 export default function Start({ state, dispatch, t }) {
     const patches = state.patches || [];
     const inProgress = state.day > 1;
+    const go = (screen) => dispatch({ type: ACTIONS.GO, screen });
 
     const setLang = (lang) => {
         saveLang(lang);
-        dispatch({ type: 'SET_LANG', lang });
+        dispatch({ type: ACTIONS.SET_LANG, lang });
     };
 
     return (
@@ -179,13 +185,13 @@ export default function Start({ state, dispatch, t }) {
             <div className="ja-wrap">
                 <div className="ja-lang">
                     {['ua', 'en'].map((l) => (
-                        <button key={l} onClick={() => setLang(l)} aria-pressed={state.lang === l}>
+                        <button key={l} type="button" onClick={() => setLang(l)} aria-pressed={state.lang === l}>
                             {l.toUpperCase()}
                         </button>
                     ))}
                 </div>
 
-                <section className="ja-content">
+                <section className="ja-content" lang={state.lang === 'en' ? 'en-US' : 'uk-UA'}>
                     <h1 className="ja-title">🌕 {t('progress.start.title')}</h1>
                     <p className="ja-sub">{t('progress.start.subtitle')}</p>
 
@@ -215,29 +221,21 @@ export default function Start({ state, dispatch, t }) {
 
                     <div className="ja-btns">
                         {inProgress && (
-                            <button
-                                className="ja-btn main"
-                                onClick={() => dispatch({ type: 'SET_SCREEN', screen: 'briefing' })}
-                            >
+                            <button type="button" className="ja-btn main" onClick={() => go('briefing')}>
                                 ▶ {t('progress.start.continue')} · {t('progress.map.day')} {state.day}
                             </button>
                         )}
                         <button
+                            type="button"
                             className={inProgress ? 'ja-btn' : 'ja-btn main'}
-                            onClick={() => dispatch({ type: 'START_GAME' })}
+                            onClick={() => dispatch({ type: ACTIONS.START_GAME })}
                         >
                             🚀 {t('progress.start.begin')}
                         </button>
-                        <button
-                            className="ja-btn alt"
-                            onClick={() => dispatch({ type: 'SET_SCREEN', screen: 'map', mapReturn: 'start' })}
-                        >
+                        <button type="button" className="ja-btn alt" onClick={() => go('map')}>
                             🗺 {t('progress.start.map')}
                         </button>
-                        <button
-                            className="ja-btn alt"
-                            onClick={() => dispatch({ type: 'SET_SCREEN', screen: 'sources' })}
-                        >
+                        <button type="button" className="ja-btn alt" onClick={() => go('sources')}>
                             📡 {t('progress.start.sources')}
                         </button>
                     </div>

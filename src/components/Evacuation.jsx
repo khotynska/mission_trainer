@@ -1,4 +1,6 @@
-// Екран евакуації: поразка без покарання. Причина береться зі state.endReason ('dose' | 'life').
+// Власник: Dev 6 (Progress UI). Екран евакуації: поразка без покарання. Причина береться зі state.endReason ('dose' | 'life').
+import { ACTIONS } from '../game/contracts.js';
+
 export default function Evacuation({ state, dispatch, t }) {
     const reason = state.endReason === 'life' ? 'life' : 'dose';
 
@@ -24,7 +26,8 @@ export default function Evacuation({ state, dispatch, t }) {
                     background: 'var(--accent, #ffcc4d)',
                     color: '#111',
                 }}
-                onClick={() => dispatch({ type: 'RESTART_WEEK' })}
+                type="button"
+                onClick={() => dispatch({ type: ACTIONS.RESTART_WEEK })}
             >
                 🔁 {t('progress.evac.restart')}
             </button>
