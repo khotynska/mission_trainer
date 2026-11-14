@@ -1,14 +1,122 @@
 {
   "day1": {
-    "text": "MOCK: A calm morning at the base. A particle cloud left the Sun.",
-    "lesson": "MOCK: A CME takes 1–3 days to reach the Moon."
+    "text": "Hello, commander, I'm Lira from Mission Control! Today, April 17, 2024, the Sun flared (class M1.6) and threw out a cloud of plasma that is flying toward us.",
+    "lesson": "A plasma cloud from the Sun (CME) takes a few days to reach the Moon, so we have time to get ready."
   },
   "day2": {
-    "text": "MOCK: Class M flare.",
-    "lesson": "MOCK: Flare light takes 8 minutes."
+    "text": "On April 18 the Sun is restless again: a class M2.2 flare and two more plasma clouds heading our way. They will arrive together with yesterday's cloud on April 21.",
+    "lesson": "Flares come in classes A, B, C, M and X, and each class is 10 times stronger than the one before."
   },
   "day3": {
-    "text": "MOCK: The particle cloud arrived!",
-    "lesson": "MOCK: The Moon has no magnetic field."
+    "text": "On April 19 there is a class M2.1 flare on the Sun. And on Earth today there is a strong magnetic storm, so people in the north can see the northern lights!",
+    "lesson": "Earth's magnetic field protects it from solar particles, but the Moon has no such shield."
+  },
+  "day4": {
+    "text": "April 20 is a quiet day: the strongest flare is just a tiny C3.9. A great time to charge the batteries and do some science!",
+    "lesson": "Even on a quiet day there is weak cosmic radiation on the Moon, because there is no air here to stop it."
+  },
+  "day5": {
+    "text": "On April 21 the plasma clouds that left on April 17 and 18 have reached the Moon! Plus an M3.4 flare, so it's time to think about the shelter.",
+    "lesson": "The plasma cloud flew 150 million kilometers from the Sun in about 4 days."
+  },
+  "day6": {
+    "text": "On April 22 there are four M-class flares on the Sun, and the strongest is M2.8. The Sun is warming up!",
+    "lesson": "Flares explode in sunspots: dark areas where the Sun's magnetic field is tangled."
+  },
+  "day7": {
+    "text": "April 23 brings an M3.6 flare and three new plasma clouds flying toward us. Today is the last day of week one, so check your battery and life support!",
+    "lesson": "NASA scientists watch the Sun with space telescopes and calculate when a plasma cloud will arrive."
+  },
+  "day8": {
+    "text": "April 24 brings an M2.0 flare and one more plasma cloud heading our way. It will catch up with yesterday's clouds, and they will all arrive on April 26.",
+    "lesson": "Plasma clouds fly at different speeds: a fast one can catch up with a slow one that left earlier."
+  },
+  "day9": {
+    "text": "On April 25 the Sun is a bit calmer: just an M1.3 flare. The plasma clouds are still on their way and will arrive in one day.",
+    "lesson": "Light from a flare reaches the Moon in about 8 minutes, but a plasma cloud takes a few days."
+  },
+  "day10": {
+    "text": "On April 26 the plasma clouds that left on April 23 and 24 have hit the Moon! Good thing we knew about them in advance.",
+    "lesson": "One plasma cloud can weigh a billion tons: a whole mountain of super-hot gas."
+  },
+  "day11": {
+    "text": "On April 27 there is a class M3.0 flare on the Sun. The Sun is shining bright, and the batteries are charging well.",
+    "lesson": "A lunar day lasts about 14 Earth days, and the whole time the solar panels make energy."
+  },
+  "day12": {
+    "text": "April 28 is the quietest day of the week, with no strong flares at all. Perfect for science!",
+    "lesson": "The Moon's surface is covered with regolith, a layer of fine dust and pebbles that can shield a base from radiation."
+  },
+  "day13": {
+    "text": "On April 29 there is an M3.7 flare on the Sun. The Sun is slowly sinking toward the horizon: the lunar night is coming.",
+    "lesson": "The Moon always shows the same side to Earth, so from the base Earth stays in the same spot in the sky."
+  },
+  "day14": {
+    "text": "April 30 brings an M9.5 flare, almost class X! This is the last sunny day before the long night, so charge the batteries as much as you can.",
+    "lesson": "An M9.5 flare is only a little weaker than X1, because the border between classes is very close."
+  },
+  "day15": {
+    "text": "On May 1 the lunar night has come to the base, and the Sun has gone below the horizon. Energy is low now, so spend your tokens carefully.",
+    "lesson": "A lunar night lasts about 14 Earth days, and the cold drops to −170 °C."
+  },
+  "day16": {
+    "text": "On May 2 there is an M2.7 flare on the Sun and a magnetic storm on Earth. It's dark here, but Mission Control sends you Sun news every day.",
+    "lesson": "Solar particles fly along curved magnetic lines, so they can reach the base even at night."
+  },
+  "day17": {
+    "text": "May 3 brings the first X-class flare of the mission, X1.6, and three plasma clouds heading our way! Radio contact may be lost tomorrow, so remember: the clouds will arrive on May 6.",
+    "lesson": "An X-class flare disturbs radio contact, because its light stirs up the upper layer of Earth's atmosphere."
+  },
+  "day18": {
+    "text": "On May 4 the radio link with Earth is noisy after yesterday's X flare, and there is no forecast. Meanwhile the Sun has fired off an M9.1 flare.",
+    "lesson": "The ionosphere is a layer of air high above Earth that radio signals travel through, and flares \"blind\" it."
+  },
+  "day19": {
+    "text": "On May 5 there are two X-class flares at once: X1.3 and X1.2! Radio contact may be lost again tomorrow.",
+    "lesson": "A big group of sunspots can flare many times in a row while it faces us."
+  },
+  "day20": {
+    "text": "On May 6 the plasma clouds we learned about on May 3 have reached the Moon, plus an X4.5 flare! There is no radio contact, so remember what Lira warned you about.",
+    "lesson": "An X4.5 flare is about 4.5 times stronger than an X1 flare."
+  },
+  "day21": {
+    "text": "May 7 brings an M8.2 flare and two big plasma clouds flying straight at us. They will arrive on May 10, so get the shelter ready in advance!",
+    "lesson": "A giant group of sunspots called AR 3664 has appeared on the Sun, about 15 times wider than Earth."
+  },
+  "day22": {
+    "text": "On May 8 there are two X1.0 flares from the same giant sunspot. Radio contact may be lost tomorrow, and the plasma clouds are already on their way.",
+    "lesson": "The Sun's activity rises and falls in a cycle of about 11 years, and 2024 is close to the peak."
+  },
+  "day23": {
+    "text": "On May 9 a radiation storm has begun: the Sun has sped up particles to nearly the speed of light! Plus X2.2 and X1.1 flares, and there is no radio contact with Earth.",
+    "lesson": "Radiation storm particles fly from the Sun in tens of minutes and pass through thin walls."
+  },
+  "day24": {
+    "text": "On May 10 the plasma clouds hit Earth and the Moon: the strongest magnetic storm in more than 20 years! The radiation storm goes on, and the Sun added an X3.9 flare.",
+    "lesson": "That night people saw the northern lights even in Ukraine, because Earth is protected by its magnetic field, but the Moon has none."
+  },
+  "day25": {
+    "text": "On May 11 the Sun exploded with an X5.8 flare, the strongest of the whole mission so far! The radiation storm is not calming down, so keep your crew safe.",
+    "lesson": "The best protection from radiation is a thick layer of regolith or water between the astronauts and space."
+  },
+  "day26": {
+    "text": "On May 12 there is an X1.0 flare on the Sun, and the magnetic storm is still echoing on Earth. Radio contact may be lost tomorrow.",
+    "lesson": "During a magnetic storm, scientists keep an eye on satellites and power grids, because solar particles can damage them."
+  },
+  "day27": {
+    "text": "May 13 brings a new radiation storm and an M6.6 flare, and there is no radio contact with Earth. Hang in there, sunrise is very close!",
+    "lesson": "Astronauts wear dosimeters: devices that count how much radiation they have received."
+  },
+  "day28": {
+    "text": "May 14 brings an X8.7 flare, the strongest since 2017! Its plasma cloud will arrive only after we leave, and tomorrow is sunrise.",
+    "lesson": "The Sun turns around once in about 27 days, so the giant sunspot is moving past the edge and firing past us."
+  },
+  "day29": {
+    "text": "May 15 is sunrise, and the Sun is back over the base, bringing X3.4 and X2.9 flares! Today give tokens to prepare the rocket, because we leave tomorrow.",
+    "lesson": "It is easier for a rocket to take off from the Moon than from Earth, because gravity here is 6 times weaker."
+  },
+  "day30": {
+    "text": "May 16 is departure day, and the Sun is finally calm: just an M1.0 flare. You've made it through 30 days of real space weather, and Mission Control is proud of you, commander!",
+    "lesson": "All 30 days of the game are real events from NASA's DONKI database, recorded in April and May 2024."
   }
 }
