@@ -1,10 +1,19 @@
 {
-  "title": "Distribute energy",
-  "tokens_left": "Left in battery: {n}",
-  "life": "Life support",
+  "title": "Where does the energy go today?",
+  "tokens_left": "The rest goes to the battery: {n} ⚡",
+  "life": "Air & food",
   "shield": "Shelter",
   "science": "Science",
-  "confirm": "Confirm",
-  "timer_toggle": "⏱️ Commander mode",
-  "launch_prep": "🚀 Rocket preparation (4 tokens)"
+  "confirm": "Done!",
+  "timer_toggle": "⏱️ Timed mode",
+  "launch_prep": "🚀 Warm up the rocket (4 ⚡)",
+  "tokens_today": "You have {n} ⚡ today",
+  "life_hint": "The crew breathes and eats: +{n} supplies",
+  "shield_hint": "Blocks {n}% of radiation",
+  "science_hint": "Exploring the Moon: +{n} points",
+  "burn": "Battery is full, {n} ⚡ will be lost!",
+  "danger": "⚠️ The Sun is angry today! Hide the crew",
+  "timeout": "Time's up! We did the same as yesterday",
+  "timer_left": "{n} s left",
+  "launch_hint": "Without this the rocket can't fly home"
 }
