@@ -1,6 +1,6 @@
 // Головний файл: підключає рушій до екранів. Власник: Tech Lead.
 import { useReducer, useMemo, useEffect } from 'react';
-import days from './data/days.mock.json'; // ← коли Data готовий: './data/days.json'
+import days from './data/days.json';
 import { makeReducer } from './game/reducer.js';
 import { createGame } from './game/gameEngine.js';
 import { loadProgress, saveProgress } from './game/storage.js';
