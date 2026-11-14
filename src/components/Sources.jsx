@@ -3,7 +3,7 @@
 const SECTIONS = [
   {
     key: 'donki',
-    links: [{ label: 'NASA DONKI', href: 'https://kauai.ccmc.gsfc.nasa.gov/DONKI/' }],
+    links: [{ label: 'NASA DONKI', href: 'https://ccmc.gsfc.nasa.gov/tools/DONKI/' }],
     highlights: ['highlight_1', 'highlight_2', 'highlight_3'],
   },
   {
