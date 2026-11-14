@@ -1,23 +1,30 @@
+// Власник: Dev 6 (Progress UI). Пропси за контрактом: { state, dispatch, t } (src/game/contracts.js).
 import { useEffect, useState } from 'react';
-import { PatchBadge } from './MissionMap';
+import { ACTIONS } from '../game/contracts.js';
+import PatchBadge from './PatchBadge.jsx';
+import { PATCH_BY_WEEK } from './patches.js';
 import { addPatch, saveWeekResult, getBestWeek } from '../game/storage';
 
-const PATCH_BY_WEEK = { 1: 'energy', 2: 'science', 3: 'night', 4: 'shield' };
+const round1 = (n) => Math.round(n * 10) / 10;
 
-// Читає state.lastWeekResult = { week, passed, patch } (+ необов'язково doseGain).
+// Читає state.lastWeekResult = { week, passed, patch }.
+// Приріст дози за тиждень: з lastWeekResult.doseGain, якщо рушій його дасть, інакше
+// state.dose − state.weekSnapshot.dose (знімок початку тижня ще не перезаписано на цьому екрані).
 export default function WeekComplete({ state, dispatch, t }) {
     const r = state.lastWeekResult || { week: 1, passed: false, patch: null };
     const patch = r.patch || PATCH_BY_WEEK[r.week];
-    const [cmp, setCmp] = useState(null);
+    const doseGain = typeof r.doseGain === 'number'
+        ? round1(r.doseGain)
+        : state.weekSnapshot ? round1(state.dose - state.weekSnapshot.dose) : null;
+
+    // Рекорд читаємо ДО збереження (лінива ініціалізація) — тоді подвійний ефект StrictMode
+    // не перетворює «новий рекорд» на «найкращий результат: +N».
+    const [previousBest] = useState(() => getBestWeek(r.week));
+    const isNewBest = doseGain !== null && (previousBest === null || doseGain < previousBest);
 
     useEffect(() => {
         if (r.passed && patch) addPatch(patch);
-        // Приріст дози за тиждень: з lastWeekResult, якщо рушій його дає.
-        if (typeof r.doseGain === 'number') {
-            const best = getBestWeek(r.week);
-            const res = saveWeekResult(r.week, r.doseGain);
-            setCmp({ gain: r.doseGain, best: res.isNewBest ? r.doseGain : best, isNewBest: res.isNewBest });
-        }
+        if (doseGain !== null) saveWeekResult(r.week, doseGain); // зберігає лише кращий результат
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -42,16 +49,16 @@ export default function WeekComplete({ state, dispatch, t }) {
                 </>
             )}
 
-            {cmp && (
+            {doseGain !== null && (
                 <p style={{ opacity: 0.9 }}>
-                    {t('progress.week.yourDose', { dose: Math.round(cmp.gain * 10) / 10 })}{' '}
-                    {cmp.isNewBest
+                    {t('progress.week.yourDose', { dose: doseGain })}{' '}
+                    {isNewBest
                         ? t('progress.week.newBest')
-                        : t('progress.week.best', { dose: Math.round(cmp.best * 10) / 10 })}
+                        : t('progress.week.best', { dose: round1(previousBest) })}
                 </p>
             )}
 
-            <button style={btn} onClick={() => dispatch({ type: 'CONTINUE' })}>
+            <button type="button" style={btn} onClick={() => dispatch({ type: ACTIONS.NEXT })}>
                 {t('progress.week.next')} →
             </button>
 

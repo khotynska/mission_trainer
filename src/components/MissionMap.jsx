@@ -1,38 +1,9 @@
+// Власник: Dev 6 (Progress UI). Пропси за контрактом: { state, dispatch, t } (src/game/contracts.js).
 import { useEffect } from 'react';
+import { ACTIONS } from '../game/contracts.js';
 import { getLang } from '../game/storage';
-
-// Нашивки: 4 значки (emoji в колі). Ключі збігаються зі state.patches.
-export const PATCHES = [
-    { id: 'energy', icon: '⚡', week: 1 },
-    { id: 'science', icon: '🔬', week: 2 },
-    { id: 'night', icon: '🌙', week: 3 },
-    { id: 'shield', icon: '🛡️', week: 4 },
-];
-
-export function PatchBadge({ id, earned = true, size = 48, label }) {
-    const p = PATCHES.find((x) => x.id === id);
-    return (
-        <span
-            title={label}
-            aria-label={label}
-            style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: size,
-                height: size,
-                borderRadius: '50%',
-                fontSize: size * 0.5,
-                border: '2px solid var(--accent, #ffcc4d)',
-                background: earned ? 'var(--card, #161d3d)' : 'transparent',
-                opacity: earned ? 1 : 0.3,
-                filter: earned ? 'none' : 'grayscale(1)',
-            }}
-        >
-      {p ? p.icon : '?'}
-    </span>
-    );
-}
+import PatchBadge from './PatchBadge.jsx';
+import { PATCHES } from './patches.js';
 
 // Мова для дат: state.lang, а якщо його немає, береться зі збереженого.
 function dateFor(dayNumber, lang) {
@@ -143,7 +114,8 @@ export default function MissionMap({ state, dispatch, t }) {
 
             <button
                 style={btn}
-                onClick={() => dispatch({ type: 'SET_SCREEN', screen: state.mapReturn || 'start' })}
+                type="button"
+                onClick={() => dispatch({ type: ACTIONS.GO, screen: 'start' })}
             >
                 ← {t('progress.map.back')}
             </button>

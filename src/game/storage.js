@@ -1,8 +1,11 @@
+// Власник: Dev 6 (Progress UI).
 // Збереження прогресу в localStorage: нашивки, мова, ім'я, найкращі результати тижнів.
 // Працює безпечно, навіть якщо localStorage недоступний (приватний режим тощо).
 const KEY = 'junior-astronaut-progress-v1';
 
 const EMPTY = { patches: [], lang: 'ua', name: '', best: {} };
+/** Єдині поля, які зберігаються. Решта (напр. увесь стан гри з App.jsx) ігнорується. */
+const FIELDS = Object.keys(EMPTY);
 
 export function loadProgress() {
   try {
@@ -15,15 +18,21 @@ export function loadProgress() {
       name: typeof data.name === 'string' ? data.name : '',
       best: data.best && typeof data.best === 'object' ? data.best : {},
     };
-  } catch (e) {
+  } catch {
     return { ...EMPTY, patches: [], best: {} };
   }
 }
 
+// Зливає передані поля з уже збереженими. App.jsx передає сюди весь стан гри (без name і best),
+// тож простий перезапис стирав би ім'я гравця й рекорди тижнів.
 export function saveProgress(progress) {
   try {
-    localStorage.setItem(KEY, JSON.stringify(progress));
-  } catch (e) {
+    const next = loadProgress();
+    for (const key of FIELDS) {
+      if (progress && progress[key] !== undefined) next[key] = progress[key];
+    }
+    localStorage.setItem(KEY, JSON.stringify(next));
+  } catch {
     // нічого страшного: гра працює і без збереження
   }
 }
@@ -83,5 +92,7 @@ export function getBestWeek(week) {
 export function clearProgress() {
   try {
     localStorage.removeItem(KEY);
-  } catch (e) {}
+  } catch {
+    // недоступне сховище — нічого очищати
+  }
 }

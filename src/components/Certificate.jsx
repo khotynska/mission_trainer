@@ -1,6 +1,9 @@
+// Власник: Dev 6 (Progress UI). Пропси за контрактом: { state, dispatch, t } (src/game/contracts.js).
 import { useState } from 'react';
+import { ACTIONS } from '../game/contracts.js';
 import { getRank } from '../game/gameEngine'; // лише імпорт, змінювати не можна
-import { PatchBadge, PATCHES } from './MissionMap';
+import PatchBadge from './PatchBadge.jsx';
+import { PATCHES } from './patches.js';
 import { getPlayerName, savePlayerName } from '../game/storage';
 
 const RANK_VIEW = {
@@ -10,7 +13,9 @@ const RANK_VIEW = {
 };
 
 export default function Certificate({ state, dispatch, t }) {
-    const [name, setName] = useState(getPlayerName());
+    const [name, setName] = useState(getPlayerName);
+    // Дата видачі фіксується один раз (рендер має бути чистим — без new Date() при кожному рендері)
+    const [issuedAt] = useState(() => new Date());
     const raw = getRank(state);
     // getRank може повертати 'bronze' | 'silver' | 'gold' (рядок) або об'єкт: підтримуємо обидва.
     const rankId = String((raw && raw.id) || raw || 'bronze').toLowerCase();
@@ -69,15 +74,15 @@ export default function Certificate({ state, dispatch, t }) {
                     ))}
                 </div>
 
-                <p style={{ opacity: 0.7, fontSize: 14 }}>{new Date().toLocaleDateString(lang)}</p>
+                <p style={{ opacity: 0.7, fontSize: 14 }}>{issuedAt.toLocaleDateString(lang)}</p>
                 <p style={{ opacity: 0.8, fontSize: 14 }}>{t('progress.cert.mars')}</p>
             </section>
 
             <div className="no-print" style={{ display: 'flex', gap: 10, marginTop: 14, flexWrap: 'wrap' }}>
-                <button style={btn} onClick={() => window.print()}>
+                <button type="button" style={btn} onClick={() => window.print()}>
                     🖨️ {t('progress.cert.print')}
                 </button>
-                <button style={{ ...btn, background: '#2a3366', color: 'inherit' }} onClick={() => dispatch({ type: 'START_GAME' })}>
+                <button type="button" style={{ ...btn, background: 'var(--space-raised, #2a3366)', color: 'inherit' }} onClick={() => dispatch({ type: ACTIONS.START_GAME })}>
                     🔁 {t('progress.cert.again')}
                 </button>
             </div>

@@ -6,6 +6,7 @@ import { createGame } from './game/gameEngine.js';
 import { loadProgress, saveProgress } from './game/storage.js';
 import { makeT, registerDayEvents } from './i18n/index.js';
 import { mockState } from './dev/mockState.js';
+import { validateDays } from './game/validateDays.js';
 
 import Start from './components/Start.jsx';
 import MissionMap from './components/MissionMap.jsx';
@@ -21,6 +22,13 @@ import Sources from './components/Sources.jsx';
 import Meters from './components/Meters.jsx';
 
 registerDayEvents(days); // для запасних текстів days.events.<тип> в i18n
+
+if (import.meta.env.DEV) {
+  for (const msg of validateDays(days)) {
+    if (msg.startsWith('WARN:')) console.warn(msg);
+    else console.error(msg);
+  }
+}
 
 const SCREENS = {
   start: Start, map: MissionMap, briefing: Briefing, decision: Decision,
