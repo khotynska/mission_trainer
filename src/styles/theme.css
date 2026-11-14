@@ -8,8 +8,8 @@
    • Базові стилі елементів (button, h1–h4, a) обгорнуті в :where(): нульова
      специфічність, тож класи й inline-стилі будь-якого екрана завжди сильніші.
    • Піксельний шрифт лише для коротких рядків (заголовки екранів, .btn, числа).
-     Довгий текст набирається Tiny5: піксельний, але вужчий і з правильною українською
-     кирилицею (у Pixelify Sans «д», «в», «з» схожі на «a», «e», «э»), тож нічого не вилазить за край.
+     Довгий текст набирається Nunito: округлий, дуже читабельний і з правильною українською
+     кирилицею (у піксельних шрифтах «д», «в», «з» легко сплутати з іншими літерами), тож нічого не вилазить за край.
    • Скидання відступів (p, h*, ul…) діє лише всередині .screen / .meters,
      щоб не ламати верстку екранів, які на нього не розраховують.
    • Нічний режим: App.jsx ставить .phase-night на .app, і перевизначаються токени.
@@ -19,7 +19,7 @@
    ========================================================================== */
 
 /* Шрифти (OFL). Порада на майбутнє: self-host у src/styles/fonts, щоб не звертатися до Google (GDPR). */
-@import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&family=Tiny5&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&family=Nunito:wght@400;600;700&display=swap');
 
 /* 1. Токени ---------------------------------------------------------------- */
 :root {
@@ -87,15 +87,15 @@
   --res-dose-danger: var(--danger);
 
   /* Шрифти */
-  --font: 'Tiny5', ui-rounded, 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
-  --font-pixel: 'Pixelify Sans', 'Tiny5', ui-rounded, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font: 'Nunito', ui-rounded, 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+  --font-pixel: 'Pixelify Sans', ui-rounded, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-mono: ui-monospace, 'SF Mono', 'Cascadia Mono', 'Roboto Mono', Menlo, Consolas, monospace;
 
-  /* Розміри: основний текст (Tiny5 візуально дрібніший, тому шкала трохи більша) */
-  --fs-xs: 0.9375rem;
-  --fs-sm: 1.0625rem;
-  --fs-md: 1.1875rem;
-  --fs-lg: 1.3125rem;
+  /* Розміри: основний текст (Nunito) */
+  --fs-xs: 0.875rem;
+  --fs-sm: 1rem;
+  --fs-md: 1.125rem;
+  --fs-lg: 1.25rem;
   --fs-xl: clamp(1.375rem, 1.2rem + 0.8vw, 1.625rem);
   --fs-2xl: clamp(1.625rem, 1.35rem + 1.3vw, 2.125rem);
   /* Розміри: піксельний шрифт (Pixelify Sans: пропорційний, з кирилицею; окрема шкала для заголовків, кнопок і чисел) */

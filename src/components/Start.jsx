@@ -73,7 +73,7 @@ const CSS = `
   text-shadow: 3px 0 var(--px-red), -3px 0 var(--px-red), 0 3px var(--px-red), 0 -3px var(--px-red), 6px 6px 0 var(--px-wine);
 }
 .ja-sub { margin: 0 0 24px; font-size: clamp(16px, 1.6vw, 22px); color: var(--px-coral); line-height: 1.4; text-shadow: 2px 2px 0 #3a1408; }
-/* Історію читають діти 7–12: довгий текст — читабельним піксельним Tiny5, а не піксельним шрифтом заголовків */
+/* Історію читають діти 7–12: довгий текст — читабельним Nunito, а не піксельним шрифтом заголовків */
 .ja-story {
   width: 100%; max-width: 780px; box-sizing: border-box; margin: 0;
   font-family: var(--font); font-size: clamp(1.0625rem, 0.95rem + 0.4vw, 1.3125rem); line-height: 1.5; padding: 22px;
