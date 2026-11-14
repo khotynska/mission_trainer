@@ -1,14 +1,70 @@
 {
-  "week_complete": "Week {n} complete!",
-  "patch_earned": "New patch!",
-  "no_patch": "Weekly goal missed, but the mission goes on.",
-  "evacuation": "Mission Control decided to evacuate the crew. Safety first. Try another plan!",
-  "restart_week": "Restart the week",
-  "certificate": "Junior Astronaut Certificate",
-  "rank_gold": "Gold",
-  "rank_silver": "Silver",
-  "rank_bronze": "Bronze",
-  "launch_title": "Time to fly home",
-  "launch_now": "🚀 Launch now",
-  "launch_wait": "⏳ Wait one day"
+  "start": {
+    "title": "Junior Astronaut",
+    "subtitle": "30 days on the Moon",
+    "story": "You are the commander of Moon base \"Tranquility\" in the Sea of Tranquility. Every game day is a real day of space weather from the NASA archive (April 17 – May 16, 2024).",
+    "noSafe": "There is no safe choice: what you take from one place, you lose in another.",
+    "yourPatches": "Your patches:",
+    "begin": "Start mission",
+    "continue": "Continue",
+    "map": "Mission map",
+    "sources": "NASA data"
+  },
+  "map": {
+    "title": "Mission map",
+    "day": "Day",
+    "now": "now",
+    "back": "Back",
+    "patchSlots": "Patches",
+    "week1": "Week 1: Landing",
+    "week2": "Week 2: Science before sunset",
+    "week3": "Week 3: The first night",
+    "week4": "Week 4: The big storm",
+    "launch": "Launch",
+    "legendDay": "lunar day",
+    "legendNight": "lunar night",
+    "legendSunrise": "sunrise"
+  },
+  "patch": {
+    "energy": "Energizer",
+    "science": "Scientist",
+    "night": "Night Watch",
+    "shield": "Shield"
+  },
+  "week": {
+    "title": "Week {week} complete",
+    "earned": "Patch earned! Keep it up, commander!",
+    "notEarned": "Goal not reached, but the mission goes on.",
+    "goalWas": "What you needed to do:",
+    "goal1": "at the end of the week, battery ≥ 8 and life support ≥ 70.",
+    "goal2": "collect ≥ 60 science in the week and have a full battery (12) on day 14.",
+    "goal3": "life support must never drop below 50.",
+    "goal4": "radiation dose must grow by no more than 20 in the week.",
+    "yourDose": "Your dose this week: +{dose}.",
+    "best": "Best result: +{dose}. Can you beat it?",
+    "newBest": "That's your best result!",
+    "next": "Next"
+  },
+  "evac": {
+    "title": "Crew evacuated",
+    "reason": "Reason",
+    "reasonDose": "radiation",
+    "reasonLife": "air and food",
+    "text": "Mission Control decided to evacuate the crew. Real commanders sometimes return early too: safety comes first. Try a different plan!",
+    "patchesSafe": "Your patches are saved.",
+    "restart": "Restart the week"
+  },
+  "cert": {
+    "title": "Junior Astronaut Certificate",
+    "rank_bronze": "Bronze",
+    "rank_silver": "Silver",
+    "rank_gold": "Gold",
+    "name": "Your name",
+    "text": "You brought the crew home!",
+    "science": "Science",
+    "dose": "Dose",
+    "mars": "Next stop: Mars!",
+    "print": "Print",
+    "again": "Play again"
+  }
 }
