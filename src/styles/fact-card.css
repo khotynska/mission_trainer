@@ -1,0 +1,84 @@
+/* Картка «Факт дня» (FactCard.jsx) — піксель-арт. Власник: Dev 5. Лише токени з theme.css. */
+
+.fact {
+  --fact-accent: var(--sun);
+  align-items: center;
+  text-align: center;
+}
+.fact[data-topic='mars'] { --fact-accent: var(--mars); }
+
+.fact__card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gap-3);
+  width: 100%;
+  min-width: 0;
+  padding: var(--gap-5) var(--gap-4);
+  background: var(--space-raised);
+  border: var(--frame-w) solid var(--fact-accent);
+  box-shadow: 5px 5px 0 var(--frame-shadow);
+  animation: fact-pop 320ms steps(4, end) backwards;
+}
+
+/* Піксельні «заклепки» в кутах картки */
+.fact__card::before,
+.fact__card::after {
+  content: '';
+  position: absolute;
+  top: 6px;
+  width: 6px;
+  height: 6px;
+  background: var(--fact-accent);
+}
+.fact__card::before { left: 6px; }
+.fact__card::after { right: 6px; }
+
+.fact__title { color: var(--fact-accent); }
+
+.fact__emoji {
+  display: block;
+  font-size: clamp(3.25rem, 14vw, 4.75rem);
+  line-height: 1;
+  animation: fact-float 1.6s steps(2, end) 400ms infinite;
+}
+
+.fact__text {
+  max-width: 34ch;
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-medium);
+  line-height: 1.35;
+  text-wrap: balance;
+}
+
+.fact__source { font-size: var(--fs-sm); color: var(--text-muted); }
+
+/* Індикатор «прочитай за 5 секунд»: 10 піксельних кроків (декоративний, гру не блокує) */
+.fact__timer {
+  width: min(240px, 100%);
+  height: 10px;
+  overflow: hidden;
+  background: var(--space-sunken);
+  border: var(--border-w) solid var(--border-strong);
+}
+.fact__timer-fill {
+  display: block;
+  height: 100%;
+  background: var(--fact-accent);
+  transform-origin: left center;
+  animation: fact-read var(--read-time, 5s) steps(10, end) forwards;
+}
+
+.fact .screen__actions { align-self: stretch; justify-content: center; }
+.fact__next[data-ready] { animation: fact-nudge 1s steps(1, end) infinite; }
+
+@keyframes fact-pop { from { opacity: 0; transform: scale(0.9); } }
+@keyframes fact-float { 50% { transform: translateY(-6px); } }
+@keyframes fact-read { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes fact-nudge { 50% { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--accent-shadow); } }
+
+@media (max-width: 480px) {
+  .fact__card { padding: var(--gap-4) var(--gap-3); box-shadow: 4px 4px 0 var(--frame-shadow); }
+  .fact__text { font-size: var(--fs-lg); }
+}

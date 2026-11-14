@@ -1,8 +1,32 @@
 {
   "title": "Day result",
-  "normal": "The day passed calmly.",
-  "shield_saved": "The shelter protected the crew by {percent}%! Only {doseGain} dose units received.",
-  "shield_weak": "Strong event, weak shelter: +{doseGain} dose units.",
-  "life_low": "Life support is low. Take care of air and food!",
-  "quiet_science": "Quiet day: great for science!"
+  "normal": "Day complete! The crew received ☢️ +{doseGain} and the base keeps running.",
+  "shield_saved": "The shelter worked! With {percent} protection the crew got only ☢️ +{doseGain} instead of +{damage}.",
+  "shield_weak": "The Sun was dangerous today and the shelter was weak ({percent} protection). The crew got ☢️ +{doseGain}.",
+  "life_low": "Life support is down to {life} out of 100. Take care of air, water and food!",
+  "quiet_science": "A quiet day is the best time for science! The crew earned 🔬 +{science}.",
+  "changes": {
+    "heading": "What changed",
+    "now": "now {value}"
+  },
+  "dose": {
+    "heading": "Why this dose?",
+    "damage": "Harm from the Sun and space",
+    "shield": "Shelter protection",
+    "received": "The crew received",
+    "formula": "{damage} × {received} = +{doseGain}",
+    "bar": "{received} of the radiation reached the crew"
+  },
+  "launch": {
+    "ready": "The rocket is ready! Tomorrow we fly home.",
+    "not_ready": "The rocket isn't ready: warming up the fuel needs ⚡ {n}. You'll replay day 29."
+  },
+  "lesson": {
+    "heading": "Lesson of the day"
+  },
+  "fact": {
+    "title": "Fact of the day",
+    "mars_title": "Next stop: Mars",
+    "source": "Source: {source}"
+  }
 }
