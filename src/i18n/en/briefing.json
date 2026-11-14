@@ -1,7 +1,95 @@
 {
   "title": "Mission Control briefing",
-  "no_comms": "No contact with Earth after yesterday's flare. No forecast.",
-  "warning_cme": "⚠️ A cloud of solar particles arrives in {n} day(s).",
-  "real_event": "Real event from NASA archive · {date}",
-  "decide": "Make a decision"
+  "decide": "Make a decision",
+  "lira": {
+    "name": "Lyra",
+    "role": "Mission Control robot",
+    "avatar": "Lyra the robot",
+    "avatar_offline": "Lyra the robot: no signal",
+    "fallback": "Commander, here is today's event. Check the card below!"
+  },
+  "no_comms": {
+    "title": "No signal!",
+    "text": "After yesterday's flare there is no contact with Earth. No forecast either.",
+    "why": "X-class flares cause strong radio interference."
+  },
+  "tokens": {
+    "today": "Energy for today: ⚡ {n}",
+    "income_day": "☀️ solar panels +{n}",
+    "income_night": "⚛️ backup generator +{n}"
+  },
+  "event": {
+    "heading": "Event of the day",
+    "danger": "Danger: {level}",
+    "danger_levels": {
+      "0": "calm",
+      "1": "low",
+      "2": "moderate",
+      "3": "high",
+      "4": "very high"
+    },
+    "no_shield": "Without shelter: ☢️ +{n}",
+    "also_flare": "Also a {detail} flare",
+    "types": {
+      "QUIET": {
+        "title": "A quiet day",
+        "text": "The Sun is calm. Only weak background radiation today."
+      },
+      "M": {
+        "title": "Class {detail} flare",
+        "text": "A strong but ordinary flare on the Sun."
+      },
+      "X": {
+        "title": "Class {detail} flare",
+        "text": "A very powerful flare: its light reaches us in 8 minutes. No contact with Earth tomorrow."
+      },
+      "X5": {
+        "title": "Class {detail} flare",
+        "text": "An extreme flare! No contact with Earth tomorrow."
+      },
+      "CME": {
+        "title": "A particle cloud has arrived (CME)",
+        "text": "A CME is a giant cloud of particles thrown out by the Sun. It took 1–3 days to reach us."
+      },
+      "EXTREME": {
+        "title": "Extreme magnetic storm",
+        "text": "The strongest particle cloud in about 20 years has arrived!"
+      },
+      "SEP": {
+        "title": "Radiation storm",
+        "text": "A stream of super-fast particles from the Sun. The most dangerous thing for astronauts!"
+      }
+    }
+  },
+  "forecast": {
+    "heading": "Forecast",
+    "clear": "No solar particle clouds in sight for the next few days.",
+    "unavailable": "No forecast: contact with Earth is lost.",
+    "cme_tomorrow": "A cloud of solar particles arrives tomorrow!",
+    "cme": {
+      "one": "A cloud of solar particles arrives in {n} day!",
+      "other": "A cloud of solar particles arrives in {n} days!"
+    }
+  },
+  "source": {
+    "real_event": "Real event from the NASA archive",
+    "ids": "DONKI ID",
+    "archive_link": "NASA DONKI archive",
+    "new_tab": "(opens in a new tab)"
+  },
+  "meters": {
+    "title": "Base status",
+    "day_of": "Day {n} of {total}",
+    "phase_sunrise": "Sunrise",
+    "value_of": "{value} of {max}",
+    "battery_full": "full",
+    "life_low": "low!",
+    "science_goal": "goal {n}",
+    "science_done": "goal reached ✓",
+    "dose_status": {
+      "ok": "normal",
+      "warn": "caution",
+      "danger": "danger"
+    }
+  }
 }
