@@ -1,0 +1,20 @@
+[
+  {
+    "day": 1, "date": "2024-04-17", "week": 1, "phase": "day",
+    "mainEvent": "QUIET", "detail": "", "alsoToday": [],
+    "cmeLaunched": [{ "arrivalDay": 3 }],
+    "donkiIds": ["MOCK-CME-001"]
+  },
+  {
+    "day": 2, "date": "2024-04-18", "week": 1, "phase": "day",
+    "mainEvent": "M", "detail": "M1.5", "alsoToday": [],
+    "cmeLaunched": [],
+    "donkiIds": ["MOCK-FLR-001"]
+  },
+  {
+    "day": 3, "date": "2024-04-19", "week": 1, "phase": "day",
+    "mainEvent": "CME", "detail": "", "alsoToday": [],
+    "cmeLaunched": [],
+    "donkiIds": ["MOCK-GST-001"]
+  }
+]

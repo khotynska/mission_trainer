@@ -1,0 +1,7 @@
+{
+  "title": "Mission Control briefing",
+  "no_comms": "No contact with Earth after yesterday's flare. No forecast.",
+  "warning_cme": "⚠️ A cloud of solar particles arrives in {n} day(s).",
+  "real_event": "Real event from NASA archive · {date}",
+  "decide": "Make a decision"
+}

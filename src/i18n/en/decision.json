@@ -1,0 +1,10 @@
+{
+  "title": "Distribute energy",
+  "tokens_left": "Left in battery: {n}",
+  "life": "Life support",
+  "shield": "Shelter",
+  "science": "Science",
+  "confirm": "Confirm",
+  "timer_toggle": "⏱️ Commander mode",
+  "launch_prep": "🚀 Rocket preparation (4 tokens)"
+}

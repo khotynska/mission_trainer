@@ -1,0 +1,14 @@
+{
+  "week_complete": "Week {n} complete!",
+  "patch_earned": "New patch!",
+  "no_patch": "Weekly goal missed, but the mission goes on.",
+  "evacuation": "Mission Control decided to evacuate the crew. Safety first. Try another plan!",
+  "restart_week": "Restart the week",
+  "certificate": "Junior Astronaut Certificate",
+  "rank_gold": "Gold",
+  "rank_silver": "Silver",
+  "rank_bronze": "Bronze",
+  "launch_title": "Time to fly home",
+  "launch_now": "🚀 Launch now",
+  "launch_wait": "⏳ Wait one day"
+}

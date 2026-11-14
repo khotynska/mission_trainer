@@ -1,0 +1,37 @@
+// Фейковий стан для розробки екранів окремо: http://localhost:5173/?screen=decision
+// Відповідає контрактам у src/game/contracts.js. Змінює Tech Lead разом із контрактами.
+export const mockState = {
+  screen: 'briefing',
+  day: 25,
+  battery: 6,
+  life: 70,
+  dose: 34,
+  science: 85,
+  patches: ['energy', 'science'],
+  lang: 'ua',
+  briefing: {
+    day: 25,
+    date: '2024-05-11',
+    week: 4,
+    phase: 'night',
+    tokens: 8,
+    comms: true,
+    event: { type: 'SEP', detail: 'X5.8', donkiIds: ['MOCK-SEP-001', 'MOCK-FLR-002'] },
+    warnings: [{ type: 'CME', inDays: 2 }],
+    textKey: 'day3',
+  },
+  result: {
+    deltas: { battery: -3, life: 0, dose: 2.6, science: 0 },
+    damage: 26,
+    protection: 0.9,
+    explanationKey: 'shield_saved',
+    params: { percent: 90, damage: 26, doseGain: 2.6 },
+  },
+  lastAllocation: { life: 1, shield: 3, science: 0 },
+  weekSnapshot: { day: 22, battery: 10, life: 80, dose: 30, science: 85 },
+  weekLog: [],
+  endReason: null,
+  timerOn: false,
+  lastWeekResult: { week: 3, passed: true, patch: 'night' },
+  launchReady: false,
+};

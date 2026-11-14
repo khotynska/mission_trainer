@@ -1,0 +1,24 @@
+/* Спільна тема. Власник: Dev 5. Інші використовують лише змінні. */
+:root {
+  --space-dark: #0b1020;
+  --space-panel: #161d33;
+  --moon-gray: #c9ced6;
+  --text: #f2f4f8;
+  --accent: #6ea8ff;
+  --warning: #ffb547;
+  --danger: #ff5c5c;
+  --ok: #4cd98a;
+  --radius: 14px;
+  --font: system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--space-dark); color: var(--text); font-family: var(--font); }
+.app { max-width: 720px; margin: 0 auto; padding: 16px; min-height: 100vh; }
+.app.phase-night { --space-panel: #0f1426; }
+.screen { background: var(--space-panel); border-radius: var(--radius); padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+.meters { margin-bottom: 12px; padding: 10px 14px; background: var(--space-panel); border-radius: var(--radius); }
+.row { display: flex; align-items: center; gap: 10px; }
+.warning { color: var(--warning); }
+.danger { color: var(--danger); }
+button { background: var(--accent); color: #fff; border: 0; border-radius: 10px; padding: 10px 16px; font-size: 16px; cursor: pointer; }

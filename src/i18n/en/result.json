@@ -1,0 +1,8 @@
+{
+  "title": "Day result",
+  "normal": "The day passed calmly.",
+  "shield_saved": "The shelter protected the crew by {percent}%! Only {doseGain} dose units received.",
+  "shield_weak": "Strong event, weak shelter: +{doseGain} dose units.",
+  "life_low": "Life support is low. Take care of air and food!",
+  "quiet_science": "Quiet day: great for science!"
+}

@@ -1,0 +1,14 @@
+{
+  "day1": {
+    "text": "MOCK: A calm morning at the base. A particle cloud left the Sun.",
+    "lesson": "MOCK: A CME takes 1–3 days to reach the Moon."
+  },
+  "day2": {
+    "text": "MOCK: Class M flare.",
+    "lesson": "MOCK: Flare light takes 8 minutes."
+  },
+  "day3": {
+    "text": "MOCK: The particle cloud arrived!",
+    "lesson": "MOCK: The Moon has no magnetic field."
+  }
+}
