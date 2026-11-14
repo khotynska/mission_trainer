@@ -1,7 +1,7 @@
 /* ==========================================================================
    Junior Astronaut — дизайн-система «піксель-арт»
    Власник: Dev 5 (Briefing UI). Візуальна мова взята зі стартового екрана (гілка role6):
-   Press Start 2P, нічне небо з червоним горизонтом, піксельний пейзаж,
+   Pixelify Sans, нічне небо з червоним горизонтом, піксельний пейзаж,
    квадратні рамки й жорсткі тіні. Довідка для команди: src/styles/README.md
 
    Принципи:
@@ -19,7 +19,7 @@
    ========================================================================== */
 
 /* Шрифти (OFL). Порада на майбутнє: self-host у src/styles/fonts, щоб не звертатися до Google (GDPR). */
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Tiny5&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&family=Tiny5&display=swap');
 
 /* 1. Токени ---------------------------------------------------------------- */
 :root {
@@ -88,7 +88,7 @@
 
   /* Шрифти */
   --font: 'Tiny5', ui-rounded, 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
-  --font-pixel: 'Press Start 2P', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  --font-pixel: 'Pixelify Sans', 'Tiny5', ui-rounded, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-mono: ui-monospace, 'SF Mono', 'Cascadia Mono', 'Roboto Mono', Menlo, Consolas, monospace;
 
   /* Розміри: основний текст (Tiny5 візуально дрібніший, тому шкала трохи більша) */
@@ -98,15 +98,15 @@
   --fs-lg: 1.3125rem;
   --fs-xl: clamp(1.375rem, 1.2rem + 0.8vw, 1.625rem);
   --fs-2xl: clamp(1.625rem, 1.35rem + 1.3vw, 2.125rem);
-  /* Розміри: піксельний шрифт (широкий: 1 символ ≈ 1em, тому окрема шкала) */
-  --fs-px-xs: 0.5625rem;
-  --fs-px-sm: 0.6875rem;
-  --fs-px-md: 0.8125rem;
-  --fs-px-lg: clamp(0.8125rem, 0.72rem + 0.45vw, 1rem);
-  --fs-px-xl: clamp(0.9375rem, 0.78rem + 0.8vw, 1.3125rem);
+  /* Розміри: піксельний шрифт (Pixelify Sans: пропорційний, з кирилицею; окрема шкала для заголовків, кнопок і чисел) */
+  --fs-px-xs: 0.875rem;
+  --fs-px-sm: 1rem;
+  --fs-px-md: 1.125rem;
+  --fs-px-lg: clamp(1.125rem, 1rem + 0.5vw, 1.375rem);
+  --fs-px-xl: clamp(1.375rem, 1.15rem + 1vw, 1.875rem);
   --lh: 1.4;
   --lh-tight: 1.25;
-  --lh-pixel: 1.7;
+  --lh-pixel: 1.3;
   --fw-regular: 400;
   --fw-medium: 500;
   --fw-bold: 700;
@@ -301,7 +301,7 @@ body {
 
 /* 6. Кнопки ------------------------------------------------------------------
    Голий <button> — піксельна рамка, читабельний шрифт (безпечно для будь-якого тексту).
-   .btn — повний стиль стартового екрана: Press Start 2P, ВЕЛИКІ ЛІТЕРИ. */
+   .btn — повний стиль стартового екрана: Pixelify Sans, ВЕЛИКІ ЛІТЕРИ. */
 :where(button),
 .btn {
   appearance: none;
@@ -350,7 +350,7 @@ body {
 .btn:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
 
 .btn--lg { min-height: 56px; padding: 14px 22px; font-size: var(--fs-px-md); }
-/* Стрілка / emoji всередині піксельної кнопки: у Press Start 2P їх немає, без цього вони крихітні */
+/* Стрілка / emoji всередині піксельної кнопки: у піксельному шрифті їх немає, без цього вони крихітні */
 .btn > [aria-hidden='true'] { font-family: var(--font); font-size: 1.6em; line-height: 0; }
 .btn--block { width: 100%; }
 .btn--secondary { background: var(--px-navy); color: var(--text); border-color: var(--px-orange); box-shadow: 4px 4px 0 var(--px-wine); }

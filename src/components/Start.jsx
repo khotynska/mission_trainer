@@ -56,7 +56,7 @@ const CSS = `
 /* Мова: правий верхній кут */
 .ja-lang { grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 12px; }
 .ja-lang button {
-  font: inherit; font-size: 10px; min-width: 55px; min-height: 45px;
+  font: inherit; font-size: 15px; min-width: 55px; min-height: 45px;
   background: rgba(7,10,34,.8); color: var(--px-cream); border: 3px solid var(--px-blue);
   cursor: pointer; box-shadow: 3px 3px 0 var(--px-blue-shadow);
 }
@@ -72,8 +72,8 @@ const CSS = `
   font-weight: 400; letter-spacing: 2px; overflow-wrap: break-word; max-width: 100%;
   text-shadow: 3px 0 var(--px-red), -3px 0 var(--px-red), 0 3px var(--px-red), 0 -3px var(--px-red), 6px 6px 0 var(--px-wine);
 }
-.ja-sub { margin: 0 0 24px; font-size: clamp(11px, 1.2vw, 16px); color: var(--px-coral); line-height: 1.8; text-shadow: 2px 2px 0 #3a1408; }
-/* Історію читають діти 7–12: довгий текст — читабельним піксельним Tiny5, а не дрібним Press Start 2P */
+.ja-sub { margin: 0 0 24px; font-size: clamp(16px, 1.6vw, 22px); color: var(--px-coral); line-height: 1.4; text-shadow: 2px 2px 0 #3a1408; }
+/* Історію читають діти 7–12: довгий текст — читабельним піксельним Tiny5, а не піксельним шрифтом заголовків */
 .ja-story {
   width: 100%; max-width: 780px; box-sizing: border-box; margin: 0;
   font-family: var(--font); font-size: clamp(1.0625rem, 0.95rem + 0.4vw, 1.3125rem); line-height: 1.5; padding: 22px;
@@ -81,7 +81,7 @@ const CSS = `
   overflow-wrap: break-word; hyphens: auto;
 }
 .ja-bold { color: var(--px-orange); }
-.ja-patches-box { margin-top: 20px; font-size: 10px; line-height: 1.8; }
+.ja-patches-box { margin-top: 20px; font-size: 15px; line-height: 1.4; }
 .ja-patches { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 10px; }
 
 /* Права колонка: планета зверху, під нею кнопки */
@@ -101,7 +101,7 @@ const CSS = `
 }
 .ja-btns { display: flex; flex-direction: column; gap: 16px; width: 100%; max-width: 440px; }
 .ja-btn {
-  width: 100%; font: inherit; font-size: clamp(10px, 1vw, 13px); min-height: 60px; padding: 14px 18px;
+  width: 100%; font: inherit; font-size: clamp(15px, 1.4vw, 19px); min-height: 60px; padding: 14px 18px;
   cursor: pointer; color: var(--px-cream); background: var(--px-navy); border: 4px solid var(--px-orange);
   box-shadow: 5px 5px 0 var(--px-wine); text-transform: uppercase; line-height: 1.8; text-align: center;
   overflow-wrap: break-word; transition: background .15s, transform .15s;
@@ -131,11 +131,11 @@ const CSS = `
   .ja-wrap { display: flex; flex-direction: column; align-items: center; gap: 20px; }
   .ja-lang { width: 100%; }
   .ja-title { font-size: clamp(20px, 7.5vw, 36px); letter-spacing: 1px; }
-  .ja-sub { font-size: 10px; margin-bottom: 14px; }
+  .ja-sub { font-size: 15px; margin-bottom: 14px; }
   .ja-story { font-size: 1.0625rem; padding: 14px; }
   .ja-orbit { width: 100px; }
   .ja-actions { width: 100%; gap: 20px; }
-  .ja-btn { min-height: 54px; font-size: 9px; }
+  .ja-btn { min-height: 54px; font-size: 14px; }
   .ja-land { height: 22%; }
 }
 `;
