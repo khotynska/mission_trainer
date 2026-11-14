@@ -1,3 +1,17 @@
 {
-  "title": "NASA data we used"
+  "title": "NASA data we used",
+  "intro": "Everything the Sun does in this game really happened in April and May 2024.",
+  "donki_title": "☀️ Space weather: NASA DONKI",
+  "donki_text": "Flares, plasma clouds (CMEs), radiation storms and magnetic storms from April 17 to May 16, 2024 come from NASA's DONKI database. Every briefing shows the ID of the real event, so you can find it in the database.",
+  "highlights_title": "Key events of the mission",
+  "highlight_1": "May 10, 2024: the strongest magnetic storm on Earth since 2003; people saw the northern lights even in Ukraine.",
+  "highlight_2": "May 11, 2024: an X5.8 flare and a radiation storm from the giant sunspot group AR 3664.",
+  "highlight_3": "May 14, 2024: an X8.7 flare, the strongest since 2017.",
+  "facts_title": "🌕 Facts about the Moon and the Sun",
+  "facts_text": "The facts and daily lessons were checked against NASA Science and the pages of the Apollo, SOHO, Parker Solar Probe and Artemis missions.",
+  "phases_title": "🌗 Day and night at the base",
+  "phases_text": "Our base is on the near side of the Moon. The full Moon was on April 23, 2024 (noon at the base) and the new Moon on May 8 (the middle of the night), so the game's night falls on May 1–14, just like in real life.",
+  "note_title": "⚠️ Honest note",
+  "note_text": "The base, the tokens and the radiation dose are made-up game numbers, not real measurements. Real astronauts have much more complex protection, and a whole team of scientists makes the decisions.",
+  "back": "← Back"
 }
