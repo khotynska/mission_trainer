@@ -1,6 +1,5 @@
 // Власник: Data Engineer. Завантажує сирі дані DONKI один раз.
 // Запуск: NASA_KEY=твій_ключ node scripts/fetchDonki.js
-
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -30,8 +29,9 @@ async function getJson(url) {
   }
   throw new Error(`Failed: ${url.replace(KEY ?? '###', '***')}`);
 }
+const START_FOR = { CME: '2024-04-07' };
 async function fetchType(type) {
-  const query = `startDate=${START}&endDate=${END}`;
+  const query = `startDate=${START_FOR[type] ?? START}&endDate=${END}`;
   try {
     return await getJson(`${CCMC}/${type}?${query}`);
   } catch (err) {
