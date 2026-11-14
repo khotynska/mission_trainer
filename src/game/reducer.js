@@ -2,6 +2,7 @@
 import { ACTIONS } from './contracts.js';
 import { createGame, startDay, resolveDay, resolveLaunch, checkEnd, checkWeekGoal } from './gameEngine.js';
 import { CONFIG } from './config.js';
+import { registerDayEvents } from '../i18n/index.js';
 
 const snapshot = (s) => ({ day: s.day, battery: s.battery, life: s.life, dose: s.dose, science: s.science, launchReady: s.launchReady });
 
@@ -22,6 +23,7 @@ function nextDay(state, days) {
 }
 
 export function makeReducer(days) {
+  registerDayEvents(days); // для запасних текстів days.events.<тип> в i18n
   return function reducer(state, action) {
     switch (action.type) {
       case ACTIONS.START_GAME:
