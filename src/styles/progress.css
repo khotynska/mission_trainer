@@ -1,0 +1,160 @@
+/* Екрани прогресу: тиждень, евакуація, старт ракети, сертифікат. Лише токени з theme.css. */
+
+/* Обгортки цих екранів живуть у колонці гри */
+.app > :where(.cert-wrap) { max-width: var(--content-max); margin: var(--gap-6) auto var(--gap-6); }
+
+/* ---- Кінець тижня ---- */
+.week { align-items: center; text-align: center; gap: var(--gap-3); }
+.week__title { text-align: center; }
+.week__badge { animation: week-pop 700ms var(--ease-bounce) backwards; }
+.week[data-passed] .week__badge { filter: drop-shadow(0 0 18px var(--sun)); }
+.week__name { font-family: var(--font-num); font-weight: 900; font-size: var(--fs-xl); color: var(--heading); }
+.week__line { font-size: var(--fs-lg); font-weight: var(--fw-bold); }
+.week__chips { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--gap-2); }
+.week__actions { align-self: stretch; justify-content: center; }
+
+/* ---- Евакуація ---- */
+.evac { gap: var(--gap-3); }
+.evac__art { font-size: 3.5rem; text-align: center; animation: evac-fly 1.6s var(--ease) infinite alternate; }
+.evac h2 { text-align: center; }
+.evac__pick { font-weight: var(--fw-bold); }
+.evac__days {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--gap-2);
+  padding: 0;
+  list-style: none;
+}
+.evac__day {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas: 'n n' 'icon dose' 'worst worst';
+  align-items: center;
+  gap: 2px var(--gap-2);
+  width: 100%;
+  padding: var(--gap-2) var(--gap-3);
+  background: var(--space-raised);
+  color: var(--text);
+  border: var(--border-w) solid var(--border-strong);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 0 var(--border-strong);
+  text-align: left;
+}
+.evac__day:hover:not(:disabled) { background: var(--space-raised); border-color: var(--accent); transform: translateY(-2px); }
+.evac__day[data-worst] { border-color: var(--danger); box-shadow: 0 4px 0 var(--danger); }
+.evac__day-n { grid-area: n; font-family: var(--font-num); font-weight: 900; color: var(--heading); }
+.evac__day-icon { grid-area: icon; font-size: 1.5rem; }
+.evac__day-dose { grid-area: dose; font-weight: var(--fw-bold); color: var(--danger); }
+.evac__worst { grid-area: worst; font-size: var(--fs-xs); font-weight: var(--fw-bold); color: var(--danger); }
+.evac__replay { position: absolute; top: 6px; right: 8px; }
+.evac__actions { justify-content: center; }
+.evac__safe { text-align: center; }
+
+/* ---- Старт ракети ---- */
+.launch { gap: var(--gap-3); }
+.launch__title { text-align: center; }
+.launch__pad { position: relative; height: 90px; display: grid; place-items: end center; }
+.launch__rocket { font-size: 4rem; line-height: 1; transform: rotate(-45deg); animation: rocket-idle 0.4s steps(2, end) infinite; }
+.launch__smoke { position: absolute; bottom: -6px; font-size: 1.8rem; opacity: 0; }
+.launch[data-picked='now'] .launch__rocket { animation: rocket-go 0.5s var(--ease) forwards; }
+.launch[data-picked='now'] .launch__smoke { animation: smoke 0.5s ease-out forwards; }
+
+/* ---- Сертифікат ---- */
+.cert {
+  --rank-color: var(--rank-bronze);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gap-3);
+  padding: var(--gap-6) var(--gap-4) var(--gap-5);
+  background: var(--space-panel);
+  border: 6px double var(--rank-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  text-align: center;
+  animation: week-pop 600ms var(--ease-bounce) backwards;
+}
+.cert[data-rank='silver'] { --rank-color: var(--rank-silver); }
+.cert[data-rank='gold'] { --rank-color: var(--rank-gold); }
+.cert__ribbon {
+  margin: calc(-1 * var(--gap-6)) 0 0;
+  padding: 6px 28px;
+  background: var(--rank-color);
+  color: var(--px-ink);
+  border-radius: 0 0 var(--radius) var(--radius);
+  font-family: var(--font-pixel);
+  font-size: var(--fs-px-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.cert__medal { font-size: 4.5rem; line-height: 1; animation: medal-swing 2s ease-in-out infinite; }
+.cert__title { margin: 0; font-family: var(--font-pixel); font-weight: 400; font-size: var(--fs-px-xl); color: var(--heading); }
+.cert__rank { margin: 0; font-family: var(--font-pixel); font-size: var(--fs-px-lg); color: var(--rank-color); }
+.cert__name {
+  width: 100%;
+  max-width: 360px;
+  padding: 10px;
+  background: transparent;
+  color: var(--text);
+  border: 0;
+  border-bottom: 3px dashed var(--rank-color);
+  font: inherit;
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-bold);
+  text-align: center;
+}
+.cert__text { margin: 0; font-size: var(--fs-lg); font-weight: var(--fw-bold); }
+.cert__stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--gap-2);
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.cert__stats li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--gap-2);
+  background: var(--space-raised);
+  border-radius: var(--radius);
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+.cert__stats li > span:first-child { font-size: 1.5rem; }
+.cert__stats b { font-family: var(--font-num); font-weight: 900; font-size: var(--fs-xl); color: var(--text); }
+.cert__badges {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--gap-3) var(--gap-2);
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.cert__badges li { display: flex; flex-direction: column; align-items: center; gap: var(--gap-1); opacity: 0.55; }
+.cert__badges li[data-earned] { opacity: 1; }
+.cert__badge-name { font-size: var(--fs-xs); font-weight: var(--fw-bold); line-height: 1.2; }
+.cert__hint { margin: 0; font-size: var(--fs-sm); color: var(--text-muted); }
+.cert__footer { margin: 0; font-size: var(--fs-sm); color: var(--text-muted); }
+.cert__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--gap-3); margin-top: var(--gap-4); }
+
+@keyframes week-pop { 0% { transform: scale(0.2); opacity: 0; } 70% { transform: scale(1.08); } 100% { transform: scale(1); opacity: 1; } }
+@keyframes evac-fly { to { transform: translate(12px, -8px); } }
+@keyframes rocket-idle { 50% { transform: rotate(-45deg) translateY(-2px); } }
+@keyframes rocket-go { 20% { transform: rotate(-45deg) translateY(4px); } 100% { transform: rotate(-45deg) translate(120px, -260px); opacity: 0; } }
+@keyframes smoke { 0% { opacity: 0; transform: scale(0.5); } 30% { opacity: 1; } 100% { opacity: 0; transform: scale(2.4) translateY(10px); } }
+@keyframes medal-swing { 50% { transform: rotate(8deg); } }
+
+@media (max-width: 520px) {
+  .cert__stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cert__badges { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media print {
+  .cert { box-shadow: none; animation: none; }
+  .confetti, .hud-float { display: none !important; }
+}

@@ -1,8 +1,42 @@
 {
-  "title": "Day result",
-  "normal": "The day passed calmly.",
-  "shield_saved": "The shelter protected the crew by {percent}%! Only {doseGain} dose units received.",
-  "shield_weak": "Strong event, weak shelter: +{doseGain} dose units.",
-  "life_low": "Life support is low. Take care of air and food!",
-  "quiet_science": "Quiet day: great for science!"
+  "title": "What happened",
+  "react": {
+    "storm": {
+      "shelter": "Hooray! The shelter blocked {percent} of the radiation!",
+      "science": "Oh no! The crew got ☢️ +{doseGain}.",
+      "repair": "The air is fixed, but ☢️ +{doseGain}."
+    },
+    "flare": {
+      "hide": "Smart! The flare passed with almost no harm.",
+      "science": "Experiment done, but ☢️ +{doseGain}.",
+      "repair": "The air is fixed, but ☢️ +{doseGain}."
+    },
+    "tutorial": {
+      "garden": "The garden grows — more air and food!",
+      "science": "Great! New discoveries!"
+    },
+    "rocket": {
+      "rocket": "The rocket is ready — we fly home tomorrow!",
+      "shelter": "We hid, but the rocket isn't ready."
+    },
+    "timeout": "⏰ Too slow! The crew just kept working."
+  },
+  "normal": "Day done! ☢️ +{doseGain}.",
+  "shield_saved": "The shelter blocked {percent} of the radiation!",
+  "shield_weak": "Weak shelter: ☢️ +{doseGain}.",
+  "life_low": "Air is low: {life} of 100!",
+  "quiet_science": "A quiet day — 🔬 +{science}!",
+  "changes": {
+    "heading": "What changed"
+  },
+  "retry": "Replay the day",
+  "launch": {
+    "ready": "🚀 The rocket is ready!",
+    "not_ready": "⛽ The rocket isn't ready — this day repeats."
+  },
+  "fact": {
+    "title": "Fact of the day",
+    "mars_title": "Next stop: Mars",
+    "source": "Source: {source}"
+  }
 }

@@ -1,14 +1,122 @@
 {
   "day1": {
-    "text": "MOCK: A calm morning at the base. A particle cloud left the Sun.",
-    "lesson": "MOCK: A CME takes 1–3 days to reach the Moon."
+    "text": "Hi, I'm Lira! The Sun flared (M1.6) and sent a plasma cloud our way.",
+    "lesson": "A plasma cloud takes a few days to reach the Moon, so we have time to prepare."
   },
   "day2": {
-    "text": "MOCK: Class M flare.",
-    "lesson": "MOCK: Flare light takes 8 minutes."
+    "text": "An M2.2 flare and two more plasma clouds are flying at us.",
+    "lesson": "Each flare class (A, B, C, M, X) is 10 times stronger than the one before."
   },
   "day3": {
-    "text": "MOCK: The particle cloud arrived!",
-    "lesson": "MOCK: The Moon has no magnetic field."
+    "text": "An M2.1 flare, and Earth has a magnetic storm with northern lights!",
+    "lesson": "Earth has a magnetic shield, but the Moon has none."
+  },
+  "day4": {
+    "text": "A quiet day: just a tiny C3.9 flare.",
+    "lesson": "Even on a quiet day, weak cosmic radiation reaches the Moon."
+  },
+  "day5": {
+    "text": "The plasma clouds from April 17–18 are almost at the Moon!",
+    "lesson": "The plasma cloud flew 150 million km in about 4 days."
+  },
+  "day6": {
+    "text": "Four M-class flares — the Sun is warming up!",
+    "lesson": "Flares explode in sunspots, where the magnetic field is tangled."
+  },
+  "day7": {
+    "text": "An M3.6 flare and three new plasma clouds are coming.",
+    "lesson": "NASA scientists calculate when a plasma cloud will arrive."
+  },
+  "day8": {
+    "text": "An M2.0 flare and one more plasma cloud — it will catch up with the others.",
+    "lesson": "A fast plasma cloud can catch up with a slow one."
+  },
+  "day9": {
+    "text": "The Sun is a bit calmer: just an M1.3 flare.",
+    "lesson": "Flare light takes 8 minutes; a plasma cloud takes days."
+  },
+  "day10": {
+    "text": "The plasma clouds are about to hit the Moon — good thing we knew in advance!",
+    "lesson": "One plasma cloud can weigh a billion tons."
+  },
+  "day11": {
+    "text": "An M3.0 flare, and the batteries charge well in the sunshine.",
+    "lesson": "A lunar day lasts about 14 Earth days."
+  },
+  "day12": {
+    "text": "The quietest day of the week — perfect for science!",
+    "lesson": "Regolith, the Moon's dust and pebbles, can shield a base from radiation."
+  },
+  "day13": {
+    "text": "An M3.7 flare, and the Sun sinks toward the horizon.",
+    "lesson": "The Moon always shows the same side to Earth."
+  },
+  "day14": {
+    "text": "An M9.5 flare — almost class X! Night is coming.",
+    "lesson": "An M9.5 flare is only a little weaker than X1."
+  },
+  "day15": {
+    "text": "The lunar night has come: energy is low now.",
+    "lesson": "A lunar night lasts 14 days and gets as cold as −173 °C."
+  },
+  "day16": {
+    "text": "An M2.7 flare, and a magnetic storm on Earth.",
+    "lesson": "Solar particles can reach the base even at night."
+  },
+  "day17": {
+    "text": "The first X-class flare (X1.6)! Radio may go quiet tomorrow.",
+    "lesson": "X-class flares disrupt radio contact."
+  },
+  "day18": {
+    "text": "The radio is noisy after the X flare, so no forecast.",
+    "lesson": "Flares \"blind\" the ionosphere, the layer radio signals travel through."
+  },
+  "day19": {
+    "text": "Two X-class flares at once: X1.3 and X1.2!",
+    "lesson": "A big sunspot group can flare many times in a row."
+  },
+  "day20": {
+    "text": "The plasma clouds are coming, plus an X4.5 flare!",
+    "lesson": "An X4.5 flare is about 4.5 times stronger than X1."
+  },
+  "day21": {
+    "text": "An M8.2 flare and two big plasma clouds are flying straight at us.",
+    "lesson": "The giant sunspot group AR 3664 is 15 times wider than Earth."
+  },
+  "day22": {
+    "text": "Two X1.0 flares from the giant sunspot!",
+    "lesson": "The Sun's activity rises and falls every 11 years, and 2024 is near the peak."
+  },
+  "day23": {
+    "text": "A radiation storm is starting — particles at nearly light speed!",
+    "lesson": "Radiation storm particles pass through thin walls."
+  },
+  "day24": {
+    "text": "The strongest magnetic storm in 20 years, and the radiation goes on!",
+    "lesson": "That night, people saw northern lights even in Ukraine."
+  },
+  "day25": {
+    "text": "An X5.8 flare — the strongest yet, and the radiation storm goes on!",
+    "lesson": "The best radiation shield is a thick layer of regolith or water."
+  },
+  "day26": {
+    "text": "An X1.0 flare, and Earth's storm is still echoing.",
+    "lesson": "During storms, scientists watch over satellites and power grids."
+  },
+  "day27": {
+    "text": "A new radiation storm! Hang on, sunrise is close.",
+    "lesson": "Astronauts wear dosimeters that count radiation."
+  },
+  "day28": {
+    "text": "An X8.7 flare — the strongest since 2017!",
+    "lesson": "The Sun turns about once a month, so the big sunspot is turning away."
+  },
+  "day29": {
+    "text": "Sunrise! The Sun is back over the base, with an X3.4 flare.",
+    "lesson": "Leaving the Moon is easier: gravity here is 6 times weaker."
+  },
+  "day30": {
+    "text": "Departure day, and the Sun is finally calm!",
+    "lesson": "All 30 days are real events from NASA DONKI, 2024."
   }
 }

@@ -1,0 +1,72 @@
+/* Святкування й тости (Confetti.jsx, BadgeToast.jsx). Лише токени з theme.css. */
+
+.confetti {
+  position: fixed;
+  left: 50%;
+  top: 42%;
+  z-index: 50;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+.confetti__piece {
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-size: 1.6rem;
+  opacity: 0;
+  animation: confetti-fly 1.3s var(--ease) forwards;
+}
+@keyframes confetti-fly {
+  0% { opacity: 1; transform: translate(-50%, -50%) scale(0.3); }
+  70% { opacity: 1; }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy) + 60px)) rotate(var(--rot)) scale(1); }
+}
+
+/* Тост «Новий значок!» */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: var(--gap-5);
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: var(--gap-3);
+  max-width: min(92vw, 420px);
+  padding: var(--gap-2) var(--gap-4) var(--gap-2) var(--gap-2);
+  background: var(--space-raised);
+  color: var(--text);
+  border: var(--frame-w) solid var(--sun);
+  border-radius: var(--radius-pill);
+  box-shadow: 0 6px 0 var(--frame-shadow);
+  transform: translateX(-50%);
+  animation: toast-in 3.2s var(--ease-bounce) forwards;
+}
+.toast__badge {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  border: var(--border-w) solid var(--sun);
+  font-size: 1.7rem;
+  animation: badge-spin 0.8s var(--ease-bounce);
+}
+.toast__title { font-family: var(--font-pixel); font-size: var(--fs-px-xs); text-transform: uppercase; color: var(--sun); }
+.toast__name { font-weight: var(--fw-bold); font-size: var(--fs-md); line-height: 1.2; }
+
+@keyframes toast-in {
+  0% { opacity: 0; transform: translate(-50%, 40px) scale(0.8); }
+  10% { opacity: 1; transform: translate(-50%, 0) scale(1.05); }
+  14% { transform: translate(-50%, 0) scale(1); }
+  88% { opacity: 1; transform: translate(-50%, 0); }
+  100% { opacity: 0; transform: translate(-50%, 20px); }
+}
+@keyframes badge-spin { from { transform: rotate(-180deg) scale(0.2); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .confetti { display: none; }
+  .toast { animation: none; }
+}

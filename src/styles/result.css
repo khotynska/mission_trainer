@@ -1,0 +1,61 @@
+/* Екран «Що сталося» (Result.jsx). Власник: Dev 5. Лише токени з theme.css. */
+
+.outcome { gap: var(--gap-3); }
+
+/* Великі іконки змін: ⚡ −3 · 🫁 0 · ☢️ +1,1 · 🔬 +20 */
+.deltas {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--gap-2);
+  padding: 0;
+  list-style: none;
+}
+.delta {
+  --trend-color: var(--text-muted);
+  --trend-bg: var(--space-sunken);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: var(--gap-2) var(--gap-1);
+  background: var(--trend-bg);
+  border: var(--border-w) solid var(--trend-color);
+  border-radius: var(--radius);
+  animation: delta-pop 300ms var(--ease-bounce) backwards;
+  animation-delay: calc(var(--i, 0) * 50ms);
+}
+.delta[data-trend='good'] { --trend-color: var(--ok); --trend-bg: var(--ok-soft); }
+.delta[data-trend='bad'] { --trend-color: var(--danger); --trend-bg: var(--danger-soft); }
+.delta__icon { font-size: 1.8rem; line-height: 1; }
+.delta__value {
+  font-family: var(--font-num);
+  font-weight: 900;
+  font-size: var(--fs-xl);
+  line-height: 1.2;
+  color: var(--trend-color);
+  white-space: nowrap;
+}
+
+.outcome__rocket { align-self: center; font-size: var(--fs-md); }
+
+/* Одна порада дня */
+.tip {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--gap-2);
+  padding: var(--gap-2) var(--gap-3);
+  background: var(--warning-soft);
+  border-radius: var(--radius);
+  font-weight: var(--fw-bold);
+}
+.tip__icon { font-size: 1.3rem; line-height: 1.2; }
+
+.outcome__actions { justify-content: space-between; }
+.outcome__actions > .btn--lg { margin-left: auto; }
+
+@keyframes delta-pop { from { opacity: 0; transform: scale(0.4) translateY(10px); } }
+
+@media (max-width: 420px) {
+  .delta__icon { font-size: 1.4rem; }
+  .delta__value { font-size: var(--fs-px-sm); }
+}

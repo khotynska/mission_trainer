@@ -1,24 +1,643 @@
-/* Спільна тема. Власник: Dev 5. Інші використовують лише змінні. */
+/* ==========================================================================
+   Junior Astronaut — дизайн-система «піксель-арт»
+   Власник: Dev 5 (Briefing UI). Візуальна мова взята зі стартового екрана (гілка role6):
+   Pixelify Sans, нічне небо з червоним горизонтом, піксельний пейзаж,
+   квадратні рамки й жорсткі тіні. Довідка для команди: src/styles/README.md
+
+   Принципи:
+   • Базові стилі елементів (button, h1–h4, a) обгорнуті в :where(): нульова
+     специфічність, тож класи й inline-стилі будь-якого екрана завжди сильніші.
+   • Піксельний шрифт лише для коротких рядків (заголовки екранів, .btn, числа).
+     Довгий текст набирається Nunito: округлий, дуже читабельний і з правильною українською
+     кирилицею (у піксельних шрифтах «д», «в», «з» легко сплутати з іншими літерами), тож нічого не вилазить за край.
+   • Скидання відступів (p, h*, ul…) діє лише всередині .screen / .meters,
+     щоб не ламати верстку екранів, які на нього не розраховують.
+   • Нічний режим: App.jsx ставить .phase-night на .app, і перевизначаються токени.
+   • Світла тема: App.jsx ставить data-theme="light" на .app (лише ігрові екрани).
+
+   Зміст: 1 токени · 2 ніч · 3 база · 4 тло · 5 екран · 6 кнопки · 7 примітиви ·
+          8 адаптив / доступність / друк
+   ========================================================================== */
+
+/* Шрифти (OFL). Порада на майбутнє: self-host у src/styles/fonts, щоб не звертатися до Google (GDPR). */
+@import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&family=Nunito:wght@400;600;700;800;900&family=Lexend:wght@400;600;700;800&family=Manrope:wght@400;600;700;800&display=swap');
+
+/* 1. Токени ---------------------------------------------------------------- */
 :root {
-  --space-dark: #0b1020;
-  --space-panel: #161d33;
+  color-scheme: dark;
+
+  /* Палітра піксель-арту (зі стартового екрана) */
+  --px-ink: #050826;
+  --px-night: #080b2c;
+  --px-navy: #101b55;
+  --px-blue: #79baff;
+  --px-blue-shadow: #07113a;
+  --px-cream: #fff0d0;
+  --px-gold: #ffd48b;
+  --px-orange: #ffad70;
+  --px-peach: #ff9d65;
+  --px-coral: #ff9870;
+  --px-red: #e66a48;
+  --px-wine: #642a46;
+  --px-plum: #7d3039;
+
+  /* Поверхні */
+  --space-dark: var(--px-night);
+  --space-panel: rgb(5 10 42 / 0.94);  /* екрани: крізь них ледь видно небо */
+  --space-raised: #111a4f;             /* вкладені картки */
+  --space-sunken: var(--px-ink);       /* треки шкал, поглиблення */
+  --card: var(--space-raised);         /* аліас: MissionMap / Certificate читають var(--card) */
+  --border: #27317a;
+  --border-strong: #4250b0;
+  --frame: var(--px-peach);            /* рамка екранів */
+  --frame-shadow: var(--px-wine);      /* жорстка тінь рамки */
+  --hud-frame: var(--px-blue);         /* рамка панелі ресурсів */
+  --hud-shadow: var(--px-blue-shadow);
+
+  /* Текст (контраст ≥ 4.5:1 на --space-raised) */
+  --text: var(--px-cream);
+  --text-muted: #c4c3e6;
   --moon-gray: #c9ced6;
-  --text: #f2f4f8;
-  --accent: #6ea8ff;
-  --warning: #ffb547;
-  --danger: #ff5c5c;
-  --ok: #4cd98a;
-  --radius: 14px;
-  --font: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --heading: var(--px-gold);
+  --eyebrow: var(--px-coral);
+
+  /* Акценти та статуси */
+  --accent: var(--px-orange);
+  --accent-strong: var(--px-gold);
+  --on-accent: #351323;                /* текст на --accent (≈ 9:1) */
+  --accent-soft: rgb(255 173 112 / 0.16);
+  --accent-shadow: var(--px-plum);
+  --info: var(--px-blue);
+  --info-soft: rgb(121 186 255 / 0.12);
+  --focus: var(--px-blue);
+  --sun: var(--px-gold);
+  --mars: var(--px-red);
+  --ok: #6ee69a;
+  --ok-soft: rgb(110 230 154 / 0.14);
+  --warning: #ffd166;
+  --warning-soft: rgb(255 209 102 / 0.14);
+  --danger: #ff5f6d;
+  --danger-soft: rgb(255 95 109 / 0.16);
+
+  /* Ресурси */
+  --res-battery: var(--px-gold);
+  --res-life: #5fd8ee;
+  --res-science: #c39bff;
+  --res-dose-ok: var(--ok);
+  --res-dose-warn: var(--warning);
+  --res-dose-danger: var(--danger);
+
+  /* Шрифти */
+  --font: 'Nunito', ui-rounded, 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+  --font-pixel: 'Pixelify Sans', ui-rounded, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-num: 'Nunito', ui-rounded, system-ui, sans-serif; /* числа: у піксельному шрифті «5» схожа на «S» */
+  --font-mono: ui-monospace, 'SF Mono', 'Cascadia Mono', 'Roboto Mono', Menlo, Consolas, monospace;
+
+  /* Розміри: основний текст (Nunito) */
+  --fs-xs: 0.875rem;
+  --fs-sm: 1rem;
+  --fs-md: 1.125rem;
+  --fs-lg: 1.25rem;
+  --fs-xl: clamp(1.375rem, 1.2rem + 0.8vw, 1.625rem);
+  --fs-2xl: clamp(1.625rem, 1.35rem + 1.3vw, 2.125rem);
+  /* Розміри: піксельний шрифт (Pixelify Sans: пропорційний, з кирилицею; окрема шкала для заголовків, кнопок і чисел) */
+  --fs-px-xs: 0.875rem;
+  --fs-px-sm: 1rem;
+  --fs-px-md: 1.125rem;
+  --fs-px-lg: clamp(1.125rem, 1rem + 0.5vw, 1.375rem);
+  --fs-px-xl: clamp(1.375rem, 1.15rem + 1vw, 1.875rem);
+  --lh: 1.4;
+  --lh-tight: 1.25;
+  --lh-pixel: 1.3;
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-bold: 700;
+
+  /* Відступи (шкала 4 px) */
+  --gap-1: 4px;
+  --gap-2: 8px;
+  --gap-3: 12px;
+  --gap-4: 16px;
+  --gap-5: 24px;
+  --gap-6: 32px;
+
+  /* Форми: мультяшні — товсті рамки, жорсткі тіні й м'які кути (відгук тестувальників).
+     Голий <button> лишається квадратним: на нього спираються стартовий екран і мапа. */
+  --radius-sm: 8px;
+  --radius: 12px;
+  --radius-lg: 18px;
+  --radius-pill: 999px;
+  --bubble-radius: 14px;
+  --border-w: 2px;
+  --frame-w: 3px;
+  --shadow-card: 6px 6px 0 var(--frame-shadow);
+  --shadow-hud: 5px 5px 0 var(--hud-shadow);
+  --shadow-sm: 3px 3px 0 rgb(0 0 0 / 0.35);
+  --shadow-btn: 4px 4px 0 var(--accent-shadow);
+  --glow-accent: none;
+  --focus-ring: 0 0 0 3px var(--space-dark), 0 0 0 6px var(--focus);
+
+  /* Рух: піксельні анімації йдуть кроками */
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --dur-fast: 150ms;
+  --dur: 250ms;
+  --dur-slow: 700ms;
+
+  /* Макет */
+  --content-max: 720px;
+  --app-gutter: var(--gap-4);         /* бічний відступ оболонки; full-bleed екрани компенсують його */
+  --tap-min: 44px;
+  --land-height: clamp(84px, 18vh, 190px);
+  --sky-body-size: 64px;
+
+  /* Ліра та бульбашки-репліки */
+  --lira-shell: #e8ecf8;
+  --lira-shine: #ffffff;
+  --lira-shade: #9aa6c8;
+  --lira-visor: var(--px-ink);
+  --lira-eye: #7ff0ff;
+  --bubble-bg: var(--space-raised);
+  --bubble-text: var(--text);
+  --bubble-border: var(--border-strong);
+
+  /* Сцена бази (BaseScene.jsx): небо Місяця чорне навіть удень */
+  --scene-frame: var(--border-strong);
+  --scene-sky-top: #04061a;
+  --scene-sky-bottom: #141a4a;
+  --scene-star: #fff6c9;
+  --scene-sun: #ffd166;
+  --scene-sun-core: #fff3c4;
+  --scene-sun-glow: rgb(255 209 102 / 0.25);
+  --scene-earth: #2f6fd6;
+  --scene-earth-land: #5be08f;
+  --scene-ground-back: #6f7488;
+  --scene-ground: #9aa0b4;
+  --scene-crater: #7d8296;
+  --scene-metal: #c9ced6;
+  --scene-dome: #f1f4fb;
+  --scene-dome-shade: #c9d1e6;
+  --scene-window: #ffd166;
+  --scene-window-sleep: #5b6aa8;
+  --scene-door: #3a4166;
+  --scene-panel: #2f6fd6;
+  --scene-panel-off: #263463;
+  --scene-panel-line: #9cc4ff;
+  --scene-bunker: #8a8fa3;
+  --scene-bunker-rock: #6f7488;
+  --scene-shield: rgb(110 230 154 / 0.2);
+  --scene-shield-line: #6ee69a;
+  --scene-rover: #ff9d65;
+  --scene-suit: #ffffff;
+  --scene-visor: #ffad70;
+  --scene-zzz: #cfe5ff;
+  --scene-flare: #fff3c4;
+  --scene-cme: #c77dff;
+  --scene-sep: #ff5f6d;
+
+  /* Ранги сертифіката */
+  --rank-gold: #ffd166;
+  --rank-silver: #c9d3e6;
+  --rank-bronze: #e0975e;
+
+  /* Астронавтка-інструкторка Нова (Tutorial.jsx) */
+  --nova-suit: #ffffff;
+  --nova-shade: #c9d1e6;
+  --nova-visor: #ffad70;
+  --nova-visor-shine: #fff3c4;
+  --nova-stripe: #ff6b4a;
+  --tour-dim: rgb(2 4 20 / 0.62);
+
+  /* Годинник бази */
+  --clock-bg: rgb(4 6 26 / 0.8);
+  --clock-text: #fff0d0;
+  --clock-border: rgb(255 255 255 / 0.28);
+  --clock-day: #ffd166;
+  --clock-night: #2a3473;
+
+  /* Тло (SVG data URI): небо, зорі, світило, пейзаж */
+  --sky: linear-gradient(180deg, #080b2c 0%, #101b55 38%, #174b91 72%, #bd493f 100%);
+  --sky-body: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Cg fill='%23ffad70'%3E%3Crect x='5' y='0' width='6' height='1'/%3E%3Crect x='3' y='1' width='10' height='1'/%3E%3Crect x='2' y='2' width='12' height='1'/%3E%3Crect x='1' y='3' width='14' height='1'/%3E%3Crect x='1' y='4' width='14' height='1'/%3E%3Crect x='0' y='5' width='16' height='1'/%3E%3Crect x='0' y='6' width='16' height='1'/%3E%3Crect x='0' y='7' width='16' height='1'/%3E%3Crect x='0' y='8' width='16' height='1'/%3E%3Crect x='0' y='9' width='16' height='1'/%3E%3Crect x='0' y='10' width='16' height='1'/%3E%3Crect x='1' y='11' width='14' height='1'/%3E%3Crect x='1' y='12' width='14' height='1'/%3E%3Crect x='2' y='13' width='12' height='1'/%3E%3Crect x='3' y='14' width='10' height='1'/%3E%3Crect x='5' y='15' width='6' height='1'/%3E%3C/g%3E%3Cg fill='%23ffd48b'%3E%3Crect x='4' y='2' width='7' height='1'/%3E%3Crect x='3' y='3' width='9' height='2'/%3E%3Crect x='2' y='5' width='10' height='5'/%3E%3Crect x='3' y='10' width='8' height='2'/%3E%3C/g%3E%3Cg fill='%23fff0d0'%3E%3Crect x='4' y='4' width='3' height='2'/%3E%3Crect x='4' y='6' width='1' height='1'/%3E%3C/g%3E%3C/svg%3E");
+  --stars-a: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260' shape-rendering='crispEdges'%3E%3Cg fill='%23fff6c9'%3E%3Crect x='18' y='24' width='3' height='3'/%3E%3Crect x='96' y='12' width='3' height='3'/%3E%3Crect x='170' y='40' width='3' height='3'/%3E%3Crect x='232' y='8' width='3' height='3'/%3E%3Crect x='60' y='88' width='3' height='3'/%3E%3Crect x='140' y='120' width='3' height='3'/%3E%3Crect x='30' y='180' width='3' height='3'/%3E%3Crect x='110' y='214' width='3' height='3'/%3E%3Crect x='190' y='236' width='3' height='3'/%3E%3Crect x='210' y='150' width='4' height='4'/%3E%3C/g%3E%3Cg fill='%23ff8b55'%3E%3Crect x='80' y='150' width='3' height='3'/%3E%3Crect x='240' y='100' width='3' height='3'/%3E%3C/g%3E%3C/svg%3E");
+  --stars-b: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='340' height='340' shape-rendering='crispEdges'%3E%3Cg fill='%23fff6c9'%3E%3Crect x='40' y='60' width='4' height='4'/%3E%3Crect x='150' y='30' width='4' height='4'/%3E%3Crect x='262' y='92' width='4' height='4'/%3E%3Crect x='320' y='200' width='4' height='4'/%3E%3Crect x='92' y='252' width='4' height='4'/%3E%3Crect x='204' y='300' width='4' height='4'/%3E%3Crect x='12' y='318' width='4' height='4'/%3E%3C/g%3E%3Cg fill='%23ffbd70'%3E%3Crect x='300' y='20' width='4' height='4'/%3E%3Crect x='176' y='170' width='4' height='4'/%3E%3C/g%3E%3C/svg%3E");
+  --land: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 50' preserveAspectRatio='none' shape-rendering='crispEdges'%3E%3Cpolygon fill='%237a2a24' points='0,50 0,30 10,30 10,24 18,24 18,18 28,18 28,24 36,24 36,30 52,30 52,36 70,36 70,30 80,30 80,22 90,22 90,14 100,14 100,22 110,22 110,30 126,30 126,24 136,24 136,30 160,30 160,50'/%3E%3Cpolygon fill='%23c4533a' points='0,50 0,38 20,38 20,34 40,34 40,40 64,40 64,36 96,36 96,42 120,42 120,36 146,36 146,40 160,40 160,50'/%3E%3Cpolygon fill='%23e0704a' points='0,50 0,44 30,44 30,42 60,42 60,46 100,46 100,44 130,44 130,47 160,47 160,50'/%3E%3C/svg%3E");
 }
 
-* { box-sizing: border-box; }
-body { margin: 0; background: var(--space-dark); color: var(--text); font-family: var(--font); }
-.app { max-width: 720px; margin: 0 auto; padding: 16px; min-height: 100vh; }
-.app.phase-night { --space-panel: #0f1426; }
-.screen { background: var(--space-panel); border-radius: var(--radius); padding: 20px; display: flex; flex-direction: column; gap: 12px; }
-.meters { margin-bottom: 12px; padding: 10px 14px; background: var(--space-panel); border-radius: var(--radius); }
-.row { display: flex; align-items: center; gap: 10px; }
+/* 1a. Токени-аліаси оголошені ще й на .app: var() у змінних обчислюється там, де змінну оголошено,
+   тож аліаси з :root не бачили б нічних і світлих перевизначень (тіні лишалися б «денними»). */
+.app {
+  color: var(--text);
+  --card: var(--space-raised);
+  --bubble-bg: var(--space-raised);
+  --bubble-text: var(--text);
+  --bubble-border: var(--border-strong);
+  --scene-frame: var(--border-strong);
+  --res-dose-ok: var(--ok);
+  --res-dose-warn: var(--warning);
+  --res-dose-danger: var(--danger);
+  --shadow-card: 6px 6px 0 var(--frame-shadow);
+  --shadow-hud: 5px 5px 0 var(--hud-shadow);
+  --shadow-btn: 4px 4px 0 var(--accent-shadow);
+  --focus-ring: 0 0 0 3px var(--space-dark), 0 0 0 6px var(--focus);
+}
+
+/* 2. Місячна ніч (дні 15–28): холодні рамки, в небі Земля -------------------- */
+.phase-night {
+  --sky: linear-gradient(180deg, #02031a 0%, #060a2b 45%, #0d1646 80%, #261f5c 100%);
+  --sky-body: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Cg fill='%232f6fd6'%3E%3Crect x='5' y='0' width='6' height='1'/%3E%3Crect x='3' y='1' width='10' height='1'/%3E%3Crect x='2' y='2' width='12' height='1'/%3E%3Crect x='1' y='3' width='14' height='1'/%3E%3Crect x='1' y='4' width='14' height='1'/%3E%3Crect x='0' y='5' width='16' height='1'/%3E%3Crect x='0' y='6' width='16' height='1'/%3E%3Crect x='0' y='7' width='16' height='1'/%3E%3Crect x='0' y='8' width='16' height='1'/%3E%3Crect x='0' y='9' width='16' height='1'/%3E%3Crect x='0' y='10' width='16' height='1'/%3E%3Crect x='1' y='11' width='14' height='1'/%3E%3Crect x='1' y='12' width='14' height='1'/%3E%3Crect x='2' y='13' width='12' height='1'/%3E%3Crect x='3' y='14' width='10' height='1'/%3E%3Crect x='5' y='15' width='6' height='1'/%3E%3C/g%3E%3Cg fill='%235be08f'%3E%3Crect x='3' y='3' width='4' height='3'/%3E%3Crect x='2' y='6' width='3' height='3'/%3E%3Crect x='9' y='8' width='4' height='3'/%3E%3Crect x='10' y='11' width='2' height='2'/%3E%3Crect x='8' y='2' width='3' height='2'/%3E%3C/g%3E%3Cg fill='%23fff0d0'%3E%3Crect x='6' y='7' width='3' height='1'/%3E%3Crect x='11' y='4' width='3' height='1'/%3E%3Crect x='4' y='12' width='3' height='1'/%3E%3C/g%3E%3Cg fill='%23163a7a'%3E%3Crect x='13' y='6' width='2' height='5'/%3E%3Crect x='12' y='11' width='2' height='2'/%3E%3C/g%3E%3C/svg%3E");
+  --land: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 50' preserveAspectRatio='none' shape-rendering='crispEdges'%3E%3Cpolygon fill='%231c1a48' points='0,50 0,30 10,30 10,24 18,24 18,18 28,18 28,24 36,24 36,30 52,30 52,36 70,36 70,30 80,30 80,22 90,22 90,14 100,14 100,22 110,22 110,30 126,30 126,24 136,24 136,30 160,30 160,50'/%3E%3Cpolygon fill='%232a2763' points='0,50 0,38 20,38 20,34 40,34 40,40 64,40 64,36 96,36 96,42 120,42 120,36 146,36 146,40 160,40 160,50'/%3E%3Cpolygon fill='%233a367e' points='0,50 0,44 30,44 30,42 60,42 60,46 100,46 100,44 130,44 130,47 160,47 160,50'/%3E%3C/svg%3E");
+  --space-panel: rgb(3 6 28 / 0.92);
+  --space-raised: #0c1443;
+  --border: #1f2a6e;
+  --border-strong: #3a48a6;
+  --frame: var(--px-blue);
+  --frame-shadow: var(--px-blue-shadow);
+  --hud-frame: #b9a7ff;
+  --hud-shadow: #1b1446;
+  --heading: #cfe5ff;
+  --eyebrow: #9fc9ff;
+  --accent: var(--px-blue);
+  --accent-strong: #c4e1ff;
+  --on-accent: #0a0f33;
+  --accent-soft: rgb(121 186 255 / 0.16);
+  --accent-shadow: #233a8f;
+  --focus: var(--px-gold);
+  --scene-sky-top: #010210;
+  --scene-sky-bottom: #0a0f33;
+  --scene-ground-back: #444a6c;
+  --scene-ground: #5d6386;
+  --scene-crater: #4c5274;
+  --scene-bunker: #5f6585;
+  --scene-bunker-rock: #4c5274;
+  --scene-dome-shade: #a9b3d6;
+}
+
+/* 2a. Світла тема (кнопка ☀️/🌙 на панелі гри; лише ігрові екрани, старт і мапа — без змін) */
+.app[data-theme='light'] {
+  color-scheme: light;
+  --space-dark: #fdf4e4;
+  --space-panel: rgb(255 251 243 / 0.96);
+  --space-raised: #ffffff;
+  --space-sunken: #f3e7d3;
+  --border: #ecd3b1;
+  --border-strong: #d29a66;
+  --frame: #ff8f52;
+  --frame-shadow: #e3b48c;
+  --hud-frame: #4f8ff0;
+  --hud-shadow: #bcd4f6;
+  --text: #2b1838;
+  --text-muted: #5f4b6b;
+  --moon-gray: #5f4b6b;
+  --heading: #a83a26;
+  --eyebrow: #b8522a;
+  --accent: #ff8f52;
+  --accent-strong: #ffae78;
+  --on-accent: #2b1123;
+  --accent-soft: rgb(255 143 82 / 0.16);
+  --accent-shadow: #c9652f;
+  --info: #2160c4;
+  --info-soft: rgb(33 96 196 / 0.1);
+  --focus: #2160c4;
+  --sun: #c27400;
+  --mars: #c63f2a;
+  --ok: #157a40;
+  --ok-soft: rgb(21 122 64 / 0.12);
+  --warning: #9a5a00;
+  --warning-soft: rgb(230 160 30 / 0.18);
+  --danger: #c4243a;
+  --danger-soft: rgb(196 36 58 / 0.1);
+  --res-battery: #c98500;
+  --res-life: #0a86a6;
+  --res-science: #7140de;
+  --res-dose-warn: #d08a00;
+  --bubble-border: #2b1838;
+  --scene-frame: #2b1838;
+  --rank-gold: #c99200;
+  --rank-silver: #7f8ba3;
+  --rank-bronze: #b0652f;
+  --tour-dim: rgb(43 24 56 / 0.5);
+  --focus-ring: 0 0 0 3px #fff, 0 0 0 6px var(--focus);
+  --sky: linear-gradient(180deg, #bfe3ff 0%, #e6f2ff 45%, #ffe9cf 80%, #ffc9a8 100%);
+  --stars-a: none;
+  --stars-b: none;
+}
+.app[data-theme='light'].phase-night {
+  --sky: linear-gradient(180deg, #c9d2ff 0%, #e4e1ff 55%, #d8cdfa 100%);
+  --space-panel: rgb(247 248 255 / 0.96);
+  --space-raised: #ffffff;
+  --space-sunken: #e8eafb;
+  --border: #c9cff2;
+  --border-strong: #7d89d6;
+  --frame: #4f7ff0;
+  --frame-shadow: #b3c3f4;
+  --hud-frame: #7b61e8;
+  --hud-shadow: #cfc6f7;
+  --heading: #2c3f9a;
+  --eyebrow: #3d55b8;
+  --accent: #6f9cff;
+  --accent-strong: #9dbcff;
+  --on-accent: #0b1440;
+  --accent-soft: rgb(79 127 240 / 0.14);
+  --accent-shadow: #3d5fc4;
+  --focus: #b8522a;
+}
+.app[data-theme='light'] .btn--secondary,
+.app[data-theme='light'] .btn--alt { background: var(--space-raised); color: var(--text); }
+.app[data-theme='light'] .btn--danger { color: #fff; border-color: #8a1424; }
+
+/* 3. База ------------------------------------------------------------------ */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  /* Страховка: ніщо не створює горизонтального скролу сторінки (напр. width: 100vw зі скролбаром) */
+  overflow-x: clip;
+  background: var(--space-dark);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: var(--fs-md);
+  line-height: var(--lh);
+  overflow-wrap: break-word;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+:where(h1, h2, h3, h4) { line-height: var(--lh-tight); font-weight: var(--fw-bold); overflow-wrap: break-word; hyphens: auto; }
+:where(code) { font-family: var(--font-mono); font-size: 0.9em; }
+:where(a) { color: var(--px-blue); text-underline-offset: 3px; }
+:where(a:hover) { color: var(--text); }
+:where(img, video) { max-width: 100%; height: auto; }
+
+::selection { background: var(--accent); color: var(--on-accent); }
+
+:where(:focus-visible) { outline: 3px solid var(--focus); outline-offset: 3px; }
+/* Програмний фокус на заголовок екрана (для скрінрідерів) — без рамки */
+[tabindex='-1']:focus { outline: none; }
+
+/* Скидання відступів лише всередині компонентів дизайн-системи */
+:where(.screen, .meters) :where(h1, h2, h3, h4, p, ul, ol, dl, dd, figure, blockquote) { margin: 0; }
+
+/* 4. Тло: небо із зорями, що мерехтять, і піксельний пейзаж ------------------ */
+/* Оболонка на всю ширину вікна. Екрани дизайн-системи (.meters, .screen) центруються в колонці
+   --content-max; екрани з власною розкладкою (<main> зі стартом, мапою…) керують шириною самі,
+   а full-bleed екран розтягується через margin-inline: calc(-1 * var(--app-gutter)) — без 100vw,
+   який на десктопі зі скролбаром дає горизонтальну прокрутку. */
+.app {
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding-inline: var(--app-gutter);
+}
+
+.app > :where(.meters, .screen) { max-width: var(--content-max); margin-inline: auto; }
+.app > :where(.meters, .screen):first-child { margin-top: var(--app-gutter); }
+.app > :where(.screen):last-child { margin-bottom: var(--gap-6); }
+
+.app::before,
+.app::after {
+  content: '';
+  position: fixed;
+  z-index: -1;
+  pointer-events: none;
+  image-rendering: pixelated;
+}
+
+.app::before {
+  inset: 0;
+  background-color: var(--space-dark);
+  background-image: var(--stars-b), var(--stars-a), var(--sky-body), var(--sky);
+  background-repeat: repeat, repeat, no-repeat, no-repeat;
+  background-position: 0 0, 0 0, right 7% top 7%, 0 0;
+  background-size: 340px 340px, 260px 260px, var(--sky-body-size) var(--sky-body-size), 100% 100%;
+  animation: sky-twinkle 2.4s steps(1, end) infinite;
+}
+
+.app::after {
+  inset: auto 0 0;
+  height: var(--land-height);
+  background: var(--land) center bottom / 100% 100% no-repeat;
+}
+
+/* Мерехтіння: шар зірок B вмикається/вимикається (дешево, без JS) */
+@keyframes sky-twinkle {
+  50% { background-size: 0 0, 260px 260px, var(--sky-body-size) var(--sky-body-size), 100% 100%; }
+}
+
+/* 5. Екран ------------------------------------------------------------------- */
+.screen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-4);
+  min-width: 0;
+  padding: var(--gap-5);
+  background: var(--space-panel);
+  border: var(--frame-w) solid var(--frame);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  /* fill-mode backwards: після анімації transform не лишається (не ламає position: fixed у нащадках) */
+  animation: screen-in 240ms steps(4, end) backwards;
+}
+
+.screen :where(h1, h2) {
+  font-family: var(--font-pixel);
+  font-size: var(--fs-px-xl);
+  font-weight: 400;
+  line-height: var(--lh-pixel);
+  color: var(--heading);
+  text-shadow: 2px 2px 0 var(--frame-shadow);
+}
+
+.screen :where(h3) {
+  font-family: var(--font-pixel);
+  font-size: var(--fs-px-md);
+  font-weight: 400;
+  line-height: var(--lh-pixel);
+}
+
+.screen__header { display: flex; flex-direction: column; gap: var(--gap-1); min-width: 0; }
+.screen__actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--gap-4); margin-top: var(--gap-2); }
+
+@keyframes screen-in {
+  from { opacity: 0; transform: translateY(8px); }
+}
+
+/* 6. Кнопки ------------------------------------------------------------------
+   Голий <button> — піксельна рамка, читабельний шрифт (безпечно для будь-якого тексту).
+   .btn — повний стиль стартового екрана: Pixelify Sans, ВЕЛИКІ ЛІТЕРИ. */
+:where(button),
+.btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--gap-2);
+  min-width: var(--tap-min);
+  min-height: var(--tap-min);
+  max-width: 100%;
+  padding: 8px 16px;
+  border: var(--border-w) solid var(--accent-strong);
+  border-radius: 0;
+  background: var(--accent);
+  color: var(--on-accent);
+  box-shadow: var(--shadow-btn);
+  font: inherit;
+  font-weight: var(--fw-bold);
+  line-height: 1.25;
+  text-align: center;
+  text-decoration: none;
+  white-space: normal;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 80ms steps(2, end), box-shadow 80ms steps(2, end), background-color var(--dur-fast) ease, color var(--dur-fast) ease;
+}
+
+.btn {
+  padding: 10px 18px;
+  border-width: var(--frame-w);
+  border-radius: var(--radius);
+  font-family: var(--font-pixel);
+  font-size: var(--fs-px-sm);
+  font-weight: 400;
+  line-height: var(--lh-pixel);
+  text-transform: uppercase;
+}
+
+:where(button:hover:not(:disabled)),
+.btn:hover:not(:disabled) { background: var(--accent-strong); }
+
+:where(button:active:not(:disabled)),
+.btn:active:not(:disabled) { transform: translate(3px, 3px); box-shadow: 1px 1px 0 var(--accent-shadow); }
+
+:where(button:disabled),
+.btn:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
+
+.btn--lg { min-height: 56px; padding: 14px 22px; font-size: var(--fs-px-md); }
+/* Стрілка / emoji всередині піксельної кнопки: у піксельному шрифті їх немає, без цього вони крихітні */
+.btn > [aria-hidden='true'] { font-family: var(--font); font-size: 1.6em; line-height: 0; }
+.btn--block { width: 100%; }
+.btn--secondary { background: var(--px-navy); color: var(--text); border-color: var(--px-orange); box-shadow: 4px 4px 0 var(--px-wine); }
+.btn--secondary:hover:not(:disabled) { background: var(--px-orange); color: var(--on-accent); }
+.btn--alt { background: var(--px-navy); color: var(--text); border-color: var(--px-blue); box-shadow: 4px 4px 0 var(--px-blue-shadow); }
+.btn--alt:hover:not(:disabled) { background: var(--px-blue); color: #0a0f33; }
+.btn--danger { background: var(--danger); color: #2a0710; border-color: #ffb3ba; box-shadow: 4px 4px 0 #5c1020; }
+
+/* 7. Примітиви ----------------------------------------------------------------- */
+.card {
+  padding: var(--gap-4);
+  background: var(--space-raised);
+  border: var(--border-w) solid var(--border-strong);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gap-1);
+  max-width: 100%;
+  padding: 3px 10px;
+  background: var(--space-sunken);
+  border: var(--border-w) solid var(--border-strong);
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-bold);
+  line-height: 1.3;
+}
+.chip--pixel { font-family: var(--font-pixel); font-size: var(--fs-px-xs); font-weight: 400; line-height: 1.7; text-transform: uppercase; }
+/* Emoji всередині піксельного тексту інакше стає крихітним */
+.chip__icon { flex: none; font-size: 1rem; line-height: 1; }
+
+.eyebrow {
+  font-family: var(--font-pixel);
+  font-size: var(--fs-px-xs);
+  font-weight: 400;
+  line-height: var(--lh-pixel);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--eyebrow);
+}
+
+.px-text { font-family: var(--font-pixel); font-weight: 400; line-height: var(--lh-pixel); }
+
+/* Повідомлення-блок: іконка + текст. Тон: інфо (типово), --ok, --warning, --danger */
+.callout {
+  --callout-color: var(--info);
+  --callout-bg: var(--info-soft);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: var(--gap-1) var(--gap-3);
+  padding: var(--gap-3) var(--gap-4);
+  background: var(--callout-bg);
+  border: var(--border-w) solid var(--callout-color);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+.callout--ok { --callout-color: var(--ok); --callout-bg: var(--ok-soft); }
+.callout--warning { --callout-color: var(--warning); --callout-bg: var(--warning-soft); }
+.callout--danger { --callout-color: var(--danger); --callout-bg: var(--danger-soft); }
+.callout__icon { font-size: 1.375rem; line-height: 1.2; }
+.callout__body { display: flex; flex-direction: column; gap: var(--gap-1); min-width: 0; }
+.callout__title { font-weight: var(--fw-bold); color: var(--callout-color); }
+
+/* Утиліти (лишаються для сумісності з наявними екранами) */
+.row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--gap-3); }
+.muted { color: var(--text-muted); }
+.ok { color: var(--ok); }
 .warning { color: var(--warning); }
 .danger { color: var(--danger); }
-button { background: var(--accent); color: #fff; border: 0; border-radius: 10px; padding: 10px 16px; font-size: 16px; cursor: pointer; }
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* 8. Адаптив / доступність / друк ------------------------------------------- */
+/* Сонце / Земля в небі — лише там, де вони не опиняються під панелями */
+@media (max-width: 799px) {
+  :root { --sky-body-size: 0px; }
+}
+
+@media (max-width: 480px) {
+  :root { --land-height: clamp(64px, 14vh, 120px); --app-gutter: var(--gap-3); }
+  .screen { padding: var(--gap-4); box-shadow: 4px 4px 0 var(--frame-shadow); }
+  .screen__actions > :where(button, .btn) { flex: 1 1 100%; }
+}
+
+@media (max-width: 360px) {
+  .screen { padding: var(--gap-3); }
+  .btn { padding-inline: 12px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media print {
+  :root { color-scheme: light; --text: #111; --text-muted: #444; --heading: #111; --space-panel: #fff; --space-raised: #fff; --border: #ccc; --frame: #999; }
+  body { background: #fff; }
+  .app::before,
+  .app::after { display: none; }
+  .screen { box-shadow: none; animation: none; }
+}

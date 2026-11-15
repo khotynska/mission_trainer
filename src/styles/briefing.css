@@ -1,0 +1,70 @@
+/* Екран дня (Briefing.jsx). Власник: Dev 5. Лише токени з theme.css. */
+
+.day { gap: var(--gap-3); }
+
+/* Дата та кнопки поверх сцени */
+.day__date {
+  position: absolute;
+  top: var(--gap-2);
+  right: var(--gap-2);
+  padding: 2px 10px;
+  background: var(--clock-bg);
+  color: var(--clock-text);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-num);
+  font-weight: 800;
+  font-size: var(--fs-sm);
+}
+.day__skip {
+  position: absolute;
+  right: var(--gap-2);
+  bottom: var(--gap-2);
+  min-height: 40px;
+  padding: 4px 14px;
+  background: var(--clock-bg);
+  color: var(--clock-text);
+  border: var(--border-w) solid var(--clock-border);
+  border-radius: var(--radius-pill);
+  box-shadow: none;
+  font-weight: var(--fw-bold);
+}
+.day__skip:hover:not(:disabled) { background: var(--accent); color: var(--on-accent); }
+.day__status {
+  position: absolute;
+  left: var(--gap-2);
+  bottom: var(--gap-2);
+  padding: 2px 10px;
+  background: var(--clock-bg);
+  color: var(--clock-text);
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-bold);
+}
+
+.day__chips { display: flex; flex-wrap: wrap; gap: var(--gap-1); margin-top: var(--gap-2); }
+.chip--danger { color: var(--danger); border-color: var(--danger); background: var(--danger-soft); }
+.chip--warning { color: var(--warning); border-color: var(--warning); background: var(--warning-soft); }
+.chip--ok { color: var(--ok); border-color: var(--ok); background: var(--ok-soft); }
+
+/* Підпис-джерело (для суддів: дата й ID DONKI) — дрібно й непомітно */
+.source-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-1) var(--gap-3);
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+.source-note a { color: inherit; }
+.source-note summary { cursor: pointer; }
+.source-note__ids { display: flex; flex-wrap: wrap; gap: var(--gap-1); margin-top: var(--gap-1); }
+.source-note code {
+  max-width: 100%;
+  padding: 1px 6px;
+  background: var(--space-sunken);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  overflow-wrap: anywhere;
+}

@@ -1,5 +1,6 @@
 // Ігровий рушій: чисті функції, без React. Власник: Tech Lead.
 import { CONFIG, WEEK_GOALS } from './config.js';
+import { makeDilemma } from './dilemmas.js';
 
 export function createGame(lang = 'ua') {
   return {
@@ -17,14 +18,46 @@ export function createGame(lang = 'ua') {
     weekSnapshot: null,
     weekLog: [],
     endReason: null,
-    timerOn: false,
     lastWeekResult: null,
     launchReady: false,
+    // ---- темп і досвід дитини ----
+    timerOn: true,          // дилеми з таймером (можна вимкнути 🐢)
+    theme: 'dark',          // 'dark' | 'light'
+    sound: true,
+    tutorial: false,        // true = зараз іде інтерактивна інструкція
+    tutorialDone: false,    // інструкцію вже пройдено (зберігається)
+    daySnapshot: null,      // стан на початок зіграного дня (для «Переграти день»)
+    history: [],            // зіграні дні: { day, date, event, choice, best, doseGain, snap } — можна переграти будь-який
+    calmLog: [],            // спокійні дні, що пройшли на автопілоті (картка-підсумок)
+    stats: { sheltered: 0, fast: 0 },
+    resume: null,           // останній ігровий екран (для «Продовжити» зі старту)
   };
 }
 
 const getDay = (days, n) => days.find((d) => d.day === n);
 const isX = (type) => type === 'X' || type === 'X5';
+
+/** Спокійний день — граємо його на автопілоті (див. CONFIG.calmEvents). */
+export function isCalmDay(days, n) {
+  const day = getDay(days, n);
+  if (!day) return false;
+  if (n === CONFIG.tutorialDay || n === CONFIG.launchPrepDay) return false;
+  return CONFIG.calmEvents.includes(day.mainEvent);
+}
+
+// Тип DONKI в ID ('…T13:59:00-SEP-001') для кожної головної події.
+const ID_TYPE = { SEP: ['SEP'], CME: ['GST', 'IPS'], EXTREME: ['GST', 'IPS'], X: ['FLR'], X5: ['FLR'], M: ['FLR'], QUIET: ['FLR'] };
+
+/** Година події (UTC, з дробом) з ID DONKI саме цього дня; інакше CONFIG.defaultEventHour. */
+export function eventHourOf(day) {
+  const parsed = (day.donkiIds || [])
+    .map((id) => id.match(/^(\d{4}-\d{2}-\d{2})T(\d{2}):(\d{2}).*-([A-Z]+)-\d+$/))
+    .filter((m) => m && m[1] === day.date)
+    .map((m) => ({ type: m[4], hour: Number(m[2]) + Number(m[3]) / 60 }));
+  const wanted = ID_TYPE[day.mainEvent] || [];
+  const hit = parsed.find((p) => wanted.includes(p.type)) || parsed.find((p) => p.type === 'FLR');
+  return hit ? hit.hour : CONFIG.defaultEventHour;
+}
 
 export function startDay(state, days) {
   const day = getDay(days, state.day);
@@ -46,7 +79,7 @@ export function startDay(state, days) {
       );
   }
 
-  return {
+  const briefing = {
     day: day.day,
     date: day.date,
     week: day.week,
@@ -56,7 +89,9 @@ export function startDay(state, days) {
     event: { type: day.mainEvent, detail: day.detail || '', donkiIds: day.donkiIds || [] },
     warnings,
     textKey: `day${day.day}`,
+    eventHour: eventHourOf(day),
   };
+  return { ...briefing, dilemma: makeDilemma(state, briefing) };
 }
 
 const spentOf = (a) => a.life + a.shield + a.science + (a.launch || 0);
@@ -140,7 +175,10 @@ export function checkWeekGoal(state) {
 
 export function getRank(state) {
   if (state.dose >= CONFIG.doseLimit || state.life <= 0) return null;
-  if (state.science >= CONFIG.scienceGoal && state.dose < 50) return 'gold';
-  if (state.science >= CONFIG.scienceGoal) return 'silver';
+  // Золото: і наука зібрана, і доза не дійшла до червоної зони. Срібло: одне з двох. Бронза: екіпаж удома.
+  const science = state.science >= CONFIG.scienceGoal;
+  const safe = state.dose < CONFIG.goldDoseMax;
+  if (science && safe) return 'gold';
+  if (science || safe) return 'silver';
   return 'bronze';
 }

@@ -1,0 +1,175 @@
+/* Панель гри (Meters.jsx): чотири великі іконки зі шкалами + кнопки. Власник: Dev 5. Лише токени з theme.css. */
+
+.meters {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  margin-bottom: var(--gap-3);
+  padding: var(--gap-2) var(--gap-3) var(--gap-3);
+  background: var(--space-panel);
+  border: var(--frame-w) solid var(--hud-frame);
+  border-top-width: 0;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  box-shadow: var(--shadow-hud);
+}
+
+.meters__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-2);
+  margin-bottom: var(--gap-2);
+}
+
+.meters__day {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gap-1);
+  font-family: var(--font-num);
+  font-weight: 900;
+  font-size: var(--fs-md);
+  line-height: 1.2;
+  color: var(--heading);
+}
+
+.hud-buttons { display: flex; gap: var(--gap-1); }
+.hud-btn {
+  min-width: 40px;
+  min-height: 40px;
+  padding: 0;
+  background: var(--space-raised);
+  border: var(--border-w) solid var(--border-strong);
+  border-radius: var(--radius-pill);
+  box-shadow: none;
+  font-size: 1.2rem;
+  line-height: 1;
+}
+.hud-btn:hover:not(:disabled) { background: var(--accent-soft); }
+.hud-btn:active:not(:disabled) { transform: scale(0.9); box-shadow: none; }
+.hud-btn[aria-pressed='true'] { border-color: var(--accent); }
+
+/* Floating-кнопки на ігрових екранах без панелі (тиждень, евакуація, старт ракети, сертифікат) */
+.hud-float {
+  position: fixed;
+  top: var(--gap-2);
+  right: var(--gap-2);
+  z-index: 6;
+}
+
+.meters__list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--gap-2) var(--gap-3);
+  padding: 0;
+  list-style: none;
+}
+@media (min-width: 640px) {
+  .meters__list { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+/* Одна шкала: велика іконка + назва + число + товста смужка */
+.meter {
+  --meter-color: var(--accent);
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--gap-2);
+  min-width: 0;
+  padding: var(--gap-1) var(--gap-2);
+  background: var(--space-raised);
+  border: var(--border-w) solid var(--border);
+  border-radius: var(--radius);
+}
+.meter[data-tone='battery'] { --meter-color: var(--res-battery); }
+.meter[data-tone='life'] { --meter-color: var(--res-life); }
+.meter[data-tone='science'] { --meter-color: var(--res-science); }
+.meter[data-tone='goal'] { --meter-color: var(--sun); }
+.meter[data-tone='ok'] { --meter-color: var(--res-dose-ok); }
+.meter[data-tone='warn'] { --meter-color: var(--res-dose-warn); }
+.meter[data-tone='danger'] { --meter-color: var(--res-dose-danger); }
+.meter[data-alert] { border-color: var(--meter-color); animation: meter-alert 1.2s steps(2, end) infinite; }
+
+.meter__icon { font-size: 1.75rem; line-height: 1; }
+.meter__body { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.meter__top { display: flex; align-items: baseline; justify-content: space-between; gap: var(--gap-1); min-width: 0; }
+.meter__label {
+  min-width: 0;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  line-height: 1.2;
+  color: var(--text-muted);
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+.meter__value {
+  font-family: var(--font-num);
+  font-weight: 900;
+  font-size: var(--fs-md);
+  line-height: 1.1;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.meter__track {
+  position: relative;
+  height: 12px;
+  overflow: hidden;
+  background: var(--space-sunken);
+  border-radius: var(--radius-pill);
+}
+.meter__fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: calc(var(--fill, 0) * 100%);
+  background: var(--meter-color);
+  border-radius: inherit;
+  box-shadow: inset 0 3px 0 rgb(255 255 255 / 0.3);
+  transition: width var(--dur-slow) var(--ease-bounce), background-color var(--dur) ease;
+}
+
+/* «+N / −N» вистрибує над шкалою й зникає */
+.meter__delta {
+  position: absolute;
+  bottom: -12px;
+  right: 6px;
+  padding: 1px 7px;
+  border: var(--border-w) solid currentColor;
+  border-radius: var(--radius-pill);
+  background: var(--space-raised);
+  font-family: var(--font-num);
+  font-weight: 900;
+  font-size: var(--fs-sm);
+  line-height: 1.3;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: meter-delta 2.6s var(--ease) forwards;
+}
+.meter__delta[data-trend='good'] { color: var(--ok); }
+.meter__delta[data-trend='bad'] { color: var(--danger); }
+
+@keyframes meter-delta {
+  0% { opacity: 0; transform: translateY(8px) scale(0.6); }
+  12% { opacity: 1; transform: translateY(0) scale(1.15); }
+  20% { transform: scale(1); }
+  80% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-6px); }
+}
+@keyframes meter-alert { 50% { box-shadow: 0 0 0 3px var(--meter-color); } }
+
+@media (max-width: 480px) {
+  .meters { padding: var(--gap-2); }
+  .meter__icon { font-size: 1.4rem; }
+  .meters__day { font-size: var(--fs-px-sm); }
+  .hud-btn { min-width: 36px; min-height: 36px; font-size: 1.05rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .meter__delta { animation: none !important; opacity: 1; }
+}
+
+/* Панель «звисає» з верхнього краю вікна */
+.app > .meters:first-child { margin-top: 0; }
+
+/* Екрани з плавучими кнопками: відступ, щоб кнопки не накривали рамку */
+.app > .hud-float + :where(.screen, .cert-wrap) { margin-top: 60px; }

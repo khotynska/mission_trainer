@@ -1,7 +1,53 @@
 {
-  "title": "Mission Control briefing",
-  "no_comms": "No contact with Earth after yesterday's flare. No forecast.",
-  "warning_cme": "⚠️ A cloud of solar particles arrives in {n} day(s).",
-  "real_event": "Real event from NASA archive · {date}",
-  "decide": "Make a decision"
+  "title": "A day at the base",
+  "lira": {
+    "name": "Lira",
+    "role": "Mission Control robot",
+    "avatar": "Lira the robot",
+    "avatar_offline": "Lira the robot: no signal",
+    "fallback": "Commander, look at the sky!"
+  },
+  "no_comms": "📡 No signal",
+  "clock": {
+    "label": "Base clock",
+    "fast": "⏩",
+    "skip": "⏩ Skip"
+  },
+  "scene": {
+    "label": "Moon base: {state}",
+    "sleep": "the crew is asleep",
+    "work": "the crew is working",
+    "shelter": "the crew is in the shelter"
+  },
+  "forecast": {
+    "cme_tomorrow": "🌊 Plasma cloud tomorrow!",
+    "cme": "🌊 Plasma cloud in {n} days"
+  },
+  "source": {
+    "real_event": "Real NASA event",
+    "ids": "DONKI IDs",
+    "archive_link": "NASA DONKI archive",
+    "new_tab": "(opens in a new tab)"
+  },
+  "meters": {
+    "title": "Base status",
+    "day_of": "Day {n}/{total}",
+    "value_of": "{value} of {max}",
+    "short": {
+      "battery": "Energy",
+      "life": "Air",
+      "dose": "Radiation",
+      "science": "Science"
+    }
+  },
+  "hud": {
+    "group": "Game settings",
+    "sound_off": "Mute sound",
+    "sound_on": "Turn sound on",
+    "theme_light": "Light theme",
+    "theme_dark": "Dark theme",
+    "help": "How to play",
+    "home": "Home",
+    "map": "Star path"
+  }
 }
