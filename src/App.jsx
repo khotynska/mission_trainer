@@ -23,6 +23,7 @@ import Meters from './components/Meters.jsx';
 import HudButtons from './components/HudButtons.jsx';
 import Tutorial from './components/Tutorial.jsx';
 import BadgeToast from './components/BadgeToast.jsx';
+import ChoreGame from './components/chores/ChoreGame.jsx';
 import { play, setSoundEnabled } from './components/sfx.js';
 
 registerDayEvents(days); // для запасних текстів days.events.<тип> в i18n
@@ -60,7 +61,12 @@ function init() {
 
 export default function App() {
   // Режим попереднього перегляду: ?screen=decision  (фейковий стан, дії пишуться в консоль)
-  const preview = new URLSearchParams(window.location.search).get('screen');
+  // Міні-гра окремо (лише dev): ?chore=panels | cook | call | clean | experiment | telescope | wall | generator | games | harvest | dash | signal
+  //   &v=2 — варіант (який раз граєш цю гру: інша страва, матеріал, повідомлення…)
+  const params = new URLSearchParams(window.location.search);
+  const preview = params.get('screen');
+  const chorePreview = import.meta.env.DEV ? params.get('chore') : null;
+  const choreVariant = Number(params.get('v')) || 0;
   const [realState, realDispatch] = useReducer(reducer, undefined, init);
 
   const state = preview ? { ...mockState, screen: preview, theme: realState.theme, sound: realState.sound } : realState;
@@ -87,6 +93,16 @@ export default function App() {
     document.addEventListener('pointerdown', onDown);
     return () => document.removeEventListener('pointerdown', onDown);
   }, []);
+
+  if (chorePreview) {
+    return (
+      <div className="app" data-theme={state.theme}>
+        <section className="screen day" style={{ marginTop: 16 }}>
+          <ChoreGame key={`${chorePreview}-${choreVariant}`} id={chorePreview} t={t} variant={choreVariant} onDone={(r) => console.log('chore done', chorePreview, r)} />
+        </section>
+      </div>
+    );
+  }
 
   const Screen = SCREENS[state.screen] ?? Start;
   return (

@@ -2,6 +2,7 @@
 // Екран «Що сталося» — причина й наслідок без сюрпризів:
 //   • Ліра реагує одним реченням на твій вибір;
 //   • рядок «Твій вибір»: рівно ті зміни, що були на кнопці;
+//   • рядок «Міні-гра»: що додала чи забрала гра (брудні панелі → менше ⚡, запізнився в укриття → ☢️ більше…);
 //   • рядок «Щодня»: екіпаж поїв (🫁 −5), космічний фон (☢️ +1), сонячні панелі вдень (⚡ +2);
 //   • «Цікавий факт» про космос після кожного рівня.
 // Добре рішення — звук, конфеті й радісна Ліра; погане — тривожна Ліра й «Переграти день».
@@ -27,6 +28,9 @@ const ROWS = Object.freeze([
   { id: 'science', icon: '🔬', polarity: 1 },
   { id: 'wall', icon: '🧱', polarity: 1 },
 ]);
+
+/** Великі ігри (з MoonShift) — їхній результат видно окремим рядком. */
+const BIG_GAMES = new Set(['panels', 'wall', 'dash', 'signal']);
 
 const trendOf = (v, polarity) => (Math.sign(v * polarity) > 0 ? 'good' : Math.sign(v * polarity) < 0 ? 'bad' : 'neutral');
 
@@ -68,7 +72,6 @@ export default function Result({ state, dispatch, t }) {
   if (!r || !b) return null;
 
   const choice = r.choice ?? { id: '', kind: 'chore', chore: false, timedOut: false };
-  const reaction = reactionText(t, b, choice);
   const sheltered = (b.level?.options?.[choice.option]?.shelter ?? false);
   const daily = r.dailyDeltas ?? {};
   const night = b.phase === 'night';
@@ -77,9 +80,17 @@ export default function Result({ state, dispatch, t }) {
     dose: t('result.daily_dose'),
     battery: t('result.daily_sun'),
   };
-  const fact = facts.find((f) => f.id === b.day) ?? facts[(b.day - 1) % facts.length];
+  const factId = r.factId ?? b.day;
+  const fact = facts.find((f) => f.id === factId) ?? facts[(b.day - 1) % facts.length];
   const canRetry = mood === 'worried' && Boolean(state.daySnapshot);
-  const choiceHasChanges = ROWS.some((row) => r.choiceDeltas?.[row.id]);
+  // Міні-гра могла змінити наслідок (брудні панелі, недобудована стіна, запізнився в укриття, зв'язок).
+  // «Твій вибір» показує числа з кнопки, а рядок гри — що додала чи забрала гра (разом — те, що отримав).
+  const game = r.game && (r.game.effect || !r.game.success || BIG_GAMES.has(r.game.id)) ? r.game : null;
+  const effectKey = game?.effect ? ROWS.find((row) => game.effect[row.id])?.id : null;
+  const choiceShown = { ...r.choiceDeltas };
+  if (effectKey) choiceShown[effectKey] = (choiceShown[effectKey] ?? 0) - game.effect[effectKey];
+  const choiceHasChanges = ROWS.some((row) => choiceShown[row.id]);
+  const reaction = reactionText(t, b, choice, game);
 
   return (
     <section className="screen outcome" lang={locale} data-mood={mood} aria-labelledby="outcome-title">
@@ -99,8 +110,18 @@ export default function Result({ state, dispatch, t }) {
       <div className="cause-rows">
         <p className="cause-row">
           <span className="cause-row__label">{t('result.your_choice')}</span>
-          {choiceHasChanges ? <DeltaChips deltas={r.choiceDeltas} fmt={fmt} /> : <span className="muted">{t('result.nothing')}</span>}
+          {choiceHasChanges ? <DeltaChips deltas={choiceShown} fmt={fmt} /> : <span className="muted">{t('result.nothing')}</span>}
         </p>
+        {game && (
+          <p className="cause-row cause-row--game" data-success={game.success}>
+            <span className="cause-row__label">🎮 {t(game.success ? 'games.result.win' : 'games.result.lose')}</span>
+            {effectKey ? (
+              <DeltaChips deltas={{ [effectKey]: game.effect[effectKey] }} fmt={fmt} labels={{ [effectKey]: t(`games.result.${game.effect.key}`) }} />
+            ) : (
+              <span className="muted">{t('games.result.full')}</span>
+            )}
+          </p>
+        )}
         <p className="cause-row cause-row--daily">
           <span className="cause-row__label">📅 {t('result.daily')}</span>
           <DeltaChips deltas={daily} fmt={fmt} labels={dailyLabels} />

@@ -273,75 +273,76 @@
   --scene-dome-shade: #a9b3d6;
 }
 
-/* 2a. Світла тема (кнопка ☀️/🌙 на панелі гри; лише ігрові екрани, старт і мапа — без змін) */
+/* 2a. Світла тема «пастельні сутінки» (кнопка ☀️/🌙 на старті, мапі й у грі).
+   Без чисто білого: приглушене бузково-блакитне небо, м'які бузкові панелі, темно-фіолетовий текст.
+   Так світла тема не сліпить і лишається «космічною», як темна. */
 .app[data-theme='light'] {
   color-scheme: light;
-  --space-dark: #fdf4e4;
-  --space-panel: rgb(255 251 243 / 0.96);
-  --space-raised: #ffffff;
-  --space-sunken: #f3e7d3;
-  --border: #ecd3b1;
-  --border-strong: #d29a66;
-  --frame: #ff8f52;
-  --frame-shadow: #e3b48c;
-  --hud-frame: #4f8ff0;
-  --hud-shadow: #bcd4f6;
-  --text: #2b1838;
-  --text-muted: #5f4b6b;
-  --moon-gray: #5f4b6b;
-  --heading: #a83a26;
-  --eyebrow: #b8522a;
-  --accent: #ff8f52;
-  --accent-strong: #ffae78;
-  --on-accent: #2b1123;
-  --accent-soft: rgb(255 143 82 / 0.16);
-  --accent-shadow: #c9652f;
-  --info: #2160c4;
-  --info-soft: rgb(33 96 196 / 0.1);
-  --focus: #2160c4;
-  --sun: #c27400;
-  --mars: #c63f2a;
-  --ok: #157a40;
-  --ok-soft: rgb(21 122 64 / 0.12);
-  --warning: #9a5a00;
-  --warning-soft: rgb(230 160 30 / 0.18);
-  --danger: #c4243a;
-  --danger-soft: rgb(196 36 58 / 0.1);
-  --res-battery: #c98500;
-  --res-life: #0a86a6;
-  --res-science: #7140de;
-  --res-mood: #c2408f;
-  --res-dose-warn: #d08a00;
-  --bubble-border: #2b1838;
-  --scene-frame: #2b1838;
+  --space-dark: #a9b0dd;
+  --space-panel: rgb(236 232 246 / 0.94);
+  --space-raised: #f4f1fa;
+  --space-sunken: #dcd6ec;
+  --border: #c3bbdf;
+  --border-strong: #8d82bf;
+  --frame: #e88f6c;
+  --frame-shadow: #9a7fb0;
+  --hud-frame: #7d86cf;
+  --hud-shadow: #8a84bf;
+  --text: #2a2452;
+  --text-muted: #575083;
+  --moon-gray: #575083;
+  --heading: #4b2e8c;
+  --eyebrow: #7a4bb0;
+  --accent: #f0905f;
+  --accent-strong: #f6ad85;
+  --on-accent: #2a1430;
+  --accent-soft: rgb(240 144 95 / 0.18);
+  --accent-shadow: #b0603e;
+  --info: #3d5bb8;
+  --info-soft: rgb(61 91 184 / 0.12);
+  --focus: #3d5bb8;
+  --sun: #b86e00;
+  --mars: #b8432e;
+  --ok: #1d7a4a;
+  --ok-soft: rgb(29 122 74 / 0.14);
+  --warning: #8f5a00;
+  --warning-soft: rgb(214 150 30 / 0.2);
+  --danger: #b8283d;
+  --danger-soft: rgb(184 40 61 / 0.12);
+  --res-battery: #c08400;
+  --res-life: #1a7f9a;
+  --res-science: #6a45c9;
+  --res-mood: #b23f86;
+  --res-dose-warn: #b77700;
+  --bubble-border: #2a2452;
+  --scene-frame: #2a2452;
   --rank-gold: #c99200;
   --rank-silver: #7f8ba3;
   --rank-bronze: #b0652f;
-  --tour-dim: rgb(43 24 56 / 0.5);
-  --focus-ring: 0 0 0 3px #fff, 0 0 0 6px var(--focus);
-  --sky: linear-gradient(180deg, #bfe3ff 0%, #e6f2ff 45%, #ffe9cf 80%, #ffc9a8 100%);
-  --stars-a: none;
-  --stars-b: none;
+  --tour-dim: rgb(42 36 82 / 0.55);
+  --focus-ring: 0 0 0 3px #f4f1fa, 0 0 0 6px var(--focus);
+  --sky: linear-gradient(180deg, #7f8cc9 0%, #a5acd9 38%, #cfc0dc 72%, #e2b7aa 100%);
 }
 .app[data-theme='light'].phase-night {
-  --sky: linear-gradient(180deg, #c9d2ff 0%, #e4e1ff 55%, #d8cdfa 100%);
-  --space-panel: rgb(247 248 255 / 0.96);
-  --space-raised: #ffffff;
-  --space-sunken: #e8eafb;
-  --border: #c9cff2;
-  --border-strong: #7d89d6;
-  --frame: #4f7ff0;
-  --frame-shadow: #b3c3f4;
-  --hud-frame: #7b61e8;
-  --hud-shadow: #cfc6f7;
-  --heading: #2c3f9a;
-  --eyebrow: #3d55b8;
-  --accent: #6f9cff;
-  --accent-strong: #9dbcff;
-  --on-accent: #0b1440;
-  --accent-soft: rgb(79 127 240 / 0.14);
-  --accent-shadow: #3d5fc4;
-  --focus: #b8522a;
+  --space-dark: #6f74b3;
+  --sky: linear-gradient(180deg, #4f5797 0%, #6f74b3 45%, #9a8fc6 80%, #b9a3c9 100%);
+  --space-panel: rgb(230 228 245 / 0.94);
+  --space-raised: #efedf9;
+  --space-sunken: #d6d3ec;
+  --border: #b9b6e0;
+  --border-strong: #7b78bf;
+  --frame: #8b95e6;
+  --frame-shadow: #5c5a9c;
+  --hud-frame: #a08be0;
+  --hud-shadow: #5c5a9c;
+  --heading: #2f3a8f;
+  --eyebrow: #4a55b0;
+  --accent: #7d9bf0;
+  --accent-strong: #a6bbf6;
+  --on-accent: #121a48;
+  --accent-soft: rgb(125 155 240 / 0.2);
+  --accent-shadow: #4a63b8;
+  --focus: #8f4a2a;
 }
 .app[data-theme='light'] .btn--secondary,
 .app[data-theme='light'] .btn--alt { background: var(--space-raised); color: var(--text); }

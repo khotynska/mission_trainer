@@ -8,6 +8,18 @@
 import { ACTIONS } from './contracts.js';
 import { createGame, startDay, resolveChoice, resolveLaunch, checkEnd, checkWeekGoal } from './gameEngine.js';
 import { CONFIG } from './config.js';
+import facts from '../data/facts.json' with { type: 'json' };
+
+/** Факт після рівня: спершу факт цього дня, потім ще не бачені, і жоден — не більше 2 разів за гру. */
+const MAX_FACT_SHOWS = 2;
+export function pickFact(day, factLog = {}) {
+  const ids = facts.map((f) => f.id);
+  const order = [day, ...ids.filter((id) => id > CONFIG.totalDays), ...ids.filter((id) => id !== day && id <= CONFIG.totalDays)];
+  const seen = (id) => factLog[id] ?? 0;
+  return order.find((id) => ids.includes(id) && seen(id) === 0)
+    ?? order.find((id) => ids.includes(id) && seen(id) < MAX_FACT_SHOWS)
+    ?? day;
+}
 
 const snapshot = (s) => ({
   day: s.day, battery: s.battery, life: s.life, mood: s.mood, dose: s.dose, science: s.science, wall: s.wall, launchReady: s.launchReady,
@@ -62,11 +74,43 @@ function finishMission(state) {
   return { ...s, screen: 'certificate' };
 }
 
+/** Ключ міні-гри варіанта (для лічильника варіантів). */
+const gameKeyOf = (o) => (o.chore ? o.id : o.game ?? null);
+
+/**
+ * Як результат великої міні-гри змінює наслідки вибору — логічно й видимо:
+ * погано почищені панелі — менше енергії, недобудована стіна — без захисту,
+ * запізнився в укриття — трохи більше радіації, налаштував зв'язок — настрій кращий.
+ */
+function withGameResult(o, game) {
+  if (!game) return { option: o, effect: null };
+  const G = CONFIG.games;
+  const fx = { ...o.fx };
+  let effect = null;
+  if (o.chore && o.id === 'panels' && game.score < G.patrolGoal && fx.battery > 0) {
+    const full = fx.battery;
+    fx.battery = Math.max(1, Math.round(full * game.score));
+    effect = { key: 'patrol', battery: fx.battery - full };
+  } else if (o.chore && o.id === 'wall' && !game.success && fx.wall) {
+    fx.wall = 0;
+    effect = { key: 'wall', wall: -1 };
+  } else if (o.game === 'dash' && !game.success) {
+    fx.dose = (fx.dose ?? 0) + G.lateShelterDose;
+    effect = { key: 'dash', dose: G.lateShelterDose };
+  } else if (o.game === 'signal') {
+    const d = game.success ? G.signalWinMood : G.signalFailMood;
+    fx.mood = (fx.mood ?? 0) + d;
+    effect = { key: game.success ? 'signal_ok' : 'signal_fail', mood: d };
+  }
+  return { option: { ...o, fx }, effect };
+}
+
 /** Вибір варіанта → наслідки + дані для реакції Ліри, зірок і значків. */
-function choose(state, { option, ms = null, timedOut = false }) {
+function choose(state, { option, ms = null, timedOut = false, game = null }) {
   const level = state.briefing?.level;
-  const picked = level?.options?.[option];
-  if (!picked || !picked.affordable) return state;
+  const base = level?.options?.[option];
+  if (!base || !base.affordable) return state;
+  const { option: picked, effect } = withGameResult(base, game);
   let s = resolveChoice(state, picked);
 
   const isBest = level.best === -1 || level.best === option;
@@ -80,7 +124,8 @@ function choose(state, { option, ms = null, timedOut = false }) {
     result: {
       ...s.result,
       choice: { option, id: picked.id, kind: level.kind, chore: Boolean(picked.chore), best: isBest, timedOut, fast },
-      mood: timedOut || !isBest ? 'worried' : 'happy',
+      // програна міні-гра (брудні панелі, запізнився в укриття…) — Ліра хвилюється, можна переграти день
+      mood: timedOut || !isBest || (game && !game.success) ? 'worried' : 'happy',
     },
   };
 
@@ -98,6 +143,21 @@ function choose(state, { option, ms = null, timedOut = false }) {
     snap: state.daySnapshot,
   };
   s = { ...s, history: [...(state.history || []).filter((h) => h.day < state.day), entry].slice(-CONFIG.totalDays) };
+
+  // Справа: наступного разу — інший варіант міні-гри. Факт: не більше 2 разів за гру.
+  // (Лічильники не входять у знімок дня — переграний день отримує новий варіант і новий факт.)
+  const factId = pickFact(state.day, state.factLog);
+  const key = gameKeyOf(picked);
+  s = {
+    ...s,
+    choreCount: key && game ? { ...state.choreCount, [key]: (state.choreCount?.[key] ?? 0) + 1 } : state.choreCount,
+    factLog: { ...state.factLog, [factId]: (state.factLog?.[factId] ?? 0) + 1 },
+    result: {
+      ...s.result,
+      factId,
+      game: game ? { id: key, success: Boolean(game.success), score: game.score ?? 1, effect } : null,
+    },
+  };
 
   if (state.day === CONFIG.tutorialDay) s = award(s, 'first_steps');
   if (stats.sheltered >= CONFIG.shelterBadgeCount) s = award(s, 'shelter_pro');

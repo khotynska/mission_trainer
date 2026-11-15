@@ -12,10 +12,33 @@
   "no_energy": "⚡ not enough energy",
   "note_wall": "🧱 stronger shelter",
   "note_sad": "😔 sad crew: science ×½",
+  "note_game": "🎮 mini-game first",
   "task_progress": "{n} of {total}",
   "task_done": "Done!",
   "timer": "{n} s left",
   "timer_off": "🐢 No timer",
   "timer_on": "⏱️ Use timer",
-  "timeout": "⏰ Time's up!"
+  "timeout": "⏰ Time's up!",
+  "mg": {
+    "clean_pct": "{n}% clean",
+    "wipe_row": "Wipe a row",
+    "pot": "Pot",
+    "dial_hint": "{number} is the year people first walked on the Moon!",
+    "drill": "⛏️ Hold to drill",
+    "lens_hint": "Night sky: move the lens with the pointer or arrow keys",
+    "drop": "Drop",
+    "turns": "{n} of {total} turns",
+    "crank": "Generator crank",
+    "card": "Card",
+    "bins": {
+      "laundry": "Laundry",
+      "trash": "Trash",
+      "tools": "Tools",
+      "toys": "Toys",
+      "sink": "Sink",
+      "recycle": "Recycling",
+      "samples": "Samples"
+    },
+    "not_this": "Not for this dish!"
+  }
 }

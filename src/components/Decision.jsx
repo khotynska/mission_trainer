@@ -1,13 +1,14 @@
 // Власник: Dev 4. Рівень дня: одне коротке питання й дві великі кнопки.
 // На кожній кнопці — що саме зміниться (☢️ +3 · 😊 −5 …): гравець отримає рівно ці числа.
-// Спокійний день: обираєш справу на базі, а потім робиш маленьке завдання (TapTask).
+// Спокійний день: обираєш справу на базі, а потім граєш її міні-гру (у кожної справи своя — src/components/chores).
+// Деякі рішення бурі теж мають гру: «Біжи в укриття» (запізнився — ☢️ більше) чи «Налаштуй зв'язок» (😊 ±).
 // День із бурею: таймер (можна вимкнути 🐢). Без зв'язку радіацію не видно («☢️ ?»).
 // Пропси за контрактом: { state, dispatch, t } (+ embedded — коли рівень усередині брифінгу).
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ACTIONS } from '../game/contracts.js';
 import Timer from './Timer.jsx';
 import Lira from './Lira.jsx';
-import TapTask from './TapTask.jsx';
+import ChoreGame from './chores/ChoreGame.jsx';
 import { play, buzz } from './sfx.js';
 import { levelText, optionLabel } from './levelText.js';
 import '../styles/dilemma.css';
@@ -17,6 +18,9 @@ const LOCALES = Object.freeze({ ua: 'uk-UA', en: 'en-US' });
 const HINT_UNTIL_DAY = 10;
 /** Коротка мить, щоб побачити натиск кнопки; далі — одразу результат. */
 const PICK_DELAY_MS = 120;
+
+/** Яку міні-гру грати перед наслідками: справа — своя гра, укриття / антена — велика гра з MoonShift. */
+const gameOf = (o) => (o.chore ? o.id : o.game ?? null);
 
 /** Іконки-наслідки варіанта: рівно ті числа, які отримає гравець. */
 function chipsOf(o) {
@@ -54,9 +58,9 @@ export default function Decision({ state, dispatch, t, embedded = false }) {
   const showHint = b.day <= HINT_UNTIL_DAY && lv.best >= 0 && picked === null;
   const hideDose = b.comms === false && lv.kind !== 'chore';
 
-  const send = (option, timedOut = false) => {
+  const send = (option, timedOut = false, game = null) => {
     const ms = performance.now() - startedAt.current;
-    dispatch({ type: ACTIONS.CHOOSE, option, ms, timedOut });
+    dispatch({ type: ACTIONS.CHOOSE, option, ms, timedOut, game });
   };
 
   const choose = (option, viaTimeout = false) => {
@@ -71,8 +75,8 @@ export default function Decision({ state, dispatch, t, embedded = false }) {
       return;
     }
     play('select');
-    if (o.chore && o.targets?.length) {
-      setTask(option); // спершу маленьке завдання
+    if (gameOf(o)) {
+      setTask(option); // спершу міні-гра справи (або «Біжи в укриття» / «Налаштуй зв'язок»)
       return;
     }
     pending.current = setTimeout(() => send(option), PICK_DELAY_MS);
@@ -80,16 +84,8 @@ export default function Decision({ state, dispatch, t, embedded = false }) {
 
   if (task !== null) {
     const o = lv.options[task];
-    return (
-      <TapTask
-        key={o.id}
-        icon={o.icon}
-        title={t(`levels.chore.${o.id}.task`)}
-        targets={o.targets}
-        t={t}
-        onDone={() => send(task)}
-      />
-    );
+    const id = gameOf(o);
+    return <ChoreGame key={o.id} id={id} t={t} variant={state.choreCount?.[id] ?? 0} onDone={(game) => send(task, false, game)} />;
   }
 
   const body = (
@@ -124,6 +120,7 @@ export default function Decision({ state, dispatch, t, embedded = false }) {
               </span>
               {o.notes?.includes('wall') && <span className="choice__note">{t('decision.note_wall')}</span>}
               {o.notes?.includes('sad') && <span className="choice__note">{t('decision.note_sad')}</span>}
+              {o.game && <span className="choice__note">{t('decision.note_game')}</span>}
               {!o.affordable && <span className="choice__note choice__note--bad">{t('decision.no_energy')}</span>}
               {showHint && lv.best === i && <span className="choice__hint" aria-hidden="true">💡</span>}
             </button>

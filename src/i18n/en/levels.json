@@ -127,53 +127,120 @@
   "chore": {
     "harvest": {
       "label": "Harvest the greenhouse",
-      "task": "Pick the vegetables!",
-      "react": "Yum! More food now."
+      "task": "Pick the vegetables in the greenhouse!",
+      "react": "Yum! More food now.",
+      "v": {
+        "veg": "Pick the vegetables in the greenhouse!",
+        "berries": "Pick the ripe berries — strawberries and blueberries!",
+        "salad": "Pick lettuce, carrots and peppers!",
+        "roots": "Dig up potatoes, onions and garlic!",
+        "fruit": "Pick fruit from the little trees!"
+      }
     },
     "cook": {
       "label": "Cook lunch",
-      "task": "Put the food in the pot!",
-      "react": "A tasty lunch — everyone is full and happy!"
+      "task": "Drag the food into the pot!",
+      "react": "A tasty lunch — everyone is full and happy!",
+      "v": {
+        "soup": "Cook vegetable soup! Add only what it needs:",
+        "salad": "Make a salad! Add only what it needs:",
+        "omelette": "Fry an omelette! Add only what it needs:",
+        "pizza": "Bake a pizza! Add only what it needs:",
+        "porridge": "Cook porridge for breakfast! Add only what it needs:",
+        "pancakes": "Make pancakes! Add only what it needs:"
+      }
     },
     "call": {
       "label": "Call your family",
-      "task": "Send hearts to your family!",
-      "react": "Your family sends hugs from Earth!"
+      "task": "Dial your family's number!",
+      "react": "Your family sends hugs from Earth!",
+      "v": {
+        "mom": {
+          "title": "Call your mom!",
+          "hint": "{number} is the year people first walked on the Moon."
+        },
+        "grandpa": {
+          "title": "Call your grandpa!",
+          "hint": "{number} is the year the Hubble telescope launched."
+        },
+        "sister": {
+          "title": "Call your sister!",
+          "hint": "{number} is the year the James Webb telescope launched."
+        },
+        "friend": {
+          "title": "Call your friend!",
+          "hint": "{number} is the year building the ISS space station began."
+        },
+        "dad": {
+          "title": "Call your dad!",
+          "hint": "{number} is the year of our mission and the big solar storm."
+        }
+      }
     },
     "clean": {
       "label": "Tidy the station",
-      "task": "Pick up the stuff lying around!",
-      "react": "Clean and fresh — everyone feels good!"
+      "task": "Sort it out: clothes in the basket, trash in the bin!",
+      "react": "Clean and fresh — everyone feels good!",
+      "v": {
+        "laundry": "Sort it out: clothes in the basket, trash in the bin!",
+        "tools": "Sort it out: tools in the toolbox, toys in the box!",
+        "kitchen": "Tidy the kitchen: dishes in the sink, packaging to recycling!",
+        "lab": "Tidy the lab: samples in test tubes, trash in the bin!"
+      }
     },
     "panels": {
       "label": "Clean the solar panels",
-      "task": "Blow the dust off the panels!",
+      "task": "Wipe the panels with the sponge — rub the dust away!",
       "react": "Shiny panels — more energy!"
     },
     "experiment": {
       "label": "Experiment outside",
-      "task": "Collect rocks for the experiment!",
-      "react": "New discoveries! Scientists on Earth are thrilled."
+      "task": "Hold the button to drill — get 3 rocks!",
+      "react": "New discoveries! Scientists on Earth are thrilled.",
+      "v": {
+        "rocks": "Hold the drill button and get 3 rocks!",
+        "ice": "Drill down to the ice — there's frozen water on the Moon!",
+        "crystals": "Find 3 shiny crystals in the rock!",
+        "dust": "Fill 3 test tubes with Moon dust!",
+        "meteor": "Dig up 3 pieces of a meteorite!"
+      }
     },
     "telescope": {
       "label": "Look through the telescope",
-      "task": "Find the stars in the sky!",
-      "react": "Stars look best at night!"
+      "task": "Move the lens over the sky and find 3 stars!",
+      "react": "Stars look best at night!",
+      "v": {
+        "stars": "Move the lens over the sky and find 3 stars!",
+        "planets": "Find Mars, Saturn and Earth!",
+        "comet": "Find the comet and the shooting stars!",
+        "galaxy": "Find a faraway galaxy and two stars!"
+      }
     },
     "wall": {
       "label": "Strengthen the shelter",
-      "task": "Lay bricks made of Moon soil!",
+      "task": "Tap \"Drop\" when the brick is over a gap!",
       "react": "A stronger shelter — less radiation in a storm."
     },
     "generator": {
       "label": "Turn on the generator",
-      "task": "Start the generator!",
-      "react": "The battery is charged, though it was noisy."
+      "task": "Turn the generator crank — 3 full turns!",
+      "react": "The battery is charged, though it was noisy.",
+      "v": {
+        "three": "Turn the generator crank — {n} turns!",
+        "four": "The battery is almost empty: {n} turns!",
+        "storm": "Turn on the base lights — {n} turns of the crank!"
+      }
     },
     "games": {
       "label": "Board game night",
-      "task": "Roll the dice!",
-      "react": "Everyone laughed — great mood!"
+      "task": "Find the matching pairs of cards!",
+      "react": "Everyone laughed — great mood!",
+      "v": {
+        "games": "Find the pairs: dice, cards and chess!",
+        "space": "Find the pairs: rocket, Moon and star!",
+        "aliens": "Find the pairs: aliens, saucers and planets!",
+        "animals": "Find the pairs of funny animals!"
+      }
     }
   },
   "timeout": "⏰ Too slow — the crew decided on their own."

@@ -15,6 +15,8 @@
   border-radius: var(--radius);
 }
 .cause-row--daily { background: var(--space-sunken); border-style: dashed; }
+.cause-row--game { border-color: var(--ok); }
+.cause-row--game[data-success='false'] { border-color: var(--warning); }
 .cause-row__label { min-width: 7.5em; font-size: var(--fs-md); font-weight: var(--fw-bold); color: var(--heading); }
 
 .delta-chip {

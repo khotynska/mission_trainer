@@ -1,0 +1,135 @@
+{
+  "how": "How to play",
+  "why": "Why it matters",
+  "start": "Start",
+  "run": "RUN!",
+  "seconds": "{n} seconds",
+  "sec": "s",
+  "time_up": "Time's up!",
+  "alarm": {
+    "title": "Radiation alarm!",
+    "text": "The Sun threw a cloud of particles. Get to the shelter, fast!"
+  },
+  "patrol": {
+    "title": "🧽 Clean the solar panels",
+    "how1": "Tap a panel and rub with the sponge to wipe off dust.",
+    "how2": "Turn the knob under the panel so it faces the Sun.",
+    "how3": "Reach 80% power before time runs out.",
+    "teaches": "Moon dust sticks to everything. A dusty panel gives little power, and a panel facing the Sun gives the most.",
+    "power": "Power",
+    "goal": "goal 80%",
+    "hint": "Rub the dust with the sponge and turn the knob to the Sun ☀️",
+    "keys": "Keys: 1–{n} pick, Q/E tilt, Space to wipe",
+    "dusty": "dusty",
+    "aim": "turn it",
+    "great": "great!",
+    "restored": "Power is back! ⚡"
+  },
+  "bricks": {
+    "title": "Build a shield wall",
+    "how1": "Bricks fall from the top: ◀ ▶ move, ⟳ turn, ⤓ drop.",
+    "how2": "Stack the wall tight around the base module.",
+    "how3": "Cover 85% of the green zone before time runs out.",
+    "teaches": "A thick wall of Moon soil, water or ice stops space particles, so astronauts get less radiation.",
+    "v": {
+      "regolith": "Moon-soil wall",
+      "water": "Water-tank wall",
+      "ice": "Ice-block wall",
+      "rock": "Stone wall"
+    },
+    "start": "Place bricks next to the module!",
+    "m1": "A quarter of the wall is done!",
+    "m2": "Halfway! Keep going!",
+    "m3": "Almost there!",
+    "win": "Wall finished! 🛡️",
+    "noRoom": "Out of room!",
+    "dose": "Radiation inside",
+    "shield": "Shield",
+    "goal": "goal",
+    "next": "Next",
+    "wasted": "Missed:",
+    "left": "Left",
+    "right": "Right",
+    "rotate": "Turn",
+    "drop": "Drop"
+  },
+  "dash": {
+    "title": "🏃 Run to the shelter",
+    "how1": "Tap a tile to run there (or arrows / WASD).",
+    "how2": "Close the hatches 🚪 and grab the medkit 🩹 on the way.",
+    "how3": "Reach the green shelter before time runs out.",
+    "teaches": "During a solar storm, the best place is behind thick walls. The faster you hide, the less radiation you get.",
+    "you": "You",
+    "crew": {
+      "ada": "Ada",
+      "kofi": "Kofi",
+      "lin": "Lin"
+    },
+    "rooms": {
+      "h": "Bedroom",
+      "g": "Greenhouse",
+      "l": "Lab",
+      "k": "Kitchen"
+    },
+    "airlock": "Airlock",
+    "shelter": "SHELTER",
+    "thickWalls": "thick walls",
+    "hatches": "Hatches {n}/{of}",
+    "medkit": "Medkit",
+    "shelterGoal": "Shelter",
+    "dose": "Dose: {d}",
+    "hint": {
+      "move": "Tap where to run, or press the arrows",
+      "outside": "You're outside — run to the airlock!",
+      "hatches": "Close the hatches 🚪 — just run through them",
+      "medkit": "Grab the medkit 🩹",
+      "shelter": "Now into the shelter — the green room!"
+    },
+    "safe": "Everyone is safe! 🛡️"
+  },
+  "signal": {
+    "title": "📡 Tune the radio to Earth",
+    "how1": "Drag the «Frequency» slider so the waves are equally tight.",
+    "how2": "Drag «Height» so the waves are equally tall.",
+    "how3": "Hold the match for 2.5 seconds to decode the message.",
+    "teaches": "A solar flare scrambles radio. Radio operators re-tune the receiver to hear Earth again.",
+    "earth": "EARTH",
+    "you": "YOU",
+    "locked": "MATCH!",
+    "match": "Match",
+    "lock": "Hold",
+    "time": "Time",
+    "freq": "Frequency",
+    "amp": "Height",
+    "lost": "Signal lost…",
+    "hint": {
+      "start": "Move the sliders so your wave sits on Earth's wave",
+      "slip": "Almost! Adjust a tiny bit more",
+      "hold": "Hold it! Don't move the sliders",
+      "drift": "The signal drifts — nudge it gently",
+      "decode": "Decoding the message…"
+    },
+    "msg": {
+      "control": "MISSION CONTROL: ALL GOOD, HANG ON!",
+      "family": "MOM: WE ARE PROUD OF YOU!",
+      "forecast": "EARTH: STORM CALMS DOWN TOMORROW"
+    }
+  },
+  "result": {
+    "win": "Mini-game: done!",
+    "lose": "Mini-game: not this time",
+    "patrol": "dusty panels — less power",
+    "wall": "wall not finished",
+    "dash": "late to the shelter",
+    "signal_ok": "heard Earth",
+    "signal_fail": "lost the signal",
+    "full": "just like on the button ✓"
+  },
+  "react": {
+    "patrol": "Oops, the panels are still dusty — less power. Replay to clean them to 80%!",
+    "wall": "The wall wasn't finished — the shelter didn't get stronger. Try again?",
+    "dash": "You were late to the shelter — a bit more radiation. Next time run right away!",
+    "signal_ok": "Hooray, Earth is on the line! The crew is smiling.",
+    "signal_fail": "The signal got lost — the crew is a bit sad. Try again!"
+  }
+}

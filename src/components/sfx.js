@@ -51,6 +51,10 @@ const SOUNDS = {
   whoosh: [{ f: 180, dur: 0.45, wave: 'triangle', vol: 0.04, to: 1400 }],
   badge: [{ f: G5, dur: 0.08 }, { f: C6, at: 0.08, dur: 0.08 }, { f: E5 * 2, at: 0.16, dur: 0.08 }, { f: G5 * 2, at: 0.24, dur: 0.3, wave: 'triangle', vol: 0.07 }],
   launch: [{ f: 90, dur: 1.2, wave: 'sawtooth', vol: 0.05, to: 600 }, { f: 180, at: 0.2, dur: 1, wave: 'triangle', vol: 0.04, to: 1200 }],
+  // звуки великих міні-ігор (як у MoonShift)
+  pop: [{ f: 420, dur: 0.09, wave: 'sine', vol: 0.06, to: 880 }],
+  coin: [{ f: 988, dur: 0.07 }, { f: 1319, at: 0.07, dur: 0.12 }],
+  chime: [{ f: 880, dur: 0.6, wave: 'sine', vol: 0.05 }, { f: 1320, dur: 0.6, wave: 'sine', vol: 0.04 }],
 };
 
 export function play(name) {

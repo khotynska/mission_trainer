@@ -1,0 +1,251 @@
+/* Міні-ігри справ на базі (src/components/chores). Лише токени з theme.css. */
+
+.mg { display: flex; flex-direction: column; gap: var(--gap-2); animation: dilemma-in 300ms var(--ease-bounce) backwards; }
+.mg__title { font-size: var(--fs-xl); font-weight: var(--fw-bold); text-align: center; color: var(--heading); text-wrap: balance; }
+
+.mg__field {
+  position: relative;
+  height: 230px;
+  overflow: hidden;
+  background: var(--space-sunken);
+  border: var(--frame-w) solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.mg__field:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+.mg__field--sort { height: 290px; }
+.mg__field--greenhouse { background: linear-gradient(180deg, var(--ok-soft), var(--space-sunken)); }
+.mg__field--ground { background: linear-gradient(180deg, var(--scene-sky-bottom) 0 38%, var(--scene-ground) 38% 52%, var(--scene-ground-back) 52% 100%); }
+.mg__field--sky { background: radial-gradient(circle at 70% 20%, #1d2668, var(--scene-sky-top) 70%); cursor: none; }
+
+.mg__field--crank, .mg__field--cards, .mg__field--phone { display: flex; align-items: center; justify-content: center; gap: var(--gap-5); }
+.mg__field--phone { height: auto; min-height: 230px; padding: var(--gap-3); }
+.mg__field--cards { height: auto; padding: var(--gap-3); }
+
+.mg__done {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  font-size: 4rem;
+  background: rgb(0 0 0 / 0.15);
+  animation: mg-done 400ms var(--ease-bounce) backwards;
+}
+
+.mg__progress {
+  position: relative;
+  height: 30px;
+  overflow: hidden;
+  background: var(--space-sunken);
+  border: var(--border-w) solid var(--border-strong);
+  border-radius: var(--radius-pill);
+}
+.mg__progress span { position: absolute; inset: 0 auto 0 0; width: calc(var(--p, 0) * 100%); background: var(--ok); transition: width 200ms var(--ease); }
+.mg__progress b { position: relative; display: grid; place-items: center; height: 100%; font-size: var(--fs-sm); color: var(--text); }
+
+/* Підказка для клавіатури: видно лише у фокусі */
+
+/* 🍅 Торкнутися */
+.mg-tap {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 62px;
+  height: 62px;
+  margin: -31px 0 0 -31px;
+  padding: 0;
+  background: var(--space-raised);
+  border: var(--border-w) solid var(--border-strong);
+  border-radius: 50%;
+  box-shadow: 0 4px 0 var(--border-strong);
+  font-size: 2rem;
+  line-height: 1;
+  animation: mg-wobble 1.6s ease-in-out infinite;
+}
+.mg-tap:hover:not(:disabled) { background: var(--accent-soft); border-color: var(--accent); }
+.mg-tap[data-gone] { animation: mg-pop 300ms var(--ease) forwards; pointer-events: none; }
+
+/* 🍲 Перетягнути / 🧹 сортувати */
+.mg-drag {
+  position: absolute;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 60px;
+  height: 60px;
+  margin: -30px 0 0 -30px;
+  padding: 0;
+  background: var(--space-raised);
+  border: var(--border-w) solid var(--border-strong);
+  border-radius: 50%;
+  box-shadow: 0 4px 0 var(--border-strong);
+  font-size: 2rem;
+  line-height: 1;
+  cursor: grab;
+  touch-action: none;
+  transition: transform 150ms var(--ease);
+}
+.mg-drag[data-dragging] { z-index: 6; cursor: grabbing; transition: none; box-shadow: 0 10px 18px rgb(0 0 0 / 0.3); }
+.mg-drag[data-selected] { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft), 0 4px 0 var(--accent-shadow); }
+.mg-drag:hover:not(:disabled) { background: var(--space-raised); border-color: var(--accent); }
+
+.mg-target {
+  display: grid;
+  place-items: center;
+  gap: 2px;
+  padding: var(--gap-2);
+  background: var(--space-raised);
+  color: var(--text);
+  border: var(--frame-w) dashed var(--border-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: none;
+}
+.mg-target--pot { position: absolute; right: 8%; top: 50%; width: 42%; height: 76%; transform: translateY(-50%); }
+.mg-target__icon { font-size: 3.4rem; line-height: 1; animation: mg-pop-in 300ms var(--ease-bounce); }
+.mg-target__steam { position: absolute; top: 6px; font-size: 1.6rem; animation: mg-steam 1.4s ease-in-out infinite; }
+.mg-target__label { font-size: var(--fs-sm); font-weight: var(--fw-bold); color: var(--text-muted); }
+.mg-bins { position: absolute; left: 0; right: 0; bottom: 10px; display: flex; justify-content: space-around; }
+.mg-target--bin { width: 40%; min-height: 96px; }
+.mg-target--bin[data-ready] { border-color: var(--accent); border-style: solid; }
+.mg-target--bin[data-shake] { animation: mg-shake 400ms ease; border-color: var(--danger); }
+.mg-target--bin:hover:not(:disabled) { background: var(--accent-soft); }
+
+/* 📞 Набрати номер */
+.mg-phone { display: grid; gap: var(--gap-2); justify-items: center; }
+.mg-phone__hint { font-size: var(--fs-sm); font-weight: var(--fw-bold); color: var(--text-muted); text-align: center; }
+.mg-phone__screen {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-2);
+  min-width: 200px;
+  justify-content: center;
+  padding: var(--gap-1) var(--gap-3);
+  background: var(--scene-sky-top);
+  color: var(--ok);
+  border-radius: var(--radius);
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+.mg-phone__screen span[data-on] { color: #9cffc4; }
+.mg-phone__hearts { font-size: 1.2rem; letter-spacing: 0; animation: mg-pop-in 400ms var(--ease-bounce); }
+.mg-phone__keys { display: grid; grid-template-columns: repeat(5, 52px); gap: var(--gap-1); }
+.mg-key {
+  min-width: 52px;
+  min-height: 48px;
+  padding: 0;
+  background: var(--space-raised);
+  color: var(--text);
+  border: var(--border-w) solid var(--border-strong);
+  border-radius: var(--radius);
+  box-shadow: 0 3px 0 var(--border-strong);
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+.mg-key:hover:not(:disabled) { background: var(--accent-soft); }
+.mg-key[data-wrong] { animation: mg-shake 400ms ease; border-color: var(--danger); color: var(--danger); }
+
+/* 🔬 Бур */
+.mg-drill { position: absolute; inset: 0; }
+.mg-drill__rig { position: absolute; left: 50%; top: calc(14% + var(--d) * 50%); font-size: 2.6rem; transform: translateX(-50%); }
+.mg-drill__rig[data-on] { animation: mg-buzz 0.1s linear infinite; }
+.mg-drill__shaft { position: absolute; left: 50%; top: 38%; width: 10px; height: calc(var(--d) * 58%); margin-left: -5px; background: var(--scene-metal); border-radius: 2px; }
+.mg-drill__samples { position: absolute; left: 8%; top: 8%; font-size: 2rem; letter-spacing: 4px; }
+.mg-hold {
+  position: absolute;
+  right: var(--gap-2);
+  bottom: var(--gap-2);
+  z-index: 4;
+  min-height: 56px;
+  padding: var(--gap-2) var(--gap-4);
+  font-size: var(--fs-lg);
+  touch-action: none;
+  -webkit-touch-callout: none;
+}
+.mg-hold[data-on] { transform: translate(3px, 3px); box-shadow: 1px 1px 0 var(--accent-shadow); }
+
+/* 🔭 Лупа */
+.mg-star { position: absolute; font-size: 1.8rem; line-height: 1; transform: translate(-50%, -50%) scale(0.5); opacity: 0.12; filter: grayscale(1); transition: all 400ms var(--ease-bounce); pointer-events: none; }
+.mg-star[data-found] { opacity: 1; filter: none; transform: translate(-50%, -50%) scale(1.3); }
+.mg-lens {
+  position: absolute;
+  z-index: 3;
+  width: 92px;
+  height: 92px;
+  border: 4px solid var(--clock-text);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(255 255 255 / 0.18), rgb(255 255 255 / 0.04) 70%);
+  box-shadow: 0 0 0 3px rgb(0 0 0 / 0.4);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  transition: left 80ms linear, top 80ms linear;
+}
+
+/* 🔋 Ручка генератора */
+.mg-crank {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  border: 6px solid var(--border-strong);
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--space-raised) 0 18%, var(--space-sunken) 19%);
+  cursor: grab;
+  touch-action: none;
+}
+.mg-crank:focus-visible { outline: 3px solid var(--focus); outline-offset: 4px; }
+.mg-crank__arm { position: absolute; left: 50%; top: 50%; width: 0; height: 0; }
+.mg-crank__handle {
+  position: absolute;
+  left: 46px;
+  top: -18px;
+  width: 36px;
+  height: 36px;
+  background: var(--accent);
+  border: 3px solid var(--accent-shadow);
+  border-radius: 50%;
+  box-shadow: -46px 14px 0 -12px var(--border-strong);
+}
+.mg-crank__hint { position: absolute; inset: 0; display: grid; place-items: center; font-size: 2rem; color: var(--text-muted); pointer-events: none; }
+.mg-battery { display: flex; flex-direction: column-reverse; gap: 4px; padding: 6px; border: 4px solid var(--border-strong); border-radius: var(--radius); }
+.mg-battery span { width: 56px; height: 36px; display: grid; place-items: center; background: var(--space-sunken); border-radius: 4px; opacity: 0.35; }
+.mg-battery span[data-on] { background: var(--res-battery); opacity: 1; animation: mg-pop-in 300ms var(--ease-bounce); }
+
+/* 🎲 Пари */
+.mg-cards { display: grid; grid-template-columns: repeat(3, 76px); gap: var(--gap-2); }
+.mg-card {
+  height: 84px;
+  padding: 0;
+  background: var(--accent);
+  color: var(--on-accent);
+  border: var(--frame-w) solid var(--accent-shadow);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 0 var(--accent-shadow);
+  font-size: 2.2rem;
+  transition: transform 200ms var(--ease);
+}
+.mg-card[data-open] { background: var(--space-raised); transform: rotateY(180deg) scaleX(-1); }
+.mg-card[data-matched] { background: var(--ok-soft); border-color: var(--ok); box-shadow: 0 4px 0 var(--ok); }
+
+@keyframes mg-wobble { 50% { transform: translateY(-5px) rotate(-6deg); } }
+@keyframes mg-pop { to { transform: scale(1.8); opacity: 0; } }
+@keyframes mg-pop-in { from { transform: scale(0.3); opacity: 0; } }
+@keyframes mg-done { from { transform: scale(0.2); opacity: 0; } }
+@keyframes mg-shake { 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+@keyframes mg-steam { 50% { transform: translateY(-6px); opacity: 0.5; } }
+@keyframes mg-buzz { 50% { transform: translateX(calc(-50% + 2px)); } }
+
+@media (max-width: 420px) {
+  .mg__field { height: 210px; }
+  .mg-phone__keys { grid-template-columns: repeat(5, 46px); }
+  .mg-key { min-width: 46px; }
+  .mg-cards { grid-template-columns: repeat(3, 68px); }
+  .mg-crank { width: 140px; height: 140px; }
+  .mg-crank__handle { left: 38px; }
+}
+
+/* Каструля «випльовує» зайвий продукт */
+.mg-target--pot[data-shake] { animation: mg-shake-pot 400ms ease; border-color: var(--danger); }
+@keyframes mg-shake-pot { 25% { transform: translate(-6px, -50%); } 75% { transform: translate(6px, -50%); } }

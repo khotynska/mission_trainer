@@ -32,6 +32,8 @@ export function createGame(lang = 'ua') {
     daySnapshot: null,      // стан на початок дня (для «Переграти день»)
     history: [],            // зіграні дні: { day, date, event, choice, best, doseGain, stars, snap }
     stats: { sheltered: 0, fast: 0 },
+    choreCount: {},         // скільки разів робили кожну справу — щоб міні-гра щоразу була інша
+    factLog: {},            // скільки разів показали кожен факт (не більше 2 за гру)
     resume: null,           // останній ігровий екран (для «Продовжити»)
   };
 }

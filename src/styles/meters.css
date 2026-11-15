@@ -41,6 +41,7 @@
   border: var(--border-w) solid var(--border-strong);
   border-radius: var(--radius-pill);
   box-shadow: none;
+  color: var(--text);
   font-size: 1.2rem;
   line-height: 1;
 }

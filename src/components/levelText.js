@@ -13,8 +13,9 @@ export function optionLabel(t, briefing, option) {
 }
 
 /** Реакція Ліри після вибору. */
-export function reactionText(t, briefing, choice) {
+export function reactionText(t, briefing, choice, game = null) {
   if (choice.timedOut) return t('levels.timeout');
+  if (game?.effect) return t(`games.react.${game.effect.key}`);
   if (choice.chore) return t(`levels.chore.${choice.id}.react`);
   return t(`levels.react.day${briefing.day}.${choice.id}`);
 }

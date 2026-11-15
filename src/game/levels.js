@@ -9,20 +9,22 @@
 //
 // fx: { battery, life, mood, science, dose, wall } — зміни від вибору (dose — радіація від події).
 // shelter: true — варіант «сховатися»: укріплення укриття зменшує його dose.
+// game: 'dash' | 'signal' — після вибору граєш міні-гру («Ривок до укриття», «Налаштуй сигнал»).
+// Справи 'panels' і 'wall' теж мають великі міні-ігри («Панельний патруль», «Будівник захисту»).
 import { CONFIG } from './config.js';
 
-/** Справи на базі для спокійних днів: обираєш одну з двох, а потім робиш маленьке завдання (торкнутися предметів). */
+/** Справи на базі для спокійних днів: обираєш одну з двох, а потім граєш її міні-гру (src/components/chores). */
 export const CHORES = {
-  harvest: { icon: '🍅', fx: { life: 20 }, targets: ['🍅', '🥒', '🍅', '🥔', '🍅'] },
-  cook: { icon: '🍲', fx: { life: 10, mood: 10, battery: -1 }, targets: ['🥕', '🥔', '🧅', '🍅'] },
-  call: { icon: '📞', fx: { mood: 20, battery: -1 }, targets: ['💜', '💛', '💚', '💙'] },
-  clean: { icon: '🧹', fx: { mood: 10, life: 5 }, targets: ['🧦', '🥤', '📦', '🧦', '🥤'] },
-  panels: { icon: '🧽', fx: { battery: 4 }, targets: ['💨', '💨', '💨', '💨', '💨'] },
-  experiment: { icon: '🔬', fx: { science: 20, battery: -1, dose: 1 }, targets: ['🪨', '🪨', '🪨', '🪨', '🪨'] },
-  telescope: { icon: '🔭', fx: { science: 15, mood: 5, battery: -1 }, targets: ['⭐', '🌟', '✨', '⭐', '🌟'] },
-  wall: { icon: '🧱', fx: { wall: 1, battery: -2, mood: -5 }, targets: ['🧱', '🧱', '🧱', '🧱', '🧱'] },
-  generator: { icon: '🔋', fx: { battery: 4, mood: -5 }, targets: ['⚡', '⚡', '⚡', '⚡', '⚡'] },
-  games: { icon: '🎲', fx: { mood: 15 }, targets: ['🎲', '🃏', '🎲', '🃏'] },
+  harvest: { icon: '🍅', fx: { life: 20 } },
+  cook: { icon: '🍲', fx: { life: 10, mood: 10, battery: -1 } },
+  call: { icon: '📞', fx: { mood: 20, battery: -1 } },
+  clean: { icon: '🧹', fx: { mood: 10, life: 5 } },
+  panels: { icon: '🧽', fx: { battery: 4 } },
+  experiment: { icon: '🔬', fx: { science: 20, battery: -1, dose: 1 } },
+  telescope: { icon: '🔭', fx: { science: 15, mood: 5, battery: -1 } },
+  wall: { icon: '🧱', fx: { wall: 1, battery: -2, mood: -5 } },
+  generator: { icon: '🔋', fx: { battery: 4, mood: -5 } },
+  games: { icon: '🎲', fx: { mood: 15 } },
 };
 
 /**
@@ -37,8 +39,8 @@ export const LEVELS = {
   4: { kind: 'chore', chores: ['wall', 'experiment'] },
   5: {
     kind: 'storm', best: 0, timeout: 1, options: [
-      { id: 'shelter', icon: '🛡️', fx: { dose: 1, mood: -5 }, shelter: true },
-      { id: 'antenna', icon: '📡', fx: { dose: 10, science: 10 } },
+      { id: 'shelter', icon: '🛡️', fx: { dose: 1, mood: -5 }, shelter: true, game: 'dash' },
+      { id: 'antenna', icon: '📡', fx: { dose: 10, science: 10 }, game: 'signal' },
     ],
   },
   6: { kind: 'chore', chores: ['harvest', 'call'] },
@@ -59,7 +61,7 @@ export const LEVELS = {
   16: { kind: 'chore', chores: ['cook', 'call'] },
   17: {
     kind: 'flare', best: -1, timeout: 1, options: [
-      { id: 'callnow', icon: '📞', fx: { mood: 15, battery: -1 } },
+      { id: 'callnow', icon: '📞', fx: { mood: 15, battery: -1 }, game: 'signal' },
       { id: 'record', icon: '📈', fx: { science: 15, battery: -1 } },
     ],
   },
@@ -72,7 +74,7 @@ export const LEVELS = {
   },
   20: {
     kind: 'storm', best: 0, timeout: 1, options: [
-      { id: 'shelter', icon: '🛡️', fx: { dose: 1, mood: -5 }, shelter: true },
+      { id: 'shelter', icon: '🛡️', fx: { dose: 1, mood: -5 }, shelter: true, game: 'dash' },
       { id: 'finish', icon: '🔬', fx: { dose: 10, science: 20 } },
     ],
   },
@@ -85,7 +87,7 @@ export const LEVELS = {
   },
   23: {
     kind: 'storm', best: 0, timeout: 1, options: [
-      { id: 'run', icon: '🏃', fx: { dose: 3, mood: -5 }, shelter: true },
+      { id: 'run', icon: '🏃', fx: { dose: 3, mood: -5 }, shelter: true, game: 'dash' },
       { id: 'boxes', icon: '📦', fx: { dose: 15, life: 15 } },
     ],
   },
@@ -110,12 +112,12 @@ export const LEVELS = {
   27: {
     kind: 'storm', best: 0, timeout: 1, options: [
       { id: 'stay', icon: '🛡️', fx: { dose: 3, mood: -5 }, shelter: true },
-      { id: 'tune', icon: '📡', fx: { dose: 25, science: 10, mood: 10 } },
+      { id: 'tune', icon: '📡', fx: { dose: 25, science: 10, mood: 10 }, game: 'signal' },
     ],
   },
   28: {
     kind: 'storm', best: 0, timeout: 1, options: [
-      { id: 'shelter', icon: '🛡️', fx: { dose: 1, mood: -5 }, shelter: true },
+      { id: 'shelter', icon: '🛡️', fx: { dose: 1, mood: -5 }, shelter: true, game: 'dash' },
       { id: 'record', icon: '📈', fx: { dose: 9, science: 25 } },
     ],
   },
@@ -167,7 +169,7 @@ export function finalFx(state, option) {
 
 function choreOption(id) {
   const c = CHORES[id];
-  return { id, icon: c.icon, fx: c.fx, targets: c.targets, chore: true };
+  return { id, icon: c.icon, fx: c.fx, chore: true };
 }
 
 /**
