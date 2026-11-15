@@ -1,24 +1,18 @@
 // Власник: Dev 6 (Progress UI). Пропси за контрактом: { state, dispatch, t } (src/game/contracts.js).
-import { useEffect } from 'react';
+// «Зоряний шлях» у стилі MoonShift: 30 днів — 30 піксельних зірок на звивистій стежці від старту до Землі,
+// поділені на тижні. Пройдені — золоті (з рейтингом ★ для зіграних днів), поточна — блакитна з «▶ Грати»,
+// попереду — темні. Збоку — командир, ресурси бази, значки й порада Ліри.
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ACTIONS } from '../game/contracts.js';
-import { getLang } from '../game/storage';
+import { CONFIG } from '../game/config.js';
+import { isCalmDay } from '../game/gameEngine.js';
+import { getPlayerName } from '../game/storage';
+import days from '../data/days.json';
+import { LiraAvatar } from './Lira.jsx';
 import PatchBadge from './PatchBadge.jsx';
-import { PATCHES } from './patches.js';
-
-// Мова для дат: state.lang, а якщо його немає, береться зі збереженого.
-function dateFor(dayNumber, lang) {
-    const d = new Date(Date.UTC(2024, 3, 17 + dayNumber - 1));
-    return d.toLocaleDateString(lang === 'en' ? 'en-GB' : 'uk-UA', {
-        day: 'numeric',
-        month: 'short',
-        timeZone: 'UTC',
-    });
-}
-
-function phaseIcon(day) {
-    if (day >= 29) return '🌅';
-    return day >= 15 ? '🌑' : '☀️';
-}
+import { PATCHES, PATCH_BY_WEEK } from './patches.js';
+import { MsLogo, PixelEarth, PixelRocket, PixelStar, StarRating } from './PixelArt.jsx';
+import '../styles/moonshift.css';
 
 const WEEKS = [
     { n: 1, from: 1, to: 7 },
@@ -27,110 +21,221 @@ const WEEKS = [
     { n: 4, from: 22, to: 28 },
     { n: 5, from: 29, to: 30 },
 ];
+const NODE_H = 112;
+const NOW_H = 140;
+const BANNER_H = 108;
+const TOAST_MS = 2800;
 
-// Мапа лише для перегляду: перестрибувати дні не можна.
-export default function MissionMap({ state, dispatch, t }) {
-    const lang = state.lang || getLang();
-    const patches = state.patches || [];
+/** Скільки зірок можна зібрати: 3 за кожен зіграний (не спокійний) день. */
+const MAX_STARS = 3 * days.filter((d) => !isCalmDay(days, d.day)).length;
 
-    useEffect(() => {
-        window.scrollTo(0, 0);
-    }, []);
+function tone(frac) {
+    if (frac < 0.25) return 'bad';
+    if (frac < 0.5) return 'warn';
+    return 'ok';
+}
 
+function Resource({ icon, label, value, max, s, note }) {
     return (
-        <main style={{ maxWidth: 640, margin: '0 auto', padding: 14 }}>
-            <h1 style={{ fontSize: 26 }}>🗺️ {t('progress.map.title')}</h1>
-
-            <section
-                style={{
-                    display: 'flex',
-                    gap: 10,
-                    alignItems: 'center',
-                    flexWrap: 'wrap',
-                    margin: '8px 0 16px',
-                }}
-                aria-label={t('progress.map.patchSlots')}
-            >
-                {PATCHES.map((p) => (
-                    <PatchBadge
-                        key={p.id}
-                        id={p.id}
-                        earned={patches.includes(p.id)}
-                        label={t('progress.patch.' + p.id)}
-                    />
-                ))}
-            </section>
-
-            {WEEKS.map((w) => (
-                <section key={w.n} style={{ margin: '14px 0' }}>
-                    <h2 style={{ fontSize: 18, margin: '0 0 6px' }}>
-                        {w.n === 5 ? '🚀 ' + t('progress.map.launch') : t('progress.map.week' + w.n)}
-                    </h2>
-                    <div
-                        style={{
-                            display: 'grid',
-                            gridTemplateColumns: 'repeat(auto-fill, minmax(70px, 1fr))',
-                            gap: 6,
-                        }}
-                    >
-                        {Array.from({ length: w.to - w.from + 1 }, (_, i) => w.from + i).map((day) => {
-                            const done = day < state.day;
-                            const now = day === state.day;
-                            return (
-                                <div
-                                    key={day}
-                                    aria-current={now ? 'step' : undefined}
-                                    style={{
-                                        borderRadius: 10,
-                                        padding: '8px 4px',
-                                        textAlign: 'center',
-                                        fontSize: 13,
-                                        background: now
-                                            ? 'var(--accent, #ffcc4d)'
-                                            : done
-                                                ? '#166534'
-                                                : 'var(--card, #161d3d)',
-                                        color: now ? '#111' : 'inherit',
-                                        fontWeight: now ? 700 : 400,
-                                    }}
-                                >
-                                    <div style={{ fontSize: 18 }}>{phaseIcon(day)}</div>
-                                    <div>
-                                        {t('progress.map.day')} {day}
-                                    </div>
-                                    <div style={{ opacity: 0.8 }}>{dateFor(day, lang)}</div>
-                                    <div>{done ? '✅' : now ? t('progress.map.now') : ''}</div>
-                                </div>
-                            );
-                        })}
-                    </div>
-                </section>
-            ))}
-
-            <p style={{ fontSize: 13, opacity: 0.7 }}>
-                ☀️ {t('progress.map.legendDay')} · 🌑 {t('progress.map.legendNight')} · 🌅{' '}
-                {t('progress.map.legendSunrise')}
-            </p>
-
-            <button
-                style={btn}
-                type="button"
-                onClick={() => dispatch({ type: ACTIONS.GO, screen: 'start' })}
-            >
-                ← {t('progress.map.back')}
-            </button>
-        </main>
+        <div className="ms-res" data-s={s}>
+            <div className="ms-row">
+                <span aria-hidden="true">{icon}</span>
+                <span>{label}</span>
+                <span className="ms-spacer" />
+                <strong className="ms-res__val">{value} / {max}</strong>
+            </div>
+            <div className="ms-bar" role="meter" aria-label={label} aria-valuemin={0} aria-valuemax={max} aria-valuenow={value}>
+                <i style={{ width: `${Math.max(0, Math.min(100, (value / max) * 100))}%` }} />
+            </div>
+            {note && <p className="ms-dim ms-small">{note}</p>}
+        </div>
     );
 }
 
-const btn = {
-    minHeight: 44,
-    padding: '12px 18px',
-    borderRadius: 12,
-    border: 0,
-    fontWeight: 700,
-    fontSize: 16,
-    cursor: 'pointer',
-    background: 'var(--accent, #ffcc4d)',
-    color: '#111',
-};
+export default function MissionMap({ state, dispatch, t }) {
+    const [toast, setToast] = useState(null);
+    const toastTimer = useRef(0);
+    const nowRef = useRef(null);
+    const lang = state.lang === 'en' ? 'en-US' : 'uk-UA';
+    const patches = state.patches || [];
+
+    const started = Boolean(state.resume);
+    const finished = state.resume === 'certificate';
+    const current = started ? state.day : 1;
+    const ratings = useMemo(() => Object.fromEntries((state.history || []).map((h) => [h.day, h.stars ?? 0])), [state.history]);
+    const totalStars = Object.values(ratings).reduce((sum, n) => sum + n, 0);
+    const cadet = getPlayerName() || t('progress.path.cadet');
+
+    useEffect(() => {
+        nowRef.current?.scrollIntoView({ block: 'center' });
+        return () => clearTimeout(toastTimer.current);
+    }, []);
+
+    const say = (text) => {
+        clearTimeout(toastTimer.current);
+        setToast(text);
+        toastTimer.current = setTimeout(() => setToast(null), TOAST_MS);
+    };
+
+    const dayState = (n) => {
+        if (finished || n < current) return 'done';
+        if (n === current) return 'now';
+        return 'locked';
+    };
+
+    const openDay = (n) => {
+        const st = dayState(n);
+        if (st === 'now') {
+            if (!started) dispatch({ type: ACTIONS.START_GAME });
+            else dispatch({ type: ACTIONS.GO, screen: 'briefing' }); // рушій поверне туди, де гравець зупинився
+            return;
+        }
+        if (st === 'done') {
+            say(ratings[n] !== undefined
+                ? t('progress.path.doneToast', { n, stars: '★'.repeat(ratings[n]) + '☆'.repeat(3 - ratings[n]) })
+                : t('progress.path.calmToast', { n }));
+            return;
+        }
+        say(t('progress.path.lockedToast', { n: current }));
+    };
+
+    // Звивиста стежка: x у %, y у px (як мапа рівнів)
+    const nodes = [];
+    const pts = [];
+    let y = 30;
+    let i = 0;
+    const place = (key, el, h = NODE_H) => {
+        const x = 50 + 28 * Math.sin(i++ * 0.9);
+        pts.push([x, y + 34]);
+        nodes.push(el(key, x, y));
+        y += h;
+    };
+
+    place('launch', (key, x, top) => (
+        <button key={key} type="button" className="ms-node ms-node--end" data-state="done" style={{ left: `${x.toFixed(1)}%`, top }}
+            onClick={() => say(t('progress.path.launchToast'))} aria-label={t('progress.path.launch')}>
+            <span className="ms-node__pic"><PixelRocket /></span>
+            <span className="ms-node__cap">{t('progress.path.launch')}</span>
+        </button>
+    ));
+
+    for (const w of WEEKS) {
+        const patch = PATCH_BY_WEEK[w.n];
+        const top = y;
+        nodes.push(
+            <div key={`week-${w.n}`} className="ms-banner" style={{ top }}>
+                <span className="ms-banner__num">{w.n === 5 ? t('progress.path.finale') : t('progress.path.week', { n: w.n })}</span>
+                <strong>{t(`progress.path.weeks.${w.n}`)}</strong>
+                <span className="ms-banner__goal">
+                    {patch ? `🎯 ${t('progress.badge.how.' + patch)}` : t('progress.path.finaleGoal')}
+                </span>
+            </div>,
+        );
+        y += BANNER_H;
+
+        for (let n = w.from; n <= w.to; n++) {
+            const d = days[n - 1];
+            const st = dayState(n);
+            const calm = isCalmDay(days, n);
+            place(`d${n}`, (key, x, nodeTop) => (
+                <button
+                    key={key}
+                    ref={st === 'now' ? nowRef : undefined}
+                    type="button"
+                    className="ms-node"
+                    data-state={st}
+                    style={{ left: `${x.toFixed(1)}%`, top: nodeTop }}
+                    aria-label={`${t('progress.path.dayAria', { n, date: d?.date ?? '' })}${st === 'locked' ? `, ${t('progress.path.locked')}` : ''}`}
+                    onClick={() => openDay(n)}
+                >
+                    <span className="ms-node__pic"><PixelStar state={st} /><b>{n}</b></span>
+                    {d?.phase === 'night' && <span className="ms-node__night" aria-hidden="true">🌙</span>}
+                    {st === 'now' && <span className="ms-go"><span aria-hidden="true">▶</span> {t('progress.path.play')}</span>}
+                    {st === 'done' && ratings[n] !== undefined && (
+                        <StarRating n={ratings[n]} label={t('progress.path.starsAria', { n: ratings[n], of: 3 })} />
+                    )}
+                    {st === 'done' && ratings[n] === undefined && calm && <span className="ms-node__calm">😴 {t('progress.path.autopilot')}</span>}
+                </button>
+            ), st === 'now' ? NOW_H : NODE_H);
+        }
+    }
+
+    place('home', (key, x, top) => (
+        <button key={key} type="button" className="ms-node ms-node--end" data-state={finished ? 'now' : 'locked'} style={{ left: `${x.toFixed(1)}%`, top }}
+            onClick={() => (finished ? dispatch({ type: ACTIONS.GO, screen: 'certificate' }) : say(t('progress.path.homeToast')))}
+            aria-label={t('progress.path.home')}>
+            <span className="ms-node__pic"><PixelEarth /></span>
+            <span className="ms-node__cap">{t('progress.path.home')}</span>
+        </button>
+    ));
+
+    const H = y + 10;
+    const line = pts.map(([x, py]) => `${x.toFixed(1)},${py}`).join(' ');
+    const doseBand = state.dose >= CONFIG.goldDoseMax ? 'bad' : state.dose >= CONFIG.doseLimit * 0.4 ? 'warn' : 'ok';
+    const tip = current >= 22 && current <= 28 ? 'tipStorm' : current >= 15 && current < 29 ? 'tipNight' : 'tipStart';
+    const earned = PATCHES.filter((p) => patches.includes(p.id));
+
+    return (
+        <main className="ms" lang={lang}>
+            <div className="ms-sky" aria-hidden="true"><i /><i /><i /></div>
+            <div className="ms-screen">
+                <header className="ms-topbar">
+                    <button type="button" className="ms-logo" onClick={() => dispatch({ type: ACTIONS.GO, screen: 'start' })} aria-label={t('progress.path.mainMenu')}>
+                        <MsLogo /> {t('progress.menu.title')}
+                    </button>
+                    <span className="ms-crumb">/ {t('progress.path.title')}</span>
+                    <span className="ms-spacer" />
+                    <button type="button" className="ms-btn ms-btn--ghost" onClick={() => dispatch({ type: ACTIONS.GO, screen: 'sources' })}>
+                        <span className="ms-emoji" aria-hidden="true">📡</span> {t('progress.start.sources')}
+                    </button>
+                </header>
+
+                <div className="ms-map">
+                    <div className="ms-path" style={{ height: H }}>
+                        <svg className="ms-path__line" viewBox={`0 0 100 ${H}`} preserveAspectRatio="none" aria-hidden="true">
+                            <polyline points={line} />
+                        </svg>
+                        {nodes}
+                    </div>
+
+                    <aside className="ms-stack ms-map__side">
+                        <section className="ms-panel ms-stack">
+                            <div className="ms-row">
+                                <strong className="ms-cadet">{cadet}</strong>
+                                <span className="ms-spacer" />
+                                <span className="ms-chip">⭐ {totalStars} / {MAX_STARS}</span>
+                            </div>
+                            <Resource icon="🫁" label={t('briefing.meters.short.life')} value={state.life} max={CONFIG.lifeMax} s={tone(state.life / CONFIG.lifeMax)} />
+                            <Resource icon="⚡" label={t('briefing.meters.short.battery')} value={state.battery} max={CONFIG.batteryMax} s={tone(state.battery / CONFIG.batteryMax)} />
+                            <Resource icon="🔬" label={t('briefing.meters.short.science')} value={state.science} max={CONFIG.scienceGoal} s="ok" />
+                            <Resource icon="☢️" label={t('briefing.meters.short.dose')} value={Math.round(state.dose * 10) / 10} max={CONFIG.doseLimit} s={doseBand}
+                                note={t('progress.path.doseLimit', { n: CONFIG.doseLimit })} />
+                            <div className="ms-stack" style={{ gap: 8 }}>
+                                <div className="ms-row">
+                                    <span>🏅 {t('progress.path.badges')}</span>
+                                    <span className="ms-spacer" />
+                                    <strong>{earned.length} / {PATCHES.length}</strong>
+                                </div>
+                                <div className="ms-badges">
+                                    {PATCHES.map((p) => (
+                                        <PatchBadge key={p.id} id={p.id} size={40} earned={patches.includes(p.id)} label={t('progress.patch.' + p.id)} />
+                                    ))}
+                                </div>
+                            </div>
+                        </section>
+                        <section className="ms-panel ms-panel--tight">
+                            <div className="ms-helper ms-helper--small">
+                                <div className="ms-helper__bot"><LiraAvatar mood="neutral" label={t('briefing.lira.avatar')} /></div>
+                                <p className="ms-bubble">
+                                    <span className="ms-bubble__who">{t('briefing.lira.name')}</span>
+                                    {t(`progress.path.${tip}`)}
+                                </p>
+                            </div>
+                        </section>
+                    </aside>
+                </div>
+            </div>
+            {toast && <div className="ms-toast" role="status">{toast}</div>}
+        </main>
+    );
+}

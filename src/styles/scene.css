@@ -1,0 +1,164 @@
+/* Сцена бази (BaseScene.jsx) і годинник дня. Власник: Dev 5. Кольори — токени --scene-* з theme.css. */
+
+.scene {
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+  aspect-ratio: 160 / 72;
+  max-height: 34vh;
+  min-height: 150px;
+  width: 100%;
+  border: var(--frame-w) solid var(--scene-frame);
+  border-radius: var(--bubble-radius);
+  background: var(--scene-sky-bottom);
+  box-shadow: var(--shadow-sm);
+}
+.scene__art { display: block; width: 100%; height: 100%; }
+
+.scene__sky-top { stop-color: var(--scene-sky-top); }
+.scene__sky-bottom { stop-color: var(--scene-sky-bottom); }
+.scene__stars rect { fill: var(--scene-star); animation: scene-twinkle 2.2s steps(1, end) infinite; }
+
+.scene__sun-glow { fill: var(--scene-sun-glow); }
+.scene__sun-disc { fill: var(--scene-sun); }
+.scene__sun-core { fill: var(--scene-sun-core); }
+.scene__earth-sea { fill: var(--scene-earth); }
+.scene__earth-land { fill: var(--scene-earth-land); }
+
+.scene__ground-back { fill: var(--scene-ground-back); }
+.scene__ground { fill: var(--scene-ground); }
+.scene__crater { fill: var(--scene-crater); }
+.scene__metal { fill: var(--scene-metal); }
+.scene__beacon { fill: var(--danger); animation: scene-twinkle 1s steps(1, end) infinite; }
+.scene__dome { fill: var(--scene-dome); }
+.scene__dome-shade { fill: var(--scene-dome-shade); }
+.scene__window { fill: var(--scene-window); }
+.scene__door { fill: var(--scene-door); }
+.scene__panel { fill: var(--scene-panel); }
+.scene__panel-line { fill: none; stroke: var(--scene-panel-line); stroke-width: 0.6; }
+.scene__bunker { fill: var(--scene-bunker); }
+.scene__bunker-rock { fill: var(--scene-bunker-rock); }
+.scene__bunker-door { fill: var(--scene-door); }
+.scene__bunker-sign { fill: var(--scene-shield-line); }
+.scene__rover { fill: var(--scene-rover); }
+.scene__wheel { fill: var(--scene-door); }
+.scene__suit { fill: var(--scene-suit); }
+.scene__visor { fill: var(--scene-visor); }
+.scene__pack { fill: var(--scene-metal); }
+.scene__zzz text { font: 700 7px var(--font); fill: var(--scene-zzz); opacity: 0; }
+
+/* Погода: за замовчуванням прихована */
+.scene__flare,
+.scene__flash,
+.scene__cme,
+.scene__sep,
+.scene__shield { opacity: 0; transition: opacity 400ms ease; }
+.scene__flare rect { fill: var(--scene-flare); }
+.scene__flash { fill: var(--scene-flare); pointer-events: none; }
+.scene__cme circle { fill: var(--scene-cme); }
+.scene__cme { transform: translateX(150px); transition: transform 1.4s var(--ease), opacity 400ms ease; }
+.scene__sep rect { fill: var(--scene-sep); }
+.scene__shield { fill: var(--scene-shield); stroke: var(--scene-shield-line); stroke-width: 1; }
+
+/* Ніч: панель не працює, вікна світяться */
+.scene[data-phase='night'] .scene__panel { fill: var(--scene-panel-off); }
+
+/* Екіпаж */
+.scene[data-crew='sleep'] .scene__crew,
+.scene[data-crew='shelter'] .scene__crew { opacity: 0; }
+.scene__crew { transition: opacity 300ms ease; }
+.scene[data-crew='sleep'] .scene__window { fill: var(--scene-window-sleep); }
+.scene[data-crew='sleep'] .scene__zzz text { animation: scene-zzz 1.8s steps(6, end) infinite; }
+.scene[data-crew='sleep'] .scene__zzz text:nth-child(2) { animation-delay: 0.4s; }
+.scene[data-crew='sleep'] .scene__zzz text:nth-child(3) { animation-delay: 0.8s; }
+.scene[data-crew='work'] .scene__astro { animation: scene-walk 0.8s steps(2, end) infinite; }
+.scene[data-crew='shelter'] .scene__shield { opacity: 1; animation: scene-shield 1.4s steps(4, end) infinite; }
+.scene[data-crew='shelter'] .scene__bunker-door { fill: var(--scene-window); }
+
+/* Наближається: Сонце пульсує, хмара визирає з краю, перші частинки */
+.scene[data-effect='approach'][data-kind='flare'] .scene__flare { opacity: 0.7; animation: scene-pulse 0.9s steps(2, end) infinite; }
+.scene[data-effect='approach'][data-kind='cme'] .scene__cme { opacity: 0.85; transform: translateX(105px); }
+.scene[data-effect='approach'][data-kind='sep'] .scene__sep { opacity: 0.5; }
+.scene[data-effect='approach'][data-kind='sep'] .scene__sep rect { animation: scene-sep 0.9s linear infinite; }
+
+/* Удар події */
+.scene[data-effect='strike'][data-kind='flare'] .scene__flare { opacity: 1; animation: scene-pulse 0.5s steps(2, end) 4; }
+.scene[data-effect='strike'][data-kind='flare'] .scene__flash { animation: scene-flash 1.2s steps(3, end) 1; }
+.scene[data-effect='strike'][data-kind='cme'] .scene__cme { opacity: 0.9; transform: translateX(40px); }
+.scene[data-effect='strike'][data-kind='sep'] .scene__sep { opacity: 1; }
+.scene[data-effect='strike'][data-kind='sep'] .scene__sep rect { animation: scene-sep 0.6s linear infinite; }
+.scene[data-effect='strike'][data-crew='work'] .scene__astro { animation: scene-hit 0.3s steps(2, end) 6; }
+
+/* Годинник поверх сцени */
+.clock {
+  position: absolute;
+  top: var(--gap-2);
+  left: var(--gap-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-1);
+  padding: var(--gap-1) var(--gap-2);
+  min-width: 132px;
+  background: var(--clock-bg);
+  color: var(--clock-text);
+  border: var(--border-w) solid var(--clock-border);
+  border-radius: var(--bubble-radius);
+}
+.clock__time {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-1);
+  font-family: var(--font-num);
+  font-weight: 900;
+  font-size: var(--fs-lg);
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.clock__fast {
+  margin-left: auto;
+  padding: 0 6px;
+  background: var(--accent);
+  color: var(--on-accent);
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-xs);
+  animation: scene-pulse 0.5s steps(2, end) infinite;
+}
+.clock__track {
+  position: relative;
+  height: 8px;
+  background: linear-gradient(90deg, var(--clock-night) 0 25%, var(--clock-day) 25% 83%, var(--clock-night) 83% 100%);
+  border-radius: 4px;
+}
+.clock__now,
+.clock__event {
+  position: absolute;
+  top: 50%;
+  left: calc(var(--at, 0) * 100%);
+  transform: translate(-50%, -50%);
+}
+.clock__now { width: 4px; height: 14px; background: var(--clock-text); border-radius: 2px; }
+.clock__event { font-size: 0.9rem; line-height: 1; filter: drop-shadow(0 0 2px var(--clock-bg)); }
+.clock[data-fast] .clock__time { color: var(--accent); }
+
+@keyframes scene-twinkle { 50% { opacity: 0.25; } }
+@keyframes scene-zzz {
+  0% { opacity: 0; transform: translate(0, 4px); }
+  30% { opacity: 1; }
+  100% { opacity: 0; transform: translate(3px, -6px); }
+}
+@keyframes scene-walk { 50% { transform: translateY(-1px); } }
+@keyframes scene-pulse { 50% { opacity: 0.35; } }
+@keyframes scene-flash { 0% { opacity: 0; } 20% { opacity: 0.55; } 100% { opacity: 0; } }
+@keyframes scene-sep { from { transform: translateY(0); } to { transform: translateY(80px); } }
+@keyframes scene-shield { 50% { opacity: 0.6; } }
+@keyframes scene-hit { 50% { opacity: 0.2; } }
+
+@media (max-width: 480px) {
+  .scene { min-height: 132px; }
+  .clock { min-width: 112px; }
+  .clock__time { font-size: var(--fs-md); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scene__cme { transition: none; }
+}

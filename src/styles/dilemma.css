@@ -1,0 +1,157 @@
+/* Дилема дня (Decision.jsx) і таймер (Timer.jsx). Лише токени з theme.css. */
+
+.dilemma {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-3);
+  animation: dilemma-in 360ms var(--ease-bounce) backwards;
+}
+
+.dilemma__q {
+  font-family: var(--font-num);
+  font-weight: 900;
+  font-size: var(--fs-2xl);
+  line-height: 1.2;
+  color: var(--heading);
+  text-align: center;
+  text-wrap: balance;
+}
+
+.dilemma__options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--gap-3);
+}
+
+/* Велика мультяшна кнопка-вибір */
+.choice {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--gap-2);
+  min-height: 150px;
+  padding: var(--gap-3) var(--gap-2);
+  background: var(--space-raised);
+  color: var(--text);
+  border: var(--frame-w) solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 6px 0 var(--border-strong);
+  text-align: center;
+  transition: transform 120ms var(--ease-bounce), box-shadow 120ms ease, border-color 120ms ease, opacity 200ms ease;
+}
+.choice:hover:not(:disabled) { background: var(--space-raised); border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 9px 0 var(--accent-shadow); }
+.choice:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 2px 0 var(--accent-shadow); }
+.choice:disabled { cursor: default; box-shadow: 0 6px 0 var(--border-strong); }
+
+.choice__icon { font-size: 3rem; line-height: 1; }
+.choice__label {
+  font-family: var(--font-num);
+  font-weight: 900;
+  font-size: var(--fs-xl);
+  line-height: 1.2;
+  color: var(--heading);
+  text-wrap: balance;
+}
+.choice__chips { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--gap-1); margin-top: auto; }
+.choice__chip {
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  background: var(--space-sunken);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-bold);
+  white-space: nowrap;
+}
+.choice__chip[data-tone='good'] { color: var(--ok); background: var(--ok-soft); }
+.choice__chip[data-tone='warn'] { color: var(--warning); background: var(--warning-soft); }
+.choice__chip[data-tone='bad'] { color: var(--danger); background: var(--danger-soft); }
+.choice__chip[data-tone='unknown'] { color: var(--text-muted); }
+
+/* Підказка Ліри (перші дні): кнопка м'яко світиться */
+.choice[data-hint] { border-color: var(--ok); animation: choice-hint 1.4s ease-in-out infinite; }
+.choice__hint {
+  position: absolute;
+  top: -12px;
+  right: -8px;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--warning);
+  font-size: 1.1rem;
+  box-shadow: var(--shadow-sm);
+  animation: hint-bounce 1s var(--ease-bounce) infinite;
+}
+
+/* Після вибору: обрана кнопка «стрибає», інша блякне */
+.choice[data-state='picked'] { border-color: var(--accent); animation: choice-pick 420ms var(--ease-bounce) forwards; }
+.choice[data-state='dropped'] { opacity: 0.35; transform: scale(0.95); }
+
+.dilemma__timeout {
+  font-family: var(--font-num);
+  font-weight: 900;
+  font-size: var(--fs-xl);
+  color: var(--danger);
+  text-align: center;
+  animation: choice-pick 420ms var(--ease-bounce);
+}
+
+.dilemma__timer-toggle {
+  align-self: center;
+  min-height: 36px;
+  padding: 4px 12px;
+  background: transparent;
+  color: var(--text-muted);
+  border: var(--border-w) dashed var(--border-strong);
+  border-radius: var(--radius-pill);
+  box-shadow: none;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+}
+.dilemma__timer-toggle:hover:not(:disabled) { background: var(--accent-soft); }
+
+/* Таймер */
+.timer {
+  --timer-color: var(--ok);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) 2.4ch;
+  align-items: center;
+  gap: var(--gap-2);
+}
+.timer[data-tone='warn'] { --timer-color: var(--warning); }
+.timer[data-tone='danger'] { --timer-color: var(--danger); }
+.timer__icon { font-size: 1.4rem; }
+.timer__track {
+  position: relative;
+  height: 16px;
+  overflow: hidden;
+  background: var(--space-sunken);
+  border: var(--border-w) solid var(--border-strong);
+  border-radius: var(--radius-pill);
+}
+.timer__fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: calc(var(--left, 1) * 100%);
+  background: var(--timer-color);
+  border-radius: inherit;
+  transition: width 1s linear, background-color 300ms ease;
+}
+.timer__num { font-family: var(--font-num); font-weight: 900; font-size: var(--fs-lg); color: var(--timer-color); text-align: right; font-variant-numeric: tabular-nums; }
+.timer[data-tone='danger'] .timer__num { animation: choice-pick 1s steps(2, end) infinite; }
+.timer[data-paused] { opacity: 0.6; }
+
+@keyframes dilemma-in { from { opacity: 0; transform: translateY(16px) scale(0.96); } }
+@keyframes choice-hint { 50% { box-shadow: 0 6px 0 var(--border-strong), 0 0 0 5px var(--ok-soft); } }
+@keyframes hint-bounce { 50% { transform: translateY(-4px); } }
+@keyframes choice-pick { 0% { transform: scale(1); } 40% { transform: scale(1.08) rotate(-1deg); } 100% { transform: scale(1.02); } }
+
+@media (max-width: 420px) {
+  .dilemma__q { font-size: var(--fs-xl); }
+  .choice { min-height: 132px; padding: var(--gap-2); }
+  .choice__icon { font-size: 2.4rem; }
+  .choice__label { font-size: var(--fs-lg); }
+  .choice__chip { font-size: var(--fs-xs); padding: 1px 6px; }
+}
