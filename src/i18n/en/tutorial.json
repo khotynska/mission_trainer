@@ -4,12 +4,13 @@
   "steps": {
     "hello": "Hi! I'm Nova. Let me show you how to play!",
     "battery": "⚡ Energy. The Sun charges it in the daytime.",
-    "life": "🫁 Air and food. Don't let them run out!",
+    "life": "🫁 Food & air. The crew eats every day — don't run out!",
+    "mood": "😊 Mood. A sad crew works worse.",
     "dose": "☢️ Radiation. Keep it low!",
     "science": "🔬 Science. Collect 150 points!",
     "clock": "🕑 The clock shows when the event happens.",
     "lira": "🤖 Lira tells you what happened on the Sun.",
-    "choices": "Pick one button! The icons show what will happen."
+    "choices": "Pick a chore! The icons show what will change."
   },
   "tap": "Tap the glowing part",
   "tap_choice": "Tap a button",

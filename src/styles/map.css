@@ -1,0 +1,163 @@
+/* «Зоряний шлях» (MissionMap.jsx) — у стилі всієї гри. Лише токени з theme.css.
+   Панелі, шрифт і кнопки — як у рівнях; сама мапа — темний космос у рамці, як сцена бази. */
+
+.app > .map { max-width: 1080px; margin: 0 auto var(--gap-6); }
+
+/* Верхня панель — як панель гри */
+.map__bar { position: sticky; top: 0; z-index: 5; }
+.map__bar .meters__header { margin-bottom: 0; }
+.map__title {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--gap-2);
+  font-family: var(--font-pixel);
+  font-size: var(--fs-px-xl);
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--heading);
+  text-shadow: 2px 2px 0 var(--frame-shadow);
+}
+.map__sources { width: auto; padding: 0 var(--gap-3); gap: var(--gap-1); font-size: var(--fs-md); font-weight: var(--fw-bold); }
+
+.map__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 330px;
+  gap: var(--gap-4);
+  align-items: start;
+  margin-top: var(--gap-2);
+}
+
+/* Картка з космосом */
+.map__card { padding: var(--gap-3); }
+.map__space {
+  overflow: hidden;
+  background-color: var(--scene-sky-bottom);
+  background-image: var(--stars-b), var(--stars-a), linear-gradient(180deg, var(--scene-sky-top), var(--scene-sky-bottom) 60%, var(--scene-sky-top));
+  background-repeat: repeat, repeat, no-repeat;
+  background-size: 340px 340px, 260px 260px, 100% 100%;
+  border: var(--frame-w) solid var(--scene-frame);
+  border-radius: var(--bubble-radius);
+}
+.map__path { position: relative; width: 100%; max-width: 560px; margin: 0 auto; }
+.map__line { position: absolute; inset: 0; width: 100%; height: 100%; }
+.map__line polyline { fill: none; stroke: var(--clock-border); stroke-width: 5; stroke-dasharray: 5 9; vector-effect: non-scaling-stroke; }
+
+/* Тиждень — картка, як інші картки гри */
+.map-week {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(calc(100% - 16px), 400px);
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  padding: var(--gap-2) var(--gap-3);
+  background: var(--space-raised);
+  color: var(--text);
+  border: var(--border-w) solid var(--border-strong);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  text-align: center;
+}
+.map-week__num { font-size: var(--fs-sm); font-weight: var(--fw-bold); text-transform: uppercase; letter-spacing: 0.05em; color: var(--eyebrow); }
+.map-week__title { font-family: var(--font-pixel); font-size: var(--fs-px-lg); font-weight: 800; color: var(--heading); }
+.map-week__goal { font-size: var(--fs-sm); color: var(--text-muted); }
+
+/* Зірка-рівень */
+.map-node {
+  position: absolute;
+  transform: translateX(-50%);
+  width: 120px;
+  min-height: 0;
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  padding: 0;
+  background: none;
+  border: 0;
+  box-shadow: none;
+  color: var(--clock-text);
+  cursor: pointer;
+}
+.map-node:hover:not(:disabled) { background: none; }
+.map-node:active:not(:disabled) { transform: translateX(-50%) scale(0.95); box-shadow: none; }
+.map-node__pic { position: relative; width: 66px; height: 66px; transition: transform 150ms var(--ease-bounce); }
+.map-node:hover .map-node__pic { transform: scale(1.08); }
+.map-node__pic .px-sprite { display: block; width: 100%; height: 100%; image-rendering: pixelated; }
+.map-node__pic b {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 32%;
+  text-align: center;
+  font-family: var(--font-pixel);
+  font-size: var(--fs-lg);
+  font-weight: 800;
+  line-height: 1;
+  color: #4a2c00;
+}
+.map-node[data-state='locked'] { cursor: default; }
+.map-node[data-state='locked'] .map-node__pic b { color: #aab3e6; }
+.map-node[data-state='now'] .map-node__pic { width: 86px; height: 86px; margin-top: -10px; filter: drop-shadow(0 0 12px rgb(77 225 255 / 0.75)); animation: map-pulse 1.6s ease-in-out infinite; }
+.map-node[data-state='now'] .map-node__pic b { color: #04122a; font-size: var(--fs-xl); }
+.map-node__night { position: absolute; top: 0; right: 16px; font-size: 1rem; }
+.map-node__cap { font-size: var(--fs-md); font-weight: var(--fw-bold); text-align: center; text-shadow: 1px 1px 0 var(--scene-sky-top); }
+.map-node--end .map-node__pic { width: 60px; height: 60px; }
+/* «▶ Грати» — як головна кнопка гри */
+.map-node__go {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  padding: 2px 14px;
+  background: var(--accent);
+  color: var(--on-accent);
+  border: var(--border-w) solid var(--accent-strong);
+  border-radius: var(--radius-pill);
+  box-shadow: 0 3px 0 var(--accent-shadow);
+  font-size: var(--fs-md);
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.px-stars { display: inline-flex; gap: 3px; }
+.px-stars .px-sprite { display: block; width: 18px; height: 18px; image-rendering: pixelated; }
+
+/* Бічна колонка */
+.map__side { display: flex; flex-direction: column; gap: var(--gap-3); position: sticky; top: 92px; }
+.map__panel { gap: var(--gap-3); padding: var(--gap-3); }
+.map__cadet-row { display: flex; align-items: center; justify-content: space-between; gap: var(--gap-2); }
+.map__cadet { font-family: var(--font-pixel); font-size: var(--fs-px-lg); font-weight: 800; color: var(--heading); }
+.map__stars { color: var(--sun); border-color: var(--sun); }
+.map__badges-head { display: flex; justify-content: space-between; font-weight: var(--fw-bold); }
+.map__badges { display: flex; flex-wrap: wrap; gap: var(--gap-2); }
+
+/* Тост */
+.map__toast {
+  position: fixed;
+  z-index: 60;
+  left: 50%;
+  bottom: var(--gap-5);
+  max-width: min(560px, calc(100vw - 32px));
+  padding: var(--gap-2) var(--gap-4);
+  background: var(--space-raised);
+  color: var(--text);
+  border: var(--frame-w) solid var(--frame);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-card);
+  font-weight: var(--fw-bold);
+  text-align: center;
+  transform: translateX(-50%);
+  animation: delta-pop 300ms var(--ease-bounce);
+}
+
+@keyframes map-pulse { 50% { filter: drop-shadow(0 0 20px rgb(77 225 255 / 0.95)); } }
+
+@media (max-width: 900px) {
+  .map__layout { grid-template-columns: minmax(0, 1fr); }
+  .map__side { position: static; order: -1; }
+}
+@media (max-width: 480px) {
+  .map__sources-label { display: none; }
+  .map__title { font-size: var(--fs-px-lg); }
+}

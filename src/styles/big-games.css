@@ -1,0 +1,129 @@
+/* Великі міні-ігри (перенесені з MoonShift): вступна картка й сцена 960×600.
+   Кольори ілюстрацій усередині SVG — палітра MoonShift (kit.js); рамки й тексти навколо — токени теми. */
+
+/* ── Вступ: «Як грати / Чому це важливо / час / Почати» ── */
+.bg-intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-4);
+  padding: var(--gap-4);
+  background: var(--space-raised);
+  border: 3px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  animation: bg-pop-in 320ms var(--ease-bounce) backwards;
+}
+.bg-intro[data-urgent] { border-color: var(--danger); }
+.bg-intro__title {
+  margin: 0;
+  font-family: var(--font-pixel);
+  font-size: var(--fs-px-xl);
+  color: var(--heading);
+  line-height: var(--lh-tight);
+}
+.bg-intro__cols {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--gap-4);
+}
+.bg-intro__cols p { margin: 0 0 var(--gap-2); line-height: var(--lh); }
+.bg-intro__head {
+  font-family: var(--font-pixel);
+  font-size: var(--fs-px-md);
+  color: var(--eyebrow);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.bg-intro__list { margin: 0; padding-left: 1.3em; display: grid; gap: var(--gap-1); line-height: var(--lh); }
+.bg-intro__time { align-self: flex-start; margin-top: var(--gap-2); }
+
+.bg-alarm {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-3);
+  padding: var(--gap-3) var(--gap-4);
+  border-radius: var(--radius);
+  background: var(--danger-soft);
+  border: 2px solid var(--danger);
+  animation: bg-alarm 0.9s steps(2, jump-none) infinite;
+}
+.bg-alarm p { margin: 0; }
+.bg-alarm__icon { font-size: 2.4rem; line-height: 1; }
+.bg-alarm__title {
+  font-family: var(--font-pixel);
+  font-size: var(--fs-px-xl);
+  color: var(--danger);
+  line-height: var(--lh-tight);
+}
+
+/* ── Сцена ── */
+.bg-stage { display: flex; flex-direction: column; gap: var(--gap-2); animation: bg-pop-in 260ms var(--ease) backwards; }
+.bg-stage__title {
+  margin: 0;
+  font-family: var(--font-pixel);
+  font-size: var(--fs-px-lg);
+  color: var(--heading);
+  text-align: center;
+}
+.bg-stage__box {
+  width: 100%;
+  max-width: min(100%, calc(78vh * 960 / 600));
+  margin-inline: auto;
+  aspect-ratio: 960 / 600;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 3px solid var(--border-strong);
+  box-shadow: var(--shadow-sm);
+  background: #050714;
+}
+.bg-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  font-family: var(--font-pixel);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+}
+.bg-svg:focus { outline: none; }
+.bg-svg:focus-visible { outline: 3px solid var(--focus); outline-offset: -3px; }
+.bg-svg text { pointer-events: none; }
+
+.bg-num { font-family: var(--font-num); font-weight: 700; font-variant-numeric: tabular-nums; }
+.bg-mono { font-family: var(--font-mono); letter-spacing: 0.06em; white-space: pre; }
+.bg-banner { font-family: var(--font-pixel); font-weight: 700; animation: bg-banner 420ms var(--ease-bounce) backwards; transform-box: fill-box; transform-origin: center; }
+
+.bg-pad { cursor: pointer; }
+.bg-pad:active { opacity: 0.75; }
+
+/* мигання, підскок, згасання */
+.bg-pulse { animation: bg-pulse 1.4s ease-in-out infinite; }
+.bg-flash { animation: bg-flash 420ms ease-out forwards; }
+.bg-bob { animation: bg-bob 1.2s ease-in-out infinite; }
+.bg-fade { animation: bg-fade 600ms ease-out forwards; transform-box: fill-box; transform-origin: center; }
+.bg-alarm-tint { animation: bg-tint 1s ease-in-out infinite; opacity: 0.08; }
+.bg-protons { animation: bg-protons 1.1s linear infinite; }
+
+@keyframes bg-pop-in { from { opacity: 0; transform: translateY(8px) scale(0.98); } }
+@keyframes bg-alarm { 50% { background: rgb(255 95 109 / 0.32); } }
+@keyframes bg-banner { from { opacity: 0; transform: scale(0.6); } }
+@keyframes bg-pulse { 50% { opacity: 0.55; } }
+@keyframes bg-flash { from { opacity: 0.9; } to { opacity: 0; } }
+@keyframes bg-bob { 50% { transform: translateY(-5px); } }
+@keyframes bg-fade { from { opacity: 1; transform: scale(0.6); } to { opacity: 0; transform: scale(1.6); } }
+@keyframes bg-tint { 50% { opacity: 0.16; } }
+@keyframes bg-protons { from { transform: translateX(0); } to { transform: translateX(-160px); } }
+
+.app[data-theme='light'] .bg-intro { background: var(--space-raised); }
+
+@media (prefers-reduced-motion: reduce) {
+  .bg-intro, .bg-stage, .bg-banner, .bg-alarm, .bg-pulse, .bg-bob, .bg-protons, .bg-alarm-tint { animation: none; }
+  .bg-flash, .bg-fade { animation-duration: 1ms; }
+}
+
+@media (max-width: 560px) {
+  .bg-intro { padding: var(--gap-3); }
+  .bg-stage__box { border-width: 2px; border-radius: var(--radius); }
+}

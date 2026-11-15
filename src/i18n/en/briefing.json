@@ -19,10 +19,6 @@
     "work": "the crew is working",
     "shelter": "the crew is in the shelter"
   },
-  "forecast": {
-    "cme_tomorrow": "🌊 Plasma cloud tomorrow!",
-    "cme": "🌊 Plasma cloud in {n} days"
-  },
   "source": {
     "real_event": "Real NASA event",
     "ids": "DONKI IDs",
@@ -35,9 +31,10 @@
     "value_of": "{value} of {max}",
     "short": {
       "battery": "Energy",
-      "life": "Air",
+      "life": "Food",
       "dose": "Radiation",
-      "science": "Science"
+      "science": "Science",
+      "mood": "Mood"
     }
   },
   "hud": {
@@ -49,5 +46,9 @@
     "help": "How to play",
     "home": "Home",
     "map": "Star path"
+  },
+  "forecast": {
+    "cme_tomorrow": "🌊 Cloud tomorrow!",
+    "cme": "🌊 Cloud in {n} days"
   }
 }

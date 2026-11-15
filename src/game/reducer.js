@@ -1,29 +1,35 @@
 // Переходи між екранами + виклики рушія. Власник: Tech Lead.
 //
-// Темп гри (відгук тестувальників):
-// • граємо лише дні з реальними подіями; спокійні дні проходять на автопілоті й показуються
-//   однією карткою-підсумком (екран 'calm');
-// • рішення дня — дилема з двох кнопок (ACTIONS.CHOOSE), а не розкладання жетонів;
-// • невдалий день можна переграти (ACTIONS.RETRY_DAY), а не починати весь тиждень;
-// • значки за досягнення додаються в state.patches (зберігаються, як і нашивки тижнів).
+// • Після стартового екрана відкривається «Зоряний шлях» (мапа рівнів), звідти — день.
+// • Кожен із 30 днів — рівень: спокійний день — справи на базі з маленьким завданням,
+//   день із подією — дилема з таймером; день 30 — екран старту ракети.
+// • Рішення — ACTIONS.CHOOSE: наслідки рівно ті, що показані на кнопці (src/game/levels.js), плюс щоденні правила.
+// • Невдалий день можна переграти (ACTIONS.RETRY_DAY), значки додаються в state.patches.
 import { ACTIONS } from './contracts.js';
-import { createGame, startDay, resolveDay, resolveLaunch, checkEnd, checkWeekGoal, isCalmDay } from './gameEngine.js';
-import { autoAllocation } from './dilemmas.js';
+import { createGame, startDay, resolveChoice, resolveLaunch, checkEnd, checkWeekGoal } from './gameEngine.js';
 import { CONFIG } from './config.js';
+import facts from '../data/facts.json' with { type: 'json' };
 
-const snapshot = (s) => ({ day: s.day, battery: s.battery, life: s.life, dose: s.dose, science: s.science, launchReady: s.launchReady });
+/** Факт після рівня: спершу факт цього дня, потім ще не бачені, і жоден — не більше 2 разів за гру. */
+const MAX_FACT_SHOWS = 2;
+export function pickFact(day, factLog = {}) {
+  const ids = facts.map((f) => f.id);
+  const order = [day, ...ids.filter((id) => id > CONFIG.totalDays), ...ids.filter((id) => id !== day && id <= CONFIG.totalDays)];
+  const seen = (id) => factLog[id] ?? 0;
+  return order.find((id) => ids.includes(id) && seen(id) === 0)
+    ?? order.find((id) => ids.includes(id) && seen(id) < MAX_FACT_SHOWS)
+    ?? day;
+}
 
-/** Повний знімок для «Переграти день». */
-const daySnapshotOf = (s) => ({
-  ...snapshot(s),
-  weekSnapshot: s.weekSnapshot,
-  weekLog: s.weekLog,
-  lastAllocation: s.lastAllocation,
-  stats: s.stats,
+const snapshot = (s) => ({
+  day: s.day, battery: s.battery, life: s.life, mood: s.mood, dose: s.dose, science: s.science, wall: s.wall, launchReady: s.launchReady,
 });
 
-/** Екрани всередині місії: на них повертає «Продовжити» зі стартового екрана. */
-const GAME_SCREENS = ['briefing', 'decision', 'result', 'fact', 'calm', 'weekComplete', 'evacuation', 'launch', 'certificate'];
+/** Повний знімок для «Переграти день». */
+const daySnapshotOf = (s) => ({ ...snapshot(s), weekSnapshot: s.weekSnapshot, weekLog: s.weekLog, stats: s.stats });
+
+/** Екрани всередині місії: на них повертає «Продовжити» / «Грати» на мапі. */
+const GAME_SCREENS = ['briefing', 'decision', 'result', 'fact', 'weekComplete', 'evacuation', 'launch', 'certificate'];
 
 const award = (state, id) => (state.patches.includes(id) ? state : { ...state, patches: [...state.patches, id] });
 
@@ -32,60 +38,30 @@ function withWeekSnapshot(state) {
   return isWeekStart || !state.weekSnapshot ? { ...state, weekSnapshot: snapshot(state), weekLog: [] } : state;
 }
 
-/** Зіграний день: брифінг + дилема. */
+/** Почати день state.day: брифінг із рівнем (день 30 — одразу екран ракети). */
 function beginDay(state, days) {
-  const s = withWeekSnapshot(state);
-  return { ...s, daySnapshot: daySnapshotOf(s), briefing: startDay(s, days), result: null, calmLog: [], screen: 'briefing' };
-}
-
-/** Спокійні дні поспіль — на автопілоті, доки не прийде подія, кінець тижня чи кінець місії. */
-function runCalmDays(state, days) {
-  let s = state;
-  const log = [];
-  for (;;) {
-    s = withWeekSnapshot(s);
-    const briefing = startDay(s, days);
-    s = resolveDay({ ...s, briefing }, days, autoAllocation(s, briefing));
-    log.push({
-      day: briefing.day,
-      date: briefing.date,
-      phase: briefing.phase,
-      event: briefing.event.type,
-      detail: briefing.event.detail,
-      warnings: briefing.warnings,
-      deltas: s.result.deltas,
-    });
-    if (checkEnd(s) !== 'continue') break;
-    if (!isCalmDay(days, s.day + 1)) break;
-    s = { ...s, day: s.day + 1 };
-  }
-  return { ...s, calmLog: log, screen: 'calm' };
-}
-
-/** Почати день state.day: спокійний → автопілот, інакше — брифінг. */
-function enterDay(state, days) {
   if (!days.some((d) => d.day === state.day)) return { ...state, screen: 'certificate' };
-  return isCalmDay(days, state.day) ? runCalmDays(state, days) : beginDay(state, days);
+  const s = withWeekSnapshot(state);
+  const briefing = startDay(s, days);
+  const screen = briefing.level.kind === 'launch' ? 'launch' : 'briefing';
+  return { ...s, daySnapshot: daySnapshotOf(s), briefing, result: null, screen };
 }
 
 const evacuate = (s) => ({ ...s, screen: 'evacuation', endReason: s.dose >= CONFIG.doseLimit ? 'dose' : 'life' });
 
 function nextDay(state, days) {
-  if (!days.some((d) => d.day === state.day + 1)) return { ...state, screen: 'certificate' };
-  return enterDay({ ...state, day: state.day + 1 }, days);
+  return beginDay({ ...state, day: state.day + 1 }, days);
 }
 
-/** Що далі після завершеного дня (зіграного чи на автопілоті). */
+/** Що далі після завершеного дня. */
 function afterDay(state, days) {
   const end = checkEnd(state);
   if (end === 'evacuated') return evacuate(state);
   let s = state.day === CONFIG.stormBadgeDay ? award(state, 'may_storm') : state;
-  if (end === 'repeatDay') return beginDay(s, days); // день 29 без підготовки ракети
-  if (end === 'launch') return { ...s, screen: 'launch' };
+  if (end === 'repeatDay') return beginDay(s, days); // день 29 без заправленої ракети
   if (end === 'weekComplete') {
     const weekResult = checkWeekGoal(s);
-    const { patch } = weekResult;
-    if (patch) s = award(s, patch);
+    if (weekResult.patch) s = award(s, weekResult.patch);
     return { ...s, lastWeekResult: weekResult, screen: 'weekComplete' };
   }
   return nextDay(s, days);
@@ -98,45 +74,90 @@ function finishMission(state) {
   return { ...s, screen: 'certificate' };
 }
 
-/** Вибір у дилемі → звичайний розрахунок дня + дані для реакції Ліри й значків. */
-function choose(state, days, { option, ms = null, timedOut = false }) {
-  const dilemma = state.briefing?.dilemma;
-  const picked = dilemma?.options?.[option];
-  if (!picked) return state;
-  let s = resolveDay(state, days, picked.allocation);
+/** Ключ міні-гри варіанта (для лічильника варіантів). */
+const gameKeyOf = (o) => (o.chore ? o.id : o.game ?? null);
 
-  const isBest = dilemma.best === -1 || dilemma.best === option;
-  const fast = !timedOut && Number.isFinite(ms) && ms <= CONFIG.fastAnswerMs;
-  const sheltered = picked.id === 'shelter' && dilemma.kind === 'storm';
-  const stats = {
-    sheltered: s.stats.sheltered + (sheltered ? 1 : 0),
-    fast: s.stats.fast + (fast ? 1 : 0),
-  };
+/**
+ * Як результат великої міні-гри змінює наслідки вибору — логічно й видимо:
+ * погано почищені панелі — менше енергії, недобудована стіна — без захисту,
+ * запізнився в укриття — трохи більше радіації, налаштував зв'язок — настрій кращий.
+ */
+function withGameResult(o, game) {
+  if (!game) return { option: o, effect: null };
+  const G = CONFIG.games;
+  const fx = { ...o.fx };
+  let effect = null;
+  if (o.chore && o.id === 'panels' && game.score < G.patrolGoal && fx.battery > 0) {
+    const full = fx.battery;
+    fx.battery = Math.max(1, Math.round(full * game.score));
+    effect = { key: 'patrol', battery: fx.battery - full };
+  } else if (o.chore && o.id === 'wall' && !game.success && fx.wall) {
+    fx.wall = 0;
+    effect = { key: 'wall', wall: -1 };
+  } else if (o.game === 'dash' && !game.success) {
+    fx.dose = (fx.dose ?? 0) + G.lateShelterDose;
+    effect = { key: 'dash', dose: G.lateShelterDose };
+  } else if (o.game === 'signal') {
+    const d = game.success ? G.signalWinMood : G.signalFailMood;
+    fx.mood = (fx.mood ?? 0) + d;
+    effect = { key: game.success ? 'signal_ok' : 'signal_fail', mood: d };
+  }
+  return { option: { ...o, fx }, effect };
+}
+
+/** Вибір варіанта → наслідки + дані для реакції Ліри, зірок і значків. */
+function choose(state, { option, ms = null, timedOut = false, game = null }) {
+  const level = state.briefing?.level;
+  const base = level?.options?.[option];
+  if (!base || !base.affordable) return state;
+  const { option: picked, effect } = withGameResult(base, game);
+  let s = resolveChoice(state, picked);
+
+  const isBest = level.best === -1 || level.best === option;
+  const timed = level.seconds > 0;
+  const fast = timed && !timedOut && Number.isFinite(ms) && ms <= CONFIG.fastAnswerMs;
+  const sheltered = Boolean(picked.shelter) && level.kind === 'storm';
+  const stats = { sheltered: s.stats.sheltered + (sheltered ? 1 : 0), fast: s.stats.fast + (fast ? 1 : 0) };
   s = {
     ...s,
     stats,
     result: {
       ...s.result,
-      choice: { option, id: picked.id, kind: dilemma.kind, best: isBest, timedOut, fast },
-      mood: timedOut || !isBest ? 'worried' : 'happy',
+      choice: { option, id: picked.id, kind: level.kind, chore: Boolean(picked.chore), best: isBest, timedOut, fast },
+      // програна міні-гра (брудні панелі, запізнився в укриття…) — Ліра хвилюється, можна переграти день
+      mood: timedOut || !isBest || (game && !game.success) ? 'worried' : 'happy',
     },
   };
 
-  // Історія зіграних днів: з екрана евакуації можна повернутися в будь-який із них.
-  // ★★★ — розумний вибір; ★★ — ризикнув, але доза мала; ★ — інше (зокрема «час вийшов»).
-  const doseGain = s.result.deltas.dose;
-  const stars = timedOut ? 1 : isBest ? 3 : doseGain < 5 ? 2 : 1;
+  // ★★★ — розумний вибір (або день без «правильної» відповіді); ★★ — ризикнув, але радіації мало; ★ — інше.
+  const doseGain = s.result.choiceDeltas.dose;
+  const stars = timedOut ? 1 : isBest ? 3 : doseGain < 8 ? 2 : 1;
   const entry = {
     day: state.day,
     date: state.briefing.date,
     event: state.briefing.event.type,
     choice: picked.id,
     best: isBest,
-    doseGain,
+    doseGain: s.result.deltas.dose,
     stars,
     snap: state.daySnapshot,
   };
   s = { ...s, history: [...(state.history || []).filter((h) => h.day < state.day), entry].slice(-CONFIG.totalDays) };
+
+  // Справа: наступного разу — інший варіант міні-гри. Факт: не більше 2 разів за гру.
+  // (Лічильники не входять у знімок дня — переграний день отримує новий варіант і новий факт.)
+  const factId = pickFact(state.day, state.factLog);
+  const key = gameKeyOf(picked);
+  s = {
+    ...s,
+    choreCount: key && game ? { ...state.choreCount, [key]: (state.choreCount?.[key] ?? 0) + 1 } : state.choreCount,
+    factLog: { ...state.factLog, [factId]: (state.factLog?.[factId] ?? 0) + 1 },
+    result: {
+      ...s.result,
+      factId,
+      game: game ? { id: key, success: Boolean(game.success), score: game.score ?? 1, effect } : null,
+    },
+  };
 
   if (state.day === CONFIG.tutorialDay) s = award(s, 'first_steps');
   if (stats.sheltered >= CONFIG.shelterBadgeCount) s = award(s, 'shelter_pro');
@@ -148,7 +169,7 @@ function core(state, action, days) {
   switch (action.type) {
     case ACTIONS.START_GAME: {
       const fresh = createGame(state.lang);
-      return enterDay(
+      const s = beginDay(
         {
           ...fresh,
           patches: state.patches,
@@ -160,6 +181,8 @@ function core(state, action, days) {
         },
         days,
       );
+      // Після старту — «Зоряний шлях»; «▶ Грати» на першій зірці відкриває день 1.
+      return { ...s, screen: 'map', resume: 'briefing' };
     }
 
     case ACTIONS.OPEN_DECISION:
@@ -167,14 +190,10 @@ function core(state, action, days) {
 
     case ACTIONS.CHOOSE:
       if (!state.briefing || state.result) return state; // подвійний клік / день уже пораховано
-      return choose(state, days, action);
-
-    case ACTIONS.SUBMIT_ALLOCATION:
-      if (!state.briefing || state.result) return state;
-      return { ...resolveDay(state, days, action.allocation), screen: 'result' };
+      return choose(state, action);
 
     case ACTIONS.NEXT: {
-      if (['result', 'fact', 'calm'].includes(state.screen)) return afterDay(state, days);
+      if (state.screen === 'result' || state.screen === 'fact') return afterDay(state, days);
       if (state.screen === 'weekComplete') return nextDay(state, days);
       return state;
     }
@@ -192,7 +211,7 @@ function core(state, action, days) {
     case ACTIONS.RESTART_WEEK: {
       const s = state.weekSnapshot;
       if (!s) return state;
-      return enterDay({ ...state, ...s, weekLog: [], weekSnapshot: null, endReason: null, result: null }, days);
+      return beginDay({ ...state, ...s, weekLog: [], weekSnapshot: null, endReason: null, result: null }, days);
     }
 
     case ACTIONS.LAUNCH_CHOICE: {
@@ -217,7 +236,7 @@ function core(state, action, days) {
       return { ...state, tutorial: false, tutorialDone: true };
 
     case ACTIONS.GO: {
-      // «Продовжити» зі старту веде туди, де гравець зупинився (а не на вже порахований брифінг).
+      // «Продовжити» / «Грати» на мапі веде туди, де гравець зупинився.
       if (action.screen === 'briefing' && state.resume && state.resume !== 'briefing') {
         return { ...state, screen: state.resume };
       }
@@ -227,6 +246,7 @@ function core(state, action, days) {
     case ACTIONS.SET_LANG:
       return { ...state, lang: action.lang };
 
+    // SUBMIT_ALLOCATION лишився в контрактах для сумісності, але жетонів у грі більше немає.
     default:
       return state;
   }

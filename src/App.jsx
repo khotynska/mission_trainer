@@ -14,7 +14,6 @@ import Briefing from './components/Briefing.jsx';
 import Decision from './components/Decision.jsx';
 import Result from './components/Result.jsx';
 import FactCard from './components/FactCard.jsx';
-import CalmSummary from './components/CalmSummary.jsx';
 import WeekComplete from './components/WeekComplete.jsx';
 import Evacuation from './components/Evacuation.jsx';
 import Certificate from './components/Certificate.jsx';
@@ -24,6 +23,7 @@ import Meters from './components/Meters.jsx';
 import HudButtons from './components/HudButtons.jsx';
 import Tutorial from './components/Tutorial.jsx';
 import BadgeToast from './components/BadgeToast.jsx';
+import ChoreGame from './components/chores/ChoreGame.jsx';
 import { play, setSoundEnabled } from './components/sfx.js';
 
 registerDayEvents(days); // для запасних текстів days.events.<тип> в i18n
@@ -37,15 +37,13 @@ if (import.meta.env.DEV) {
 
 const SCREENS = {
   start: Start, map: MissionMap, briefing: Briefing, decision: Decision,
-  result: Result, fact: FactCard, calm: CalmSummary, weekComplete: WeekComplete,
+  result: Result, fact: FactCard, weekComplete: WeekComplete,
   evacuation: Evacuation, launch: Launch, certificate: Certificate, sources: Sources,
 };
 /** Панель гри (шкали + кнопки) — над екранами дня. */
-const WITH_METERS = ['briefing', 'decision', 'result', 'calm'];
+const WITH_METERS = ['briefing', 'decision', 'result'];
 /** Інші ігрові екрани: лише кнопки 🔊 ☀️ 🏠 у кутку. */
 const WITH_FLOAT_HUD = ['fact', 'weekComplete', 'evacuation', 'launch', 'certificate'];
-/** Старт і мапа мають власний вигляд — тема їх не змінює. */
-const THEMELESS = ['start', 'map'];
 /** Інструкція з Новою — на екранах із дилемою. */
 const WITH_TUTORIAL = ['briefing', 'decision'];
 
@@ -63,7 +61,12 @@ function init() {
 
 export default function App() {
   // Режим попереднього перегляду: ?screen=decision  (фейковий стан, дії пишуться в консоль)
-  const preview = new URLSearchParams(window.location.search).get('screen');
+  // Міні-гра окремо (лише dev): ?chore=panels | cook | call | clean | experiment | telescope | wall | generator | games | harvest | dash | signal
+  //   &v=2 — варіант (який раз граєш цю гру: інша страва, матеріал, повідомлення…)
+  const params = new URLSearchParams(window.location.search);
+  const preview = params.get('screen');
+  const chorePreview = import.meta.env.DEV ? params.get('chore') : null;
+  const choreVariant = Number(params.get('v')) || 0;
   const [realState, realDispatch] = useReducer(reducer, undefined, init);
 
   const state = preview ? { ...mockState, screen: preview, theme: realState.theme, sound: realState.sound } : realState;
@@ -91,10 +94,19 @@ export default function App() {
     return () => document.removeEventListener('pointerdown', onDown);
   }, []);
 
+  if (chorePreview) {
+    return (
+      <div className="app" data-theme={state.theme}>
+        <section className="screen day" style={{ marginTop: 16 }}>
+          <ChoreGame key={`${chorePreview}-${choreVariant}`} id={chorePreview} t={t} variant={choreVariant} onDone={(r) => console.log('chore done', chorePreview, r)} />
+        </section>
+      </div>
+    );
+  }
+
   const Screen = SCREENS[state.screen] ?? Start;
-  const themed = !THEMELESS.includes(state.screen);
   return (
-    <div className={`app phase-${state.briefing?.phase ?? 'day'}`} data-theme={themed ? state.theme : undefined}>
+    <div className={`app phase-${state.briefing?.phase ?? 'day'}`} data-theme={state.theme}>
       {WITH_METERS.includes(state.screen) && <Meters state={state} dispatch={dispatch} t={t} />}
       {WITH_FLOAT_HUD.includes(state.screen) && (
         <div className="hud-float no-print">

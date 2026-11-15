@@ -40,10 +40,10 @@
   "badge": {
     "new": "New badge!",
     "how": {
-      "energy": "⚡ ≥ 8 and 🫁 ≥ 70 on day 7",
-      "science": "🔬 +60 in a week and ⚡ 12",
+      "energy": "⚡ ≥ 8 on day 7",
+      "science": "🔬 +40 in a week",
       "night": "🫁 ≥ 50 every day",
-      "shield": "☢️ ≤ +20 in a week",
+      "shield": "☢️ ≤ +20 in a week (strengthen the shelter!)",
       "first_steps": "Finish the first day",
       "shelter_pro": "Hide from a storm 3 times",
       "quick": "5 choices in under 4 s",
@@ -60,17 +60,10 @@
     "newBest": "new record!",
     "next": "Next"
   },
-  "calm": {
-    "range": "Days {from}–{to}: all calm",
-    "one": "Day {n}: all calm",
-    "lira": "The Sun is calm — autopilot did the job!",
-    "lira_night": "A quiet night — the crew got some rest.",
-    "sum": "Total for these days"
-  },
   "evac": {
     "title": "Crew evacuated!",
     "reasonDose": "Too much radiation. Replay a day and hide!",
-    "reasonLife": "The air ran out. Replay a day and take care of it!",
+    "reasonLife": "The food ran out. Replay a day and take care of it!",
     "pick": "Pick a day to replay:",
     "worst": "the toughest",
     "restart": "Restart the week",
@@ -131,7 +124,6 @@
     "launch": "Launch",
     "home": "Back to Earth",
     "play": "Play",
-    "autopilot": "autopilot",
     "locked": "locked",
     "dayAria": "Day {n}, {date}",
     "starsAria": "{n} of {of} stars",
@@ -139,11 +131,11 @@
     "launchToast": "Your rocket left Earth and landed at the base. 30 real days of space weather are ahead!",
     "homeToast": "Get through all 30 days to fly home.",
     "doneToast": "Day {n} done: {stars}",
-    "calmToast": "Day {n} was calm — the autopilot handled it.",
     "lockedToast": "Finish Day {n} first.",
     "tipStart": "Each star is one real day of 2024. Get through all 30 and fly home!",
     "tipNight": "Lunar night: no solar power. Save your battery!",
     "tipStorm": "Storm week! Hide in the shelter when the Sun gets angry.",
-    "badges": "Badges"
+    "badges": "Badges",
+    "theme": "Theme"
   }
 }

@@ -2,43 +2,63 @@
 
 .outcome { gap: var(--gap-3); }
 
-/* Великі іконки змін: ⚡ −3 · 🫁 0 · ☢️ +1,1 · 🔬 +20 */
-.deltas {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--gap-2);
-  padding: 0;
-  list-style: none;
+/* Причина → наслідок: «Твій вибір» і «Щодня» */
+.cause-rows { display: flex; flex-direction: column; gap: var(--gap-2); }
+.cause-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--gap-1) var(--gap-2);
+  padding: var(--gap-2) var(--gap-3);
+  background: var(--space-raised);
+  border: var(--border-w) solid var(--border-strong);
+  border-radius: var(--radius);
 }
-.delta {
+.cause-row--daily { background: var(--space-sunken); border-style: dashed; }
+.cause-row--game { border-color: var(--ok); }
+.cause-row--game[data-success='false'] { border-color: var(--warning); }
+.cause-row__label { min-width: 7.5em; font-size: var(--fs-md); font-weight: var(--fw-bold); color: var(--heading); }
+
+.delta-chip {
   --trend-color: var(--text-muted);
   --trend-bg: var(--space-sunken);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  padding: var(--gap-2) var(--gap-1);
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  padding: 2px 10px;
   background: var(--trend-bg);
+  color: var(--trend-color);
   border: var(--border-w) solid var(--trend-color);
-  border-radius: var(--radius);
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-bold);
+  white-space: nowrap;
   animation: delta-pop 300ms var(--ease-bounce) backwards;
   animation-delay: calc(var(--i, 0) * 50ms);
 }
-.delta[data-trend='good'] { --trend-color: var(--ok); --trend-bg: var(--ok-soft); }
-.delta[data-trend='bad'] { --trend-color: var(--danger); --trend-bg: var(--danger-soft); }
-.delta__icon { font-size: 1.8rem; line-height: 1; }
-.delta__value {
-  font-family: var(--font-num);
-  font-weight: 900;
-  font-size: var(--fs-xl);
-  line-height: 1.2;
-  color: var(--trend-color);
-  white-space: nowrap;
-}
+.delta-chip small { font-size: var(--fs-xs); font-weight: var(--fw-medium); color: var(--text-muted); }
+.delta-chip[data-trend='good'] { --trend-color: var(--ok); --trend-bg: var(--ok-soft); }
+.delta-chip[data-trend='bad'] { --trend-color: var(--danger); --trend-bg: var(--danger-soft); }
 
 .outcome__rocket { align-self: center; font-size: var(--fs-md); }
 
-/* Одна порада дня */
+/* Цікавий факт після кожного рівня */
+.fun-fact {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--gap-3);
+  padding: var(--gap-3) var(--gap-4);
+  background: var(--info-soft);
+  border: var(--frame-w) solid var(--info);
+  border-radius: var(--radius-lg);
+  animation: delta-pop 400ms var(--ease-bounce) 150ms backwards;
+}
+.fun-fact__emoji { font-size: 2.6rem; line-height: 1; }
+.fun-fact__title { font-size: var(--fs-sm); font-weight: var(--fw-bold); text-transform: uppercase; letter-spacing: 0.04em; color: var(--info); }
+.fun-fact__text { font-size: var(--fs-lg); font-weight: var(--fw-bold); line-height: 1.3; }
+
+/* Порада (лишилась для сумісності інших екранів) */
 .tip {
   display: flex;
   align-items: flex-start;
@@ -56,6 +76,6 @@
 @keyframes delta-pop { from { opacity: 0; transform: scale(0.4) translateY(10px); } }
 
 @media (max-width: 420px) {
-  .delta__icon { font-size: 1.4rem; }
-  .delta__value { font-size: var(--fs-px-sm); }
+  .cause-row__label { min-width: 100%; }
+  .delta-chip { font-size: var(--fs-md); }
 }

@@ -41,6 +41,7 @@
   border: var(--border-w) solid var(--border-strong);
   border-radius: var(--radius-pill);
   box-shadow: none;
+  color: var(--text);
   font-size: 1.2rem;
   line-height: 1;
 }
@@ -58,14 +59,14 @@
 
 .meters__list {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--gap-2) var(--gap-3);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--gap-2);
+  margin: 0;
   padding: 0;
   list-style: none;
 }
-@media (min-width: 640px) {
-  .meters__list { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-}
+/* На «Зоряному шляху» — ті самі плитки, але стовпчиком */
+.meters__list[data-layout='grid'] { grid-template-columns: minmax(0, 1fr); }
 
 /* Одна шкала: велика іконка + назва + число + товста смужка */
 .meter {
@@ -84,6 +85,7 @@
 .meter[data-tone='battery'] { --meter-color: var(--res-battery); }
 .meter[data-tone='life'] { --meter-color: var(--res-life); }
 .meter[data-tone='science'] { --meter-color: var(--res-science); }
+.meter[data-tone='mood'] { --meter-color: var(--res-mood); }
 .meter[data-tone='goal'] { --meter-color: var(--sun); }
 .meter[data-tone='ok'] { --meter-color: var(--res-dose-ok); }
 .meter[data-tone='warn'] { --meter-color: var(--res-dose-warn); }
@@ -157,11 +159,19 @@
 }
 @keyframes meter-alert { 50% { box-shadow: 0 0 0 3px var(--meter-color); } }
 
+/* Вузько: п'ять компактних плиток в один рядок — іконка, число й шкала (назва — для скрінрідера) */
+@media (max-width: 720px) {
+  .meters__list:not([data-layout='grid']) .meter { grid-template-columns: minmax(0, 1fr); justify-items: center; gap: 2px; padding: var(--gap-1); }
+  .meters__list:not([data-layout='grid']) .meter__label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .meters__list:not([data-layout='grid']) .meter__body { width: 100%; }
+  .meters__list:not([data-layout='grid']) .meter__top { justify-content: center; }
+  .meters__list:not([data-layout='grid']) .meter__icon { font-size: 1.35rem; }
+}
 @media (max-width: 480px) {
   .meters { padding: var(--gap-2); }
-  .meter__icon { font-size: 1.4rem; }
-  .meters__day { font-size: var(--fs-px-sm); }
-  .hud-btn { min-width: 36px; min-height: 36px; font-size: 1.05rem; }
+  .meters__day { font-size: var(--fs-sm); }
+  .hud-btn { min-width: 34px; min-height: 34px; font-size: 1rem; }
+  .hud-buttons { gap: 2px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

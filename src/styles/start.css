@@ -1,0 +1,88 @@
+/* Стартовий екран (Start.jsx) — у стилі гри: ті самі токени, панель .screen, кнопки .btn. Лише токени з theme.css. */
+.start {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: var(--gap-3) 0 var(--gap-6);
+}
+
+.start__top { display: flex; justify-content: flex-end; align-items: center; gap: var(--gap-2); margin-bottom: var(--gap-3); }
+.start__lang { display: inline-flex; gap: var(--gap-1); }
+/* Мова: світлі, добре видимі кнопки; обрана — яскрава помаранчева */
+.start__lang-btn {
+  width: auto;
+  min-width: 52px;
+  min-height: 42px;
+  padding: 0 var(--gap-3);
+  background: var(--space-raised);
+  color: var(--text);
+  border-color: var(--text-muted);
+  font-size: var(--fs-lg);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+.start__lang-btn:hover:not(:disabled) { background: var(--accent-soft); color: var(--text); }
+.start__lang-btn[aria-pressed='true'] {
+  background: var(--accent);
+  color: var(--on-accent);
+  border-color: var(--accent-strong);
+  box-shadow: 0 3px 0 var(--accent-shadow);
+}
+
+.start__card { gap: var(--gap-3); }
+.start__head { text-align: center; }
+.start .start__title {
+  font-family: var(--font-pixel);
+  font-size: clamp(2.8rem, 9vw, 4.6rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  color: var(--heading);
+  text-shadow: 3px 3px 0 var(--frame-shadow), 0 0 24px var(--accent-soft);
+}
+.start__sub {
+  margin-top: var(--gap-1);
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--eyebrow);
+}
+
+/* Ракета летить над базою */
+.start__rocket {
+  position: absolute;
+  left: 8%;
+  top: 14%;
+  width: 7%;
+  min-width: 28px;
+  transform: rotate(35deg);
+  animation: start-fly 3s ease-in-out infinite;
+}
+.start__rocket .px-sprite { display: block; width: 100%; height: auto; image-rendering: pixelated; }
+
+.start__pitch { font-size: var(--fs-lg); line-height: 1.35; text-align: center; text-wrap: balance; }
+.start__pitch strong { color: var(--accent); }
+
+.start__actions { justify-content: space-between; }
+.start__actions > .btn--lg { margin-left: auto; }
+
+.start__foot { justify-content: center; gap: var(--gap-1) var(--gap-4); text-align: center; }
+.start__link {
+  min-height: 0;
+  padding: 0;
+  background: none;
+  border: 0;
+  box-shadow: none;
+  color: var(--info);
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.start__link:hover:not(:disabled) { background: none; color: var(--text); }
+
+@keyframes start-fly { 50% { transform: rotate(35deg) translate(6px, -10px); } }
+
+@media (max-width: 480px) {
+  .start { padding-top: var(--gap-2); }
+  .start__actions > .btn { flex: 1 1 100%; }
+}

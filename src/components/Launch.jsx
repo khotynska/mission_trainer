@@ -9,8 +9,8 @@ import '../styles/dilemma.css';
 import '../styles/progress.css';
 
 const OPTIONS = [
-  { id: 'now', icon: '🚀', chips: [{ icon: '☢️', text: `+${CONFIG.launchNowDose}`, tone: 'warn' }] },
-  { id: 'wait', icon: '⏳', chips: [{ icon: '🫁', text: `−${CONFIG.launchWaitLife}`, tone: 'bad' }, { icon: '☢️', text: `+${CONFIG.background}`, tone: 'good' }] },
+  { id: 'now', icon: '🚀', chips: [{ icon: '☢️', text: `+${CONFIG.launch.nowDose}`, tone: 'warn' }] },
+  { id: 'wait', icon: '⏳', chips: [{ icon: '🫁', text: `−${CONFIG.launch.waitLife}`, tone: 'bad' }, { icon: '☢️', text: `+${CONFIG.launch.waitDose}`, tone: 'good' }] },
 ];
 
 export default function Launch({ state, dispatch, t }) {

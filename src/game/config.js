@@ -1,57 +1,70 @@
-// Усі числа балансу гри в одному місці. Змінює лише Tech Lead (за результатами симулятора).
+// Усі числа балансу гри в одному місці. Змінює лише Tech Lead (за результатами симулятора: node scripts/simulate.js).
+//
+// Логіка гри «причина → наслідок» (жодних прихованих жетонів):
+// • кожен варіант у рівні має явні наслідки (src/game/levels.js), і дитина бачить їх на кнопці ще до вибору;
+// • після вибору діють лише кілька щоденних правил, і їх теж видно окремим рядком «Щодня»:
+//   екіпаж їсть і дихає (🫁 −5), космічний фон (☢️ +1), сонячні панелі вдень (⚡ +2; уночі — 0).
 export const CONFIG = {
   totalDays: 30,
-  startBattery: 5,
-  batteryMax: 12,
-  incomeDay: 5,
-  incomeNight: 2,
+  tutorialDay: 1,
+  launchPrepDay: 29, // день 29: заправити ракету
+  launchDay: 30,     // день 30: злетіти зараз чи почекати (екран 'launch')
+
+  // Стан на старті й межі шкал
+  startBattery: 6,
   startLife: 80,
+  startMood: 70,
+  batteryMax: 12,
   lifeMax: 100,
-  lifeDecay: 10,
-  lifePerToken: 10,
-  sciencePerToken: 5,
+  moodMax: 100,
+  doseLimit: 100,    // на цій дозі ЦУП евакуює екіпаж
   scienceGoal: 150,
-  shield: [0, 0.5, 0.75, 0.9], // захист за 0..3 жетони
-  maxShieldTokens: 3,
-  dose: { QUIET: 0, M: 2, X: 5, X5: 8, CME: 10, EXTREME: 15, SEP: 25 },
-  background: 1,
-  doseLimit: 100,
-  launchPrepTokens: 4, // день 29: жетони на підготовку ракети
-  launchNowDose: 5,    // день 30, «злетіти зараз»: +доза
-  launchWaitLife: 15,  // день 30, «почекати»: −життєзабезпечення
-  warningHorizon: 3,   // за скільки днів показувати попередження про CME
+  goldDoseMax: 70,   // ранг «золото»: доза не дійшла до червоної зони
 
-  // ---- Темп гри: граємо лише дні з реальними подіями ----
-  // Дні з такою головною подією проходять «на автопілоті» й показуються однією карткою-підсумком.
-  calmEvents: ['QUIET', 'M'],
-  tutorialDay: 1,      // перший день завжди граємо: навчання
-  launchPrepDay: 29,   // підготовка ракети — завжди граємо
+  // Щоденні правила
+  daily: {
+    life: -5,          // екіпаж їсть і дихає
+    dose: 1,           // слабкий космічний фон є завжди
+    batteryDay: 2,     // сонячні панелі
+    batteryNight: 0,   // уночі сонця немає: панелі не заряджають (енергію витрачають лише справи)
+    coldLife: -5,      // якщо енергії немає — холодно: ще мінус повітря й тепло
+  },
+  sadMood: 30,         // настрій нижче — екіпаж сумний: наука вдвічі менша
+  wallMax: 2,          // укріплення укриття: кожен рівень −1 ☢️, коли ховаєшся
+  launch: { nowDose: 5, waitLife: 15, waitDose: 1 },
 
-  // ---- Дилеми ----
-  // Таймер дилеми (с): спершу довгий, щоб діти освоїлися, під час великої бурі — коротший.
+  // Великі міні-ігри (з MoonShift) і як їхній результат впливає на день — це теж видно на екрані результату.
+  games: {
+    patrolGoal: 0.8,       // «Панельний патруль»: від 80 % потужності — уся енергія; менше — частка
+    wallGoal: 0.7,         // «Будівник захисту»: від 70 % захисту — стіна стоїть; менше — не добудована
+    lateShelterDose: 2,    // «Ривок до укриття»: не встиг — ще ☢️ +2
+    signalWinMood: 4,      // «Налаштуй сигнал»: зв'язок відновлено — 😊 +4
+    signalFailMood: -3,    //                    не вдалося — 😊 −3
+    seconds: { patrol: 40, bricks: 60, dash: 25, signal: 30 },
+  },
+
+  warningHorizon: 3,   // за скільки днів показувати попередження про хмару
+  defaultEventHour: 12,
+  leadHours: { CME: 3, EXTREME: 3, SEP: 1, X: 1, X5: 1, M: 0, QUIET: 0 },
+  // Таймер лише в днях із бурями: спершу довгий, у велику бурю коротший.
   dilemmaSeconds: [
-    { upToDay: 1, seconds: 0 },   // навчальний день без таймера
     { upToDay: 10, seconds: 20 },
     { upToDay: 21, seconds: 15 },
     { upToDay: 30, seconds: 12 },
   ],
-  // За скільки годин до події Ліра ставить питання (час, коли годинник гальмує).
-  leadHours: { CME: 3, EXTREME: 3, SEP: 1, X: 1, X5: 1, M: 0, QUIET: 0 },
-  defaultEventHour: 12, // якщо в ID DONKI немає часу події саме цього дня
 
-  // ---- Значки за досягнення ----
-  fastAnswerMs: 4000,   // «швидка відповідь»
-  fastBadgeCount: 5,    // стільки швидких відповідей → значок ⚡
-  shelterBadgeCount: 3, // стільки разів сховався від бурі → значок 🏃
-  stormBadgeDay: 28,    // пережив день 28 (кінець травневої бурі 2024) → значок 🌪️
-  lowDoseBadge: 60,     // завершив місію з дозою нижче → значок 💚
-  goldDoseMax: 70,      // ранг: доза не дійшла до червоної зони (70 % ліміту)
+  // Значки за досягнення
+  fastAnswerMs: 4000,
+  fastBadgeCount: 5,
+  shelterBadgeCount: 3,
+  stormBadgeDay: 28,
+  lowDoseBadge: 60,
 };
 
 // Цілі тижнів: start — стан на початок тижня, end — стан наприкінці, log — дні тижня
 export const WEEK_GOALS = {
-  1: { patch: 'energy', check: (start, end) => end.battery >= 8 && end.life >= 70 },
-  2: { patch: 'science', check: (start, end) => end.science - start.science >= 60 && end.battery >= 12 },
+  1: { patch: 'energy', check: (start, end) => end.battery >= 8 },
+  2: { patch: 'science', check: (start, end) => end.science - start.science >= 40 },
   3: { patch: 'night', check: (start, end, log) => log.every((d) => d.life >= 50) },
   4: { patch: 'shield', check: (start, end) => end.dose - start.dose <= 20 },
 };

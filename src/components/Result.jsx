@@ -1,51 +1,64 @@
 // Власник: Dev 5 (Briefing UI).
-// Екран «Що сталося»: сцена показує подію (екіпаж в укритті чи надворі), Ліра реагує одним
-// реченням, великі іконки змін ⚡🫁☢️🔬, одна порада 💡 і кнопки «Далі» / «Переграти день».
-// Добре рішення — звук, конфеті й радісна Ліра; погане — тривожна Ліра й пропозиція переграти.
+// Екран «Що сталося» — причина й наслідок без сюрпризів:
+//   • Ліра реагує одним реченням на твій вибір;
+//   • рядок «Твій вибір»: рівно ті зміни, що були на кнопці;
+//   • рядок «Міні-гра»: що додала чи забрала гра (брудні панелі → менше ⚡, запізнився в укриття → ☢️ більше…);
+//   • рядок «Щодня»: екіпаж поїв (🫁 −5), космічний фон (☢️ +1), сонячні панелі вдень (⚡ +2);
+//   • «Цікавий факт» про космос після кожного рівня.
+// Добре рішення — звук, конфеті й радісна Ліра; погане — тривожна Ліра й «Переграти день».
 //
 // Пропси за контрактом (src/game/contracts.js, розд. 4 і 6): { state, dispatch, t }.
 import { useEffect, useMemo, useRef } from 'react';
 import { ACTIONS } from '../game/contracts.js';
-import { CONFIG } from '../game/config.js';
+import facts from '../data/facts.json';
 import BaseScene from './BaseScene.jsx';
 import Lira from './Lira.jsx';
 import Confetti from './Confetti.jsx';
+import { reactionText } from './levelText.js';
 import { play } from './sfx.js';
 import '../styles/result.css';
 
 const LOCALES = Object.freeze({ ua: 'uk-UA', en: 'en-US' });
-
-/** Рядки змін. polarity: +1 — зростання добре, −1 — зростання погано (доза). */
-const DELTA_ROWS = Object.freeze([
-  { id: 'battery', icon: '⚡', polarity: 1 },
-  { id: 'life', icon: '🫁', polarity: 1 },
+/** Порядок і «добрий напрям» кожної зміни: +1 — зростання добре, −1 — зростання погано (радіація). */
+const ROWS = Object.freeze([
   { id: 'dose', icon: '☢️', polarity: -1 },
+  { id: 'life', icon: '🫁', polarity: 1 },
+  { id: 'mood', icon: '😊', polarity: 1 },
+  { id: 'battery', icon: '⚡', polarity: 1 },
   { id: 'science', icon: '🔬', polarity: 1 },
+  { id: 'wall', icon: '🧱', polarity: 1 },
 ]);
 
-function getTrend(delta, polarity) {
-  const sign = Math.sign(delta * polarity);
-  if (sign > 0) return 'good';
-  if (sign < 0) return 'bad';
-  return 'neutral';
-}
+/** Великі ігри (з MoonShift) — їхній результат видно окремим рядком. */
+const BIG_GAMES = new Set(['panels', 'wall', 'dash', 'signal']);
+
+const trendOf = (v, polarity) => (Math.sign(v * polarity) > 0 ? 'good' : Math.sign(v * polarity) < 0 ? 'bad' : 'neutral');
 
 /** Звук і реакція — один раз на результат (StrictMode у dev викликає ефекти двічі). */
 const celebrated = new WeakSet();
 
+function DeltaChips({ deltas, fmt, labels = {} }) {
+  const items = ROWS.filter((r) => deltas[r.id]);
+  return items.map((r, i) => (
+    <span key={r.id} className="delta-chip" data-trend={trendOf(deltas[r.id], r.polarity)} style={{ '--i': i }}>
+      <span aria-hidden="true">{r.icon}</span> {fmt.signed(deltas[r.id])}
+      {labels[r.id] && <small> {labels[r.id]}</small>}
+    </span>
+  ));
+}
+
 export default function Result({ state, dispatch, t }) {
   const r = state.result;
+  const b = state.briefing;
   const locale = LOCALES[state.lang] ?? LOCALES.ua;
   const headingRef = useRef(null);
 
   const fmt = useMemo(() => {
-    const num = new Intl.NumberFormat(locale, { maximumFractionDigits: 1 });
     const signed = new Intl.NumberFormat(locale, { maximumFractionDigits: 1, signDisplay: 'exceptZero' });
-    const percent = new Intl.NumberFormat(locale, { style: 'percent', maximumFractionDigits: 0 });
-    return { num: (n) => num.format(n), signed: (n) => signed.format(n), percent: (n) => percent.format(n) };
+    return { signed: (n) => signed.format(n) };
   }, [locale]);
 
-  const mood = r?.mood ?? (r?.explanationKey === 'shield_weak' || r?.explanationKey === 'life_low' ? 'worried' : 'happy');
+  const mood = r?.mood ?? 'happy';
 
   useEffect(() => {
     window.scrollTo({ top: 0 });
@@ -56,28 +69,28 @@ export default function Result({ state, dispatch, t }) {
     }
   }, [r, mood]);
 
-  if (!r) return null;
+  if (!r || !b) return null;
 
-  const b = state.briefing;
-  const choice = r.choice;
-  const deltas = r.deltas ?? {};
-  const params = {
-    percent: fmt.percent(r.protection ?? 0),
-    doseGain: fmt.num(r.params?.doseGain ?? deltas.dose ?? 0),
-    damage: fmt.num(r.damage ?? 0),
-    science: fmt.num(deltas.science ?? 0),
-    life: fmt.num(state.life),
+  const choice = r.choice ?? { id: '', kind: 'chore', chore: false, timedOut: false };
+  const sheltered = (b.level?.options?.[choice.option]?.shelter ?? false);
+  const daily = r.dailyDeltas ?? {};
+  const night = b.phase === 'night';
+  const dailyLabels = {
+    life: r.cold ? t('result.daily_cold') : t('result.daily_life'),
+    dose: t('result.daily_dose'),
+    battery: t('result.daily_sun'),
   };
-
-  let reaction;
-  if (choice?.timedOut) reaction = t('result.react.timeout', params);
-  else if (choice) reaction = t(`result.react.${choice.kind}.${choice.id}`, params);
-  else reaction = t(`result.${r.explanationKey ?? 'normal'}`, params);
-
-  const sheltered = choice ? choice.id === 'shelter' || choice.id === 'hide' : (state.lastAllocation?.shield ?? 0) >= 2;
-  const lesson = b?.textKey ? t(`days.${b.textKey}.lesson`) : null;
-  const launchReady = r.params?.launchReady;
+  const factId = r.factId ?? b.day;
+  const fact = facts.find((f) => f.id === factId) ?? facts[(b.day - 1) % facts.length];
   const canRetry = mood === 'worried' && Boolean(state.daySnapshot);
+  // Міні-гра могла змінити наслідок (брудні панелі, недобудована стіна, запізнився в укриття, зв'язок).
+  // «Твій вибір» показує числа з кнопки, а рядок гри — що додала чи забрала гра (разом — те, що отримав).
+  const game = r.game && (r.game.effect || !r.game.success || BIG_GAMES.has(r.game.id)) ? r.game : null;
+  const effectKey = game?.effect ? ROWS.find((row) => game.effect[row.id])?.id : null;
+  const choiceShown = { ...r.choiceDeltas };
+  if (effectKey) choiceShown[effectKey] = (choiceShown[effectKey] ?? 0) - game.effect[effectKey];
+  const choiceHasChanges = ROWS.some((row) => choiceShown[row.id]);
+  const reaction = reactionText(t, b, choice, game);
 
   return (
     <section className="screen outcome" lang={locale} data-mood={mood} aria-labelledby="outcome-title">
@@ -85,39 +98,51 @@ export default function Result({ state, dispatch, t }) {
       {mood === 'happy' && <Confetti burst={state.day} />}
 
       <BaseScene
-        phase={b?.phase ?? 'day'}
-        event={b?.event?.type ?? 'QUIET'}
+        phase={b.phase}
+        event={b.event?.type ?? 'QUIET'}
         crew={sheltered ? 'shelter' : 'work'}
-        effect="strike"
+        effect={b.level?.kind === 'chore' ? 'none' : 'strike'}
         label={t('briefing.scene.label', { state: t(`briefing.scene.${sheltered ? 'shelter' : 'work'}`) })}
       />
 
       <Lira mood={mood} text={reaction} t={t} />
 
-      <ul className="deltas" role="list" aria-label={t('result.changes.heading')}>
-        {DELTA_ROWS.map(({ id, icon, polarity }, index) => {
-          const delta = deltas[id] ?? 0;
-          return (
-            <li key={id} className="delta" data-trend={getTrend(delta, polarity)} style={{ '--i': index }}>
-              <span className="delta__icon" aria-hidden="true">{icon}</span>
-              <span className="delta__value">{fmt.signed(delta)}</span>
-              <span className="visually-hidden">{t(`common.${id}`)}</span>
-            </li>
-          );
-        })}
-      </ul>
+      <div className="cause-rows">
+        <p className="cause-row">
+          <span className="cause-row__label">{t('result.your_choice')}</span>
+          {choiceHasChanges ? <DeltaChips deltas={choiceShown} fmt={fmt} /> : <span className="muted">{t('result.nothing')}</span>}
+        </p>
+        {game && (
+          <p className="cause-row cause-row--game" data-success={game.success}>
+            <span className="cause-row__label">🎮 {t(game.success ? 'games.result.win' : 'games.result.lose')}</span>
+            {effectKey ? (
+              <DeltaChips deltas={{ [effectKey]: game.effect[effectKey] }} fmt={fmt} labels={{ [effectKey]: t(`games.result.${game.effect.key}`) }} />
+            ) : (
+              <span className="muted">{t('games.result.full')}</span>
+            )}
+          </p>
+        )}
+        <p className="cause-row cause-row--daily">
+          <span className="cause-row__label">📅 {t('result.daily')}</span>
+          <DeltaChips deltas={daily} fmt={fmt} labels={dailyLabels} />
+          {night && !daily.battery && <span className="delta-chip" data-trend="neutral">⚡ 0 <small>{t('result.daily_night')}</small></span>}
+        </p>
+      </div>
 
-      {typeof launchReady === 'boolean' && (
-        <p className={`chip ${launchReady ? 'chip--ok' : 'chip--danger'} outcome__rocket`}>
-          {t(launchReady ? 'result.launch.ready' : 'result.launch.not_ready', { n: CONFIG.launchPrepTokens })}
+      {typeof r.launchReady === 'boolean' && (
+        <p className={`chip ${r.launchReady ? 'chip--ok' : 'chip--danger'} outcome__rocket`}>
+          {t(r.launchReady ? 'result.launch.ready' : 'result.launch.not_ready')}
         </p>
       )}
 
-      {lesson && lesson !== `days.${b.textKey}.lesson` && (
-        <p className="tip">
-          <span className="tip__icon" aria-hidden="true">💡</span>
-          <span>{lesson}</span>
-        </p>
+      {fact && (
+        <aside className="fun-fact" aria-label={t('result.fact_title')}>
+          <span className="fun-fact__emoji" aria-hidden="true">{fact.emoji}</span>
+          <div>
+            <p className="fun-fact__title">🤓 {t('result.fact_title')}</p>
+            <p className="fun-fact__text">{t(`facts.${fact.id}`)}</p>
+          </div>
+        </aside>
       )}
 
       <div className="screen__actions outcome__actions">

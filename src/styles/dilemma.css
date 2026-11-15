@@ -155,3 +155,9 @@
   .choice__label { font-size: var(--fs-lg); }
   .choice__chip { font-size: var(--fs-xs); padding: 1px 6px; }
 }
+
+/* Пояснення під кнопкою: укріплене укриття, сумний екіпаж, мало енергії */
+.choice__note { font-size: var(--fs-xs); font-weight: var(--fw-bold); color: var(--text-muted); }
+.choice__note--bad { color: var(--danger); }
+.choice__chip[data-tone='neutral'] { color: var(--text-muted); }
+.choice:disabled:not([data-state]) { opacity: 0.55; }

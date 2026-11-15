@@ -1,18 +1,19 @@
 // Власник: Dev 6 (Progress UI). Пропси за контрактом: { state, dispatch, t } (src/game/contracts.js).
-// «Зоряний шлях» у стилі MoonShift: 30 днів — 30 піксельних зірок на звивистій стежці від старту до Землі,
-// поділені на тижні. Пройдені — золоті (з рейтингом ★ для зіграних днів), поточна — блакитна з «▶ Грати»,
-// попереду — темні. Збоку — командир, ресурси бази, значки й порада Ліри.
+// «Зоряний шлях» у стилі всієї гри: ті самі панелі, шрифт, кнопки й плитки стану, що й у рівнях.
+// Сама мапа — темний космос у рамці (як сцена бази): 30 піксельних зірок на звивистій стежці від старту до Землі,
+// поділені на тижні. Пройдені — золоті з рейтингом ★1–3, поточна — блакитна з «▶ Грати», попереду — темні.
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ACTIONS } from '../game/contracts.js';
 import { CONFIG } from '../game/config.js';
-import { isCalmDay } from '../game/gameEngine.js';
 import { getPlayerName } from '../game/storage';
 import days from '../data/days.json';
-import { LiraAvatar } from './Lira.jsx';
+import Lira from './Lira.jsx';
 import PatchBadge from './PatchBadge.jsx';
+import StatTiles from './StatTiles.jsx';
 import { PATCHES, PATCH_BY_WEEK } from './patches.js';
-import { MsLogo, PixelEarth, PixelRocket, PixelStar, StarRating } from './PixelArt.jsx';
-import '../styles/moonshift.css';
+import { PixelEarth, PixelRocket, PixelStar, StarRating } from './PixelArt.jsx';
+import '../styles/meters.css';
+import '../styles/map.css';
 
 const WEEKS = [
     { n: 1, from: 1, to: 7 },
@@ -23,34 +24,10 @@ const WEEKS = [
 ];
 const NODE_H = 112;
 const NOW_H = 140;
-const BANNER_H = 108;
+const BANNER_H = 112;
 const TOAST_MS = 2800;
-
-/** Скільки зірок можна зібрати: 3 за кожен зіграний (не спокійний) день. */
-const MAX_STARS = 3 * days.filter((d) => !isCalmDay(days, d.day)).length;
-
-function tone(frac) {
-    if (frac < 0.25) return 'bad';
-    if (frac < 0.5) return 'warn';
-    return 'ok';
-}
-
-function Resource({ icon, label, value, max, s, note }) {
-    return (
-        <div className="ms-res" data-s={s}>
-            <div className="ms-row">
-                <span aria-hidden="true">{icon}</span>
-                <span>{label}</span>
-                <span className="ms-spacer" />
-                <strong className="ms-res__val">{value} / {max}</strong>
-            </div>
-            <div className="ms-bar" role="meter" aria-label={label} aria-valuemin={0} aria-valuemax={max} aria-valuenow={value}>
-                <i style={{ width: `${Math.max(0, Math.min(100, (value / max) * 100))}%` }} />
-            </div>
-            {note && <p className="ms-dim ms-small">{note}</p>}
-        </div>
-    );
-}
+/** Зірки дають дні 1–29 (день 30 — старт ракети). */
+const MAX_STARS = 3 * (CONFIG.totalDays - 1);
 
 export default function MissionMap({ state, dispatch, t }) {
     const [toast, setToast] = useState(null);
@@ -58,6 +35,7 @@ export default function MissionMap({ state, dispatch, t }) {
     const nowRef = useRef(null);
     const lang = state.lang === 'en' ? 'en-US' : 'uk-UA';
     const patches = state.patches || [];
+    const light = state.theme === 'light';
 
     const started = Boolean(state.resume);
     const finished = state.resume === 'certificate';
@@ -91,15 +69,14 @@ export default function MissionMap({ state, dispatch, t }) {
             return;
         }
         if (st === 'done') {
-            say(ratings[n] !== undefined
-                ? t('progress.path.doneToast', { n, stars: '★'.repeat(ratings[n]) + '☆'.repeat(3 - ratings[n]) })
-                : t('progress.path.calmToast', { n }));
+            const stars = ratings[n] ?? 0;
+            say(t('progress.path.doneToast', { n, stars: '★'.repeat(stars) + '☆'.repeat(3 - stars) }));
             return;
         }
         say(t('progress.path.lockedToast', { n: current }));
     };
 
-    // Звивиста стежка: x у %, y у px (як мапа рівнів)
+    // Звивиста стежка: x у %, y у px
     const nodes = [];
     const pts = [];
     let y = 30;
@@ -112,21 +89,20 @@ export default function MissionMap({ state, dispatch, t }) {
     };
 
     place('launch', (key, x, top) => (
-        <button key={key} type="button" className="ms-node ms-node--end" data-state="done" style={{ left: `${x.toFixed(1)}%`, top }}
+        <button key={key} type="button" className="map-node map-node--end" data-state="done" style={{ left: `${x.toFixed(1)}%`, top }}
             onClick={() => say(t('progress.path.launchToast'))} aria-label={t('progress.path.launch')}>
-            <span className="ms-node__pic"><PixelRocket /></span>
-            <span className="ms-node__cap">{t('progress.path.launch')}</span>
+            <span className="map-node__pic"><PixelRocket /></span>
+            <span className="map-node__cap">{t('progress.path.launch')}</span>
         </button>
     ));
 
     for (const w of WEEKS) {
         const patch = PATCH_BY_WEEK[w.n];
-        const top = y;
         nodes.push(
-            <div key={`week-${w.n}`} className="ms-banner" style={{ top }}>
-                <span className="ms-banner__num">{w.n === 5 ? t('progress.path.finale') : t('progress.path.week', { n: w.n })}</span>
-                <strong>{t(`progress.path.weeks.${w.n}`)}</strong>
-                <span className="ms-banner__goal">
+            <div key={`week-${w.n}`} className="map-week" style={{ top: y }}>
+                <span className="map-week__num">{w.n === 5 ? t('progress.path.finale') : t('progress.path.week', { n: w.n })}</span>
+                <strong className="map-week__title">{t(`progress.path.weeks.${w.n}`)}</strong>
+                <span className="map-week__goal">
                     {patch ? `🎯 ${t('progress.badge.how.' + patch)}` : t('progress.path.finaleGoal')}
                 </span>
             </div>,
@@ -136,106 +112,112 @@ export default function MissionMap({ state, dispatch, t }) {
         for (let n = w.from; n <= w.to; n++) {
             const d = days[n - 1];
             const st = dayState(n);
-            const calm = isCalmDay(days, n);
             place(`d${n}`, (key, x, nodeTop) => (
                 <button
                     key={key}
                     ref={st === 'now' ? nowRef : undefined}
                     type="button"
-                    className="ms-node"
+                    className="map-node"
                     data-state={st}
                     style={{ left: `${x.toFixed(1)}%`, top: nodeTop }}
                     aria-label={`${t('progress.path.dayAria', { n, date: d?.date ?? '' })}${st === 'locked' ? `, ${t('progress.path.locked')}` : ''}`}
                     onClick={() => openDay(n)}
                 >
-                    <span className="ms-node__pic"><PixelStar state={st} /><b>{n}</b></span>
-                    {d?.phase === 'night' && <span className="ms-node__night" aria-hidden="true">🌙</span>}
-                    {st === 'now' && <span className="ms-go"><span aria-hidden="true">▶</span> {t('progress.path.play')}</span>}
+                    <span className="map-node__pic"><PixelStar state={st} /><b>{n}</b></span>
+                    {d?.phase === 'night' && <span className="map-node__night" aria-hidden="true">🌙</span>}
+                    {st === 'now' && <span className="map-node__go"><span aria-hidden="true">▶</span> {t('progress.path.play')}</span>}
                     {st === 'done' && ratings[n] !== undefined && (
                         <StarRating n={ratings[n]} label={t('progress.path.starsAria', { n: ratings[n], of: 3 })} />
                     )}
-                    {st === 'done' && ratings[n] === undefined && calm && <span className="ms-node__calm">😴 {t('progress.path.autopilot')}</span>}
                 </button>
             ), st === 'now' ? NOW_H : NODE_H);
         }
     }
 
     place('home', (key, x, top) => (
-        <button key={key} type="button" className="ms-node ms-node--end" data-state={finished ? 'now' : 'locked'} style={{ left: `${x.toFixed(1)}%`, top }}
+        <button key={key} type="button" className="map-node map-node--end" data-state={finished ? 'now' : 'locked'} style={{ left: `${x.toFixed(1)}%`, top }}
             onClick={() => (finished ? dispatch({ type: ACTIONS.GO, screen: 'certificate' }) : say(t('progress.path.homeToast')))}
             aria-label={t('progress.path.home')}>
-            <span className="ms-node__pic"><PixelEarth /></span>
-            <span className="ms-node__cap">{t('progress.path.home')}</span>
+            <span className="map-node__pic"><PixelEarth /></span>
+            <span className="map-node__cap">{t('progress.path.home')}</span>
         </button>
     ));
 
     const H = y + 10;
     const line = pts.map(([x, py]) => `${x.toFixed(1)},${py}`).join(' ');
-    const doseBand = state.dose >= CONFIG.goldDoseMax ? 'bad' : state.dose >= CONFIG.doseLimit * 0.4 ? 'warn' : 'ok';
     const tip = current >= 22 && current <= 28 ? 'tipStorm' : current >= 15 && current < 29 ? 'tipNight' : 'tipStart';
     const earned = PATCHES.filter((p) => patches.includes(p.id));
 
     return (
-        <main className="ms" lang={lang}>
-            <div className="ms-sky" aria-hidden="true"><i /><i /><i /></div>
-            <div className="ms-screen">
-                <header className="ms-topbar">
-                    <button type="button" className="ms-logo" onClick={() => dispatch({ type: ACTIONS.GO, screen: 'start' })} aria-label={t('progress.path.mainMenu')}>
-                        <MsLogo /> {t('progress.menu.title')}
-                    </button>
-                    <span className="ms-crumb">/ {t('progress.path.title')}</span>
-                    <span className="ms-spacer" />
-                    <button type="button" className="ms-btn ms-btn--ghost" onClick={() => dispatch({ type: ACTIONS.GO, screen: 'sources' })}>
-                        <span className="ms-emoji" aria-hidden="true">📡</span> {t('progress.start.sources')}
-                    </button>
-                </header>
-
-                <div className="ms-map">
-                    <div className="ms-path" style={{ height: H }}>
-                        <svg className="ms-path__line" viewBox={`0 0 100 ${H}`} preserveAspectRatio="none" aria-hidden="true">
-                            <polyline points={line} />
-                        </svg>
-                        {nodes}
+        <main className="map" lang={lang}>
+            <header className="meters map__bar">
+                <div className="meters__header">
+                    <h1 className="map__title">
+                        <span aria-hidden="true">🗺️</span> {t('progress.path.title')}
+                    </h1>
+                    <div className="hud-buttons">
+                        <button type="button" className="hud-btn map__sources" onClick={() => dispatch({ type: ACTIONS.GO, screen: 'sources' })}>
+                            📡 <span className="map__sources-label">{t('progress.start.sources')}</span>
+                        </button>
+                        <button
+                            type="button"
+                            className="hud-btn"
+                            aria-pressed={light}
+                            aria-label={t(light ? 'briefing.hud.theme_dark' : 'briefing.hud.theme_light')}
+                            title={t(light ? 'briefing.hud.theme_dark' : 'briefing.hud.theme_light')}
+                            onClick={() => dispatch({ type: ACTIONS.TOGGLE_THEME })}
+                        >
+                            <span aria-hidden="true">{light ? '🌙' : '☀️'}</span>
+                        </button>
+                        <button
+                            type="button"
+                            className="hud-btn"
+                            aria-label={t('progress.path.mainMenu')}
+                            title={t('progress.path.mainMenu')}
+                            onClick={() => dispatch({ type: ACTIONS.GO, screen: 'start' })}
+                        >
+                            <span aria-hidden="true">🏠</span>
+                        </button>
                     </div>
-
-                    <aside className="ms-stack ms-map__side">
-                        <section className="ms-panel ms-stack">
-                            <div className="ms-row">
-                                <strong className="ms-cadet">{cadet}</strong>
-                                <span className="ms-spacer" />
-                                <span className="ms-chip">⭐ {totalStars} / {MAX_STARS}</span>
-                            </div>
-                            <Resource icon="🫁" label={t('briefing.meters.short.life')} value={state.life} max={CONFIG.lifeMax} s={tone(state.life / CONFIG.lifeMax)} />
-                            <Resource icon="⚡" label={t('briefing.meters.short.battery')} value={state.battery} max={CONFIG.batteryMax} s={tone(state.battery / CONFIG.batteryMax)} />
-                            <Resource icon="🔬" label={t('briefing.meters.short.science')} value={state.science} max={CONFIG.scienceGoal} s="ok" />
-                            <Resource icon="☢️" label={t('briefing.meters.short.dose')} value={Math.round(state.dose * 10) / 10} max={CONFIG.doseLimit} s={doseBand}
-                                note={t('progress.path.doseLimit', { n: CONFIG.doseLimit })} />
-                            <div className="ms-stack" style={{ gap: 8 }}>
-                                <div className="ms-row">
-                                    <span>🏅 {t('progress.path.badges')}</span>
-                                    <span className="ms-spacer" />
-                                    <strong>{earned.length} / {PATCHES.length}</strong>
-                                </div>
-                                <div className="ms-badges">
-                                    {PATCHES.map((p) => (
-                                        <PatchBadge key={p.id} id={p.id} size={40} earned={patches.includes(p.id)} label={t('progress.patch.' + p.id)} />
-                                    ))}
-                                </div>
-                            </div>
-                        </section>
-                        <section className="ms-panel ms-panel--tight">
-                            <div className="ms-helper ms-helper--small">
-                                <div className="ms-helper__bot"><LiraAvatar mood="neutral" label={t('briefing.lira.avatar')} /></div>
-                                <p className="ms-bubble">
-                                    <span className="ms-bubble__who">{t('briefing.lira.name')}</span>
-                                    {t(`progress.path.${tip}`)}
-                                </p>
-                            </div>
-                        </section>
-                    </aside>
                 </div>
+            </header>
+
+            <div className="map__layout">
+                <section className="screen map__card" aria-label={t('progress.path.title')}>
+                    <div className="map__space">
+                        <div className="map__path" style={{ height: H }}>
+                            <svg className="map__line" viewBox={`0 0 100 ${H}`} preserveAspectRatio="none" aria-hidden="true">
+                                <polyline points={line} />
+                            </svg>
+                            {nodes}
+                        </div>
+                    </div>
+                </section>
+
+                <aside className="map__side">
+                    <section className="screen map__panel">
+                        <div className="map__cadet-row">
+                            <strong className="map__cadet">👩‍🚀 {cadet}</strong>
+                            <span className="chip map__stars">⭐ {totalStars} / {MAX_STARS}</span>
+                        </div>
+                        {/* Ті самі плитки, що й на панелі гри */}
+                        <StatTiles state={state} t={t} layout="grid" />
+                        <div className="map__badges-head">
+                            <span>🏅 {t('progress.path.badges')}</span>
+                            <strong>{earned.length} / {PATCHES.length}</strong>
+                        </div>
+                        <div className="map__badges">
+                            {PATCHES.map((p) => (
+                                <PatchBadge key={p.id} id={p.id} size={40} earned={patches.includes(p.id)} label={t('progress.patch.' + p.id)} />
+                            ))}
+                        </div>
+                    </section>
+                    <section className="screen map__panel">
+                        <Lira mood="neutral" text={t(`progress.path.${tip}`)} t={t} compact />
+                    </section>
+                </aside>
             </div>
-            {toast && <div className="ms-toast" role="status">{toast}</div>}
+            {toast && <div className="map__toast" role="status">{toast}</div>}
         </main>
     );
 }

@@ -1,45 +1,40 @@
 // Фейковий стан для розробки екранів окремо: http://localhost:5173/?screen=decision
 // Відповідає контрактам у src/game/contracts.js. Змінює Tech Lead разом із контрактами.
-import { makeDilemma } from '../game/dilemmas.js';
+import days from '../data/days.json';
+import { buildLevel } from '../game/levels.js';
 
-const base = {
-  screen: 'briefing',
-  day: 25,
-  battery: 6,
-  life: 70,
-  dose: 34,
-  science: 85,
-};
+const base = { day: 25, battery: 6, life: 70, mood: 55, dose: 34, science: 85, wall: 1 };
+const day = days[base.day - 1];
 
 const briefing = {
   day: 25,
   date: '2024-05-11',
   week: 4,
   phase: 'night',
-  tokens: 8,
   comms: true,
   event: { type: 'SEP', detail: 'X5.8', donkiIds: ['2024-05-11T02:10:00-SEP-001', '2024-05-11T01:10:00-FLR-001'] },
   warnings: [{ type: 'CME', inDays: 2 }],
   textKey: 'day25',
   eventHour: 2.17,
+  level: buildLevel(base, day),
 };
 
 export const mockState = {
+  screen: 'briefing',
   ...base,
   patches: ['energy', 'science', 'first_steps', 'shelter_pro'],
   lang: 'ua',
-  briefing: { ...briefing, dilemma: makeDilemma(base, briefing) },
+  briefing,
   result: {
-    deltas: { battery: -3, life: -10, dose: 2.6, science: 0 },
-    damage: 26,
-    protection: 0.9,
-    explanationKey: 'shield_saved',
-    params: { percent: 90, damage: 26, doseGain: 2.6 },
-    choice: { option: 0, id: 'shelter', kind: 'storm', best: true, timedOut: false, fast: true },
+    choiceDeltas: { battery: 0, life: 0, mood: -5, science: 0, dose: 2, wall: 0 },
+    dailyDeltas: { battery: 0, life: -5, dose: 1 },
+    deltas: { battery: 0, life: -5, mood: -5, science: 0, dose: 3 },
+    cold: false,
+    notes: ['wall'],
+    choice: { option: 0, id: 'deep', kind: 'storm', chore: false, best: true, timedOut: false, fast: true },
     mood: 'happy',
   },
-  lastAllocation: { life: 0, shield: 3, science: 0 },
-  weekSnapshot: { day: 22, battery: 10, life: 80, dose: 30, science: 85 },
+  weekSnapshot: { day: 22, battery: 10, life: 80, mood: 70, dose: 30, science: 85, wall: 1 },
   weekLog: [],
   endReason: 'dose',
   timerOn: true,
@@ -49,18 +44,13 @@ export const mockState = {
   sound: true,
   tutorial: false,
   tutorialDone: true,
-  daySnapshot: { day: 25, battery: 6, life: 70, dose: 34, science: 85 },
+  daySnapshot: { ...base },
   history: [
-    { day: 20, date: '2024-05-06', event: 'CME', choice: 'shelter', best: true, doseGain: 1.1, snap: null },
-    { day: 22, date: '2024-05-08', event: 'X', choice: 'science', best: false, doseGain: 6, snap: null },
-    { day: 23, date: '2024-05-09', event: 'SEP', choice: 'science', best: false, doseGain: 26, snap: null },
-    { day: 24, date: '2024-05-10', event: 'SEP', choice: 'shelter', best: true, doseGain: 2.6, snap: null },
-  ],
-  calmLog: [
-    { day: 11, date: '2024-04-27', phase: 'day', event: 'M', detail: 'M3.0', warnings: [], deltas: { battery: 0, life: 0, dose: 1.5, science: 15 } },
-    { day: 12, date: '2024-04-28', phase: 'day', event: 'QUIET', detail: '', warnings: [], deltas: { battery: 0, life: 0, dose: 1, science: 15 } },
-    { day: 13, date: '2024-04-29', phase: 'day', event: 'M', detail: 'M3.7', warnings: [{ type: 'CME', inDays: 2 }], deltas: { battery: 0, life: 0, dose: 1.5, science: 15 } },
+    { day: 20, date: '2024-05-06', event: 'CME', choice: 'shelter', best: true, doseGain: 2, stars: 3, snap: null },
+    { day: 22, date: '2024-05-08', event: 'X', choice: 'lab', best: true, doseGain: 1, stars: 3, snap: null },
+    { day: 23, date: '2024-05-09', event: 'SEP', choice: 'boxes', best: false, doseGain: 16, stars: 1, snap: null },
+    { day: 24, date: '2024-05-10', event: 'SEP', choice: 'wait', best: true, doseGain: 3, stars: 3, snap: null },
   ],
   stats: { sheltered: 3, fast: 2 },
-  resume: null,
+  resume: 'briefing',
 };

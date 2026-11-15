@@ -50,7 +50,7 @@ function forecastText(t, inDays) {
 export default function Briefing({ state, dispatch, t }) {
   const b = state.briefing;
   const locale = LOCALES[state.lang] ?? LOCALES.ua;
-  const d = b?.dilemma;
+  const d = b?.level;
   const stopHour = b ? Math.max(0.5, Math.min(23.5, (b.eventHour ?? 12) - (d?.leadHours ?? 0))) : 0;
   const hour = useClockSpin(stopHour, b?.day);
 
@@ -65,7 +65,7 @@ export default function Briefing({ state, dispatch, t }) {
   // Тривожний сигнал перед бурею — одразу, разом із питанням
   const alarmed = useRef(false);
   useEffect(() => {
-    if (!alarmed.current && d && d.kind !== 'tutorial') {
+    if (!alarmed.current && d && d.kind !== 'chore') {
       alarmed.current = true;
       play(d.kind === 'storm' ? 'alarm' : 'select');
     }
@@ -89,7 +89,7 @@ export default function Briefing({ state, dispatch, t }) {
         phase={b.phase}
         event={type}
         crew="work"
-        effect="approach"
+        effect={d?.kind === 'chore' ? 'none' : 'approach'}
         label={t('briefing.scene.label', { state: t('briefing.scene.work') })}
       >
         <MissionClock
@@ -104,7 +104,7 @@ export default function Briefing({ state, dispatch, t }) {
         <span className="day__date">{date}</span>
       </BaseScene>
 
-      <Lira mood={b.comms ? (d?.kind === 'storm' ? 'alert' : 'neutral') : 'offline'} text={dayText} t={t} tour="lira">
+      <Lira mood={b.comms ? (d?.kind === 'storm' ? 'alert' : d?.kind === 'chore' ? 'happy' : 'neutral') : 'offline'} text={dayText} t={t} tour="lira">
         {(!b.comms || cme.length > 0) && (
           <p className="day__chips">
             {!b.comms && <span className="chip chip--danger">{t('briefing.no_comms')}</span>}

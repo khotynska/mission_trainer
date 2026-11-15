@@ -1,9 +1,9 @@
-// Піксельні спрайти зі стилю MoonShift: зірка рівня, ракета, Земля, Місяць і логотип.
+// Піксельні спрайти: зірка рівня, ракета, Земля.
 // Спрайт — це текстова сітка: один символ = один піксель, '.' = порожньо. Без файлів-картинок, чіткі в будь-якому розмірі.
 // Кольори спрайтів — частина ілюстрації (як і на стартовому екрані), тому літерали тут дозволені.
 
 /** Сітка → SVG-прямокутники (сусідні пікселі одного кольору зливаються в один прямокутник). */
-function Sprite({ rows, pal, className = 'ms-sprite' }) {
+function Sprite({ rows, pal, className = 'px-sprite' }) {
   const rects = [];
   rows.forEach((row, y) => {
     for (let x = 0; x < row.length;) {
@@ -44,14 +44,12 @@ function planetRows(n, spots, terminator) {
     return spot ? 's' : 'm';
   }).join(''));
 }
-const MOON = planetRows(32, [[9, 10, 3], [20, 7, 2], [13, 20, 4], [23, 19, 2.5], [7, 23, 1.8], [17, 13, 1.5], [25, 11, 1.5]], 0.4);
 const EARTH = planetRows(16, [[5, 5, 2.5], [4, 7, 2], [10, 9, 2.5], [11, 12, 1.5], [7, 12, 1]], 0.3);
-const MOON_PAL = { m: '#d4d6ea', s: '#a7aac6', n: '#5d6185', S: '#474b6e', e: '#eef0ff', E: '#3b3f63' };
 const EARTH_PAL = { m: '#2a6fe0', s: '#3fbf7f', n: '#173f8f', S: '#24734f', e: '#9fdcff', E: '#2a4f9f' };
 
 /** @param {{ state: 'done' | 'now' | 'locked' }} props */
 export function PixelStar({ state = 'locked' }) {
-  return <Sprite rows={STAR} pal={STAR_PAL[state] ?? STAR_PAL.locked} className={`ms-sprite ms-star-${state}`} />;
+  return <Sprite rows={STAR} pal={STAR_PAL[state] ?? STAR_PAL.locked} className={`px-sprite px-star-${state}`} />;
 }
 
 export function PixelRocket() {
@@ -62,34 +60,12 @@ export function PixelEarth() {
   return <Sprite rows={EARTH} pal={EARTH_PAL} />;
 }
 
-export function PixelMoon() {
-  return <Sprite rows={MOON} pal={MOON_PAL} />;
-}
 
 /** Рейтинг дня: N з 3 піксельних зірочок. */
 export function StarRating({ n, of = 3, label }) {
   return (
-    <span className="ms-stars" role="img" aria-label={label}>
+    <span className="px-stars" role="img" aria-label={label}>
       {Array.from({ length: of }, (_, i) => <PixelStar key={i} state={i < n ? 'done' : 'locked'} />)}
     </span>
-  );
-}
-
-/** Логотип: Місяць на орбіті. */
-export function MsLogo() {
-  return (
-    <svg viewBox="0 0 40 40" aria-hidden="true">
-      <defs>
-        <linearGradient id="ms-logo-grad" x1="0" x2="1" y1="0" y2="1">
-          <stop offset="0" stopColor="#4de1ff" />
-          <stop offset="1" stopColor="#c26bff" />
-        </linearGradient>
-      </defs>
-      <ellipse cx="20" cy="20" rx="18" ry="7" fill="none" stroke="url(#ms-logo-grad)" strokeWidth="2" transform="rotate(-20 20 20)" />
-      <circle cx="20" cy="20" r="10" fill="#d9dcef" />
-      <path d="M20 10a10 10 0 0 1 0 20 7 10 0 0 0 0-20Z" fill="#7b7f9c" />
-      <circle cx="16" cy="17" r="2" fill="#b9bdd6" />
-      <circle cx="22" cy="24" r="1.4" fill="#b9bdd6" />
-    </svg>
   );
 }
