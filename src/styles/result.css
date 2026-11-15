@@ -1,125 +1,61 @@
-/* Екран результату (Result.jsx) — піксель-арт. Власник: Dev 5. Лише токени з theme.css. */
+/* Екран «Що сталося» (Result.jsx). Власник: Dev 5. Лише токени з theme.css. */
 
-/* Зміни ресурсів ------------------------------------------------------------ */
-.changes {
+.outcome { gap: var(--gap-3); }
+
+/* Великі іконки змін: ⚡ −3 · 🫁 0 · ☢️ +1,1 · 🔬 +20 */
+.deltas {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--gap-3);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--gap-2);
   padding: 0;
   list-style: none;
 }
-
-@media (min-width: 640px) {
-  .changes { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-}
-
-.change {
+.delta {
   --trend-color: var(--text-muted);
   --trend-bg: var(--space-sunken);
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  grid-template-areas: 'label label' 'icon numbers';
-  align-items: center;
-  gap: var(--gap-1) var(--gap-2);
-  min-width: 0;
-  padding: var(--gap-3);
-  background: var(--space-raised);
-  border: var(--border-w) solid var(--border-strong);
-  border-top: 4px solid var(--trend-color);
-  box-shadow: var(--shadow-sm);
-  animation: change-in 240ms steps(3, end) backwards;
-  animation-delay: calc(var(--i, 0) * 90ms + 120ms);
-}
-.change[data-trend='good'] { --trend-color: var(--ok); --trend-bg: var(--ok-soft); }
-.change[data-trend='bad'] { --trend-color: var(--danger); --trend-bg: var(--danger-soft); }
-
-/* Назва ресурсу — на всю ширину картки й переноситься по складах, а не обрізається */
-.change__label { grid-area: label; min-width: 0; font-size: var(--fs-xs); font-weight: var(--fw-bold); line-height: 1.2; color: var(--text-muted); overflow-wrap: break-word; hyphens: auto; }
-.change__icon { grid-area: icon; font-size: 1.5rem; line-height: 1; }
-.change__numbers { grid-area: numbers; display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px var(--gap-2); min-width: 0; }
-.change__delta {
-  padding: 2px 6px;
-  background: var(--trend-bg);
-  color: var(--trend-color);
-  font-family: var(--font-pixel);
-  font-size: var(--fs-px-md);
-  line-height: 1.5;
-  white-space: nowrap;
-}
-.change__now { font-size: var(--fs-xs); color: var(--text-muted); white-space: nowrap; }
-
-@keyframes change-in { from { opacity: 0; transform: translateY(6px); } }
-
-/* Розбір дози: шкода → захист → отримано ------------------------------------ */
-.dose-calc { display: flex; flex-direction: column; gap: var(--gap-3); min-width: 0; }
-
-.dose-calc__bar {
-  display: flex;
-  height: 20px;
-  overflow: hidden;
-  background: var(--space-sunken);
-  border: var(--border-w) solid var(--border-strong);
-}
-.dose-calc__received {
-  flex: none;
-  width: calc(var(--received, 1) * 100%);
-  min-width: 4px;
-  background: var(--danger);
-  box-shadow: inset 0 3px 0 rgb(255 255 255 / 0.3);
-  animation: dose-grow 600ms steps(6, end) 300ms backwards;
-}
-/* Те, що зупинило укриття: діагональна «піксельна» штриховка */
-.dose-calc__blocked {
-  flex: 1;
-  background: repeating-linear-gradient(135deg, var(--accent-soft) 0 6px, transparent 6px 12px);
-}
-
-.dose-calc__facts {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--gap-3);
-}
-.dose-calc__facts > div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.dose-calc__facts dt { font-size: var(--fs-xs); color: var(--text-muted); }
-.dose-calc__facts dd { font-family: var(--font-pixel); font-size: var(--fs-px-sm); line-height: var(--lh-pixel); white-space: nowrap; }
-.dose-calc__facts dd[data-tone='shield'] { color: var(--px-blue); }
-.dose-calc__facts dd[data-tone='received'] { color: var(--danger); }
-
-.dose-calc__formula {
-  align-self: flex-start;
-  max-width: 100%;
-  padding: 4px 10px;
-  background: var(--space-sunken);
-  border: 1px solid var(--border-strong);
-  font-family: var(--font-pixel);
-  font-size: var(--fs-px-xs);
-  line-height: var(--lh-pixel);
-  color: var(--text-muted);
-  overflow-wrap: anywhere;
-}
-
-@keyframes dose-grow { from { width: 0; } }
-
-/* Урок дня ------------------------------------------------------------------ */
-.lesson {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: var(--gap-2) var(--gap-1);
+  background: var(--trend-bg);
+  border: var(--border-w) solid var(--trend-color);
+  border-radius: var(--radius);
+  animation: delta-pop 300ms var(--ease-bounce) backwards;
+  animation-delay: calc(var(--i, 0) * 50ms);
+}
+.delta[data-trend='good'] { --trend-color: var(--ok); --trend-bg: var(--ok-soft); }
+.delta[data-trend='bad'] { --trend-color: var(--danger); --trend-bg: var(--danger-soft); }
+.delta__icon { font-size: 1.8rem; line-height: 1; }
+.delta__value {
+  font-family: var(--font-num);
+  font-weight: 900;
+  font-size: var(--fs-xl);
+  line-height: 1.2;
+  color: var(--trend-color);
+  white-space: nowrap;
+}
+
+.outcome__rocket { align-self: center; font-size: var(--fs-md); }
+
+/* Одна порада дня */
+.tip {
+  display: flex;
+  align-items: flex-start;
   gap: var(--gap-2);
-  padding: var(--gap-4);
-  background: var(--space-raised);
-  border: var(--border-w) solid var(--border-strong);
-  border-left: 8px solid var(--sun);
-  box-shadow: var(--shadow-sm);
+  padding: var(--gap-2) var(--gap-3);
+  background: var(--warning-soft);
+  border-radius: var(--radius);
+  font-weight: var(--fw-bold);
 }
-.lesson__title { color: var(--sun); }
-.lesson__text { font-size: var(--fs-lg); }
+.tip__icon { font-size: 1.3rem; line-height: 1.2; }
 
-@media (max-width: 480px) {
-  .dose-calc__facts { grid-template-columns: minmax(0, 1fr); gap: var(--gap-2); }
-  .dose-calc__facts > div { flex-direction: row; align-items: baseline; justify-content: space-between; gap: var(--gap-3); }
-}
+.outcome__actions { justify-content: space-between; }
+.outcome__actions > .btn--lg { margin-left: auto; }
 
-@media (max-width: 360px) {
-  .change { padding: var(--gap-2); }
-  .change__icon { font-size: 1.25rem; }
+@keyframes delta-pop { from { opacity: 0; transform: scale(0.4) translateY(10px); } }
+
+@media (max-width: 420px) {
+  .delta__icon { font-size: 1.4rem; }
+  .delta__value { font-size: var(--fs-px-sm); }
 }

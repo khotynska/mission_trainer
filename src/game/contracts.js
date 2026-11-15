@@ -44,7 +44,23 @@ export const EVENT_TYPES = ['QUIET', 'M', 'X', 'X5', 'CME', 'EXTREME', 'SEP'];
 export const SCREENS = [
   'start', 'map', 'briefing', 'decision', 'result', 'fact',
   'weekComplete', 'evacuation', 'launch', 'certificate', 'sources',
+  'calm', // картка-підсумок спокійних днів, що пройшли на автопілоті (state.calmLog)
 ];
+
+/* ---------- 2a. НОВІ ПОЛЯ СТАНУ (темп гри, відгук тестувальників) ----------
+  timerOn: true,                 // дилеми з таймером
+  theme: 'dark' | 'light',       // тема ігрових екранів (кнопка ☀️/🌙 на панелі)
+  sound: true,                   // звуки кліків і реакцій
+  tutorial: false,               // зараз іде інтерактивна інструкція з астронавтом
+  tutorialDone: false,
+  daySnapshot: {...} | null,     // стан на початок зіграного дня (RETRY_DAY)
+  history: [{ day, date, event, choice, best, doseGain, stars, snap }],  // зіграні дні (RETRY_DAY { day }); stars 1–3 — для «Зоряного шляху»
+  calmLog: [{ day, date, phase, event, detail, warnings, deltas }],  // для екрана 'calm'
+  stats: { sheltered: 0, fast: 0 },
+  resume: 'result' | null,       // останній ігровий екран (GO 'briefing' повертає сюди)
+  patches: [...]                 // крім нашивок тижнів тут і значки досягнень:
+                                 // 'first_steps' | 'shelter_pro' | 'quick' | 'may_storm' | 'low_dose' | 'graduate'
+*/
 
 /* ---------- ALLOCATION — що відправляє Decision ----------
 { life: 1, shield: 2, science: 1, launch: 0 }
@@ -66,7 +82,9 @@ export const SCREENS = [
   comms: true,                   // false = вчора був X-спалах, немає зв'язку й прогнозу
   event: { type: 'SEP', detail: 'X5.8', donkiIds: [...] },
   warnings: [{ type: 'CME', inDays: 2 }],   // порожньо, якщо comms === false
-  textKey: 'day25'               // ключ тексту дня в i18n days.json
+  textKey: 'day25',              // ключ тексту дня в i18n days.json
+  eventHour: 13.98,              // година події (UTC) з ID DONKI — для годинника дня
+  dilemma: DILEMMA               // див. src/game/dilemmas.js
 }
 */
 
@@ -76,7 +94,9 @@ export const SCREENS = [
   damage: 26,                    // шкода до захисту
   protection: 0.9,               // частка захисту укриття
   explanationKey: 'shield_saved',// ключ у i18n result.json
-  params: { percent: 90 }
+  params: { percent: 90 },
+  choice: { option: 0, id: 'shelter', kind: 'storm', best: true, timedOut: false, fast: true }, // лише після CHOOSE
+  mood: 'happy' | 'worried'
 }
 */
 
@@ -91,6 +111,12 @@ export const ACTIONS = {
   SET_LANG: 'SET_LANG',                   // { type, lang }
   TOGGLE_TIMER: 'TOGGLE_TIMER',           // { type }  вмикає/вимикає таймер
   LAUNCH_CHOICE: 'LAUNCH_CHOICE',         // { type, choice: 'now' | 'wait' }  лише на екрані 'launch'
+  CHOOSE: 'CHOOSE',                       // { type, option: 0 | 1, ms, timedOut }  вибір у дилемі дня
+  RETRY_DAY: 'RETRY_DAY',                 // { type, day? }  переграти зіграний день (типово — останній)
+  TOGGLE_THEME: 'TOGGLE_THEME',           // { type }  ☀️ / 🌙
+  TOGGLE_SOUND: 'TOGGLE_SOUND',           // { type }
+  TUTORIAL_START: 'TUTORIAL_START',       // { type }  показати інструкцію ще раз
+  TUTORIAL_END: 'TUTORIAL_END',           // { type }
 };
 
 /* ---------- 6. ПРОПСИ КОМПОНЕНТІВ ----------

@@ -1,9 +1,10 @@
 // Власник: Dev 6 (Progress UI).
-// Збереження прогресу в localStorage: нашивки, мова, ім'я, найкращі результати тижнів.
+// Збереження прогресу в localStorage: нашивки й значки, мова, ім'я, найкращі результати тижнів,
+// а також тема (☀️/🌙), звук і чи пройдено інструкцію.
 // Працює безпечно, навіть якщо localStorage недоступний (приватний режим тощо).
 const KEY = 'junior-astronaut-progress-v1';
 
-const EMPTY = { patches: [], lang: 'ua', name: '', best: {} };
+const EMPTY = { patches: [], lang: 'ua', name: '', best: {}, theme: 'dark', sound: true, tutorialDone: false };
 /** Єдині поля, які зберігаються. Решта (напр. увесь стан гри з App.jsx) ігнорується. */
 const FIELDS = Object.keys(EMPTY);
 
@@ -17,6 +18,9 @@ export function loadProgress() {
       lang: data.lang === 'en' ? 'en' : 'ua',
       name: typeof data.name === 'string' ? data.name : '',
       best: data.best && typeof data.best === 'object' ? data.best : {},
+      theme: data.theme === 'light' ? 'light' : 'dark',
+      sound: data.sound !== false,
+      tutorialDone: data.tutorialDone === true,
     };
   } catch {
     return { ...EMPTY, patches: [], best: {} };

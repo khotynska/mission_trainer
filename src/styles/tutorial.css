@@ -1,0 +1,75 @@
+/* Інтерактивна інструкція (Tutorial.jsx). Лише токени з theme.css. */
+
+.tour { position: fixed; inset: 0; z-index: 40; pointer-events: none; }
+.tour__dim { position: absolute; inset: 0; background: var(--tour-dim); }
+.tour__ring {
+  position: fixed;
+  border: 4px solid var(--sun);
+  border-radius: var(--radius);
+  box-shadow: 0 0 0 9999px var(--tour-dim);
+  transition: top 250ms var(--ease), left 250ms var(--ease), width 250ms var(--ease), height 250ms var(--ease);
+  animation: tour-glow 1.1s ease-in-out infinite;
+}
+
+.tour__card {
+  position: fixed;
+  left: 50%;
+  bottom: var(--gap-4);
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr);
+  align-items: end;
+  gap: var(--gap-3);
+  width: min(560px, calc(100vw - 2 * var(--gap-3)));
+  padding: var(--gap-3);
+  background: var(--bubble-bg);
+  color: var(--bubble-text);
+  border: var(--frame-w) solid var(--bubble-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  transform: translateX(-50%);
+  pointer-events: auto;
+  animation: tour-in 320ms var(--ease-bounce) backwards;
+}
+.tour__card[data-at='top'] { top: var(--gap-4); bottom: auto; }
+
+.nova { display: block; width: 76px; height: 76px; image-rendering: pixelated; animation: nova-float 1.8s ease-in-out infinite; }
+.nova__suit { fill: var(--nova-suit); }
+.nova__shade { fill: var(--nova-shade); }
+.nova__visor { fill: var(--nova-visor); }
+.nova__shine { fill: var(--nova-visor-shine); }
+.nova__stripe { fill: var(--nova-stripe); }
+.nova__wave { transform-box: fill-box; transform-origin: 0% 100%; animation: nova-wave 0.9s steps(2, end) infinite; }
+
+.tour__body { display: flex; flex-direction: column; gap: var(--gap-1); min-width: 0; }
+.tour__name { margin: 0; font-family: var(--font-pixel); font-size: var(--fs-px-xs); text-transform: uppercase; color: var(--info); }
+.tour__step { color: var(--text-muted); }
+.tour__text { margin: 0; font-size: var(--fs-lg); font-weight: var(--fw-bold); line-height: 1.3; }
+.tour__tap { margin: 0; font-size: var(--fs-sm); color: var(--text-muted); animation: tour-tap 1s ease-in-out infinite; }
+.tour__actions { display: flex; align-items: center; justify-content: space-between; gap: var(--gap-2); margin-top: var(--gap-1); }
+.tour__skip {
+  min-height: 40px;
+  padding: 4px 10px;
+  background: transparent;
+  color: var(--text-muted);
+  border: 0;
+  box-shadow: none;
+  font-weight: var(--fw-bold);
+  text-decoration: underline;
+}
+.tour__skip:hover:not(:disabled) { background: transparent; color: var(--text); }
+
+@keyframes tour-glow { 50% { border-color: var(--accent); } }
+@keyframes tour-in { from { opacity: 0; transform: translate(-50%, 20px) scale(0.92); } }
+@keyframes tour-tap { 50% { transform: translateY(-2px); } }
+@keyframes nova-float { 50% { transform: translateY(-4px); } }
+@keyframes nova-wave { 50% { transform: rotate(-18deg); } }
+
+@media (max-width: 420px) {
+  .tour__card { grid-template-columns: 56px minmax(0, 1fr); }
+  .nova { width: 56px; height: 56px; }
+  .tour__text { font-size: var(--fs-md); }
+}
+
+.app[data-theme='light'] .nova {
+  filter: drop-shadow(1px 0 0 var(--bubble-border)) drop-shadow(-1px 0 0 var(--bubble-border)) drop-shadow(0 1px 0 var(--bubble-border)) drop-shadow(0 -1px 0 var(--bubble-border));
+}

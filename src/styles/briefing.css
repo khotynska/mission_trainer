@@ -1,179 +1,70 @@
-/* Екран брифінгу (Briefing.jsx) — піксель-арт. Власник: Dev 5. Лише токени з theme.css. */
+/* Екран дня (Briefing.jsx). Власник: Dev 5. Лише токени з theme.css. */
 
-/* Ліра — робот-помічник ЦУП ------------------------------------------------- */
-.lira {
-  --lira-shell: #e8ecf8;
-  --lira-shade: #9aa6c8;
-  --lira-visor: var(--px-ink);
-  --lira-eye: #7ff0ff;
-  --avatar: 96px;                       /* кратно 24 — пікселі лишаються чіткими */
-  display: grid;
-  grid-template-columns: var(--avatar) minmax(0, 1fr);
-  align-items: start;
-  gap: var(--gap-4);
-}
+.day { gap: var(--gap-3); }
 
-.lira-avatar {
-  display: block;
-  width: var(--avatar);
-  height: var(--avatar);
-  image-rendering: pixelated;
-  animation: lira-bob 1.6s steps(2, end) infinite;
-}
-.lira-avatar__shell { fill: var(--lira-shell); }
-.lira-avatar__shine { fill: #ffffff; }
-.lira-avatar__shade,
-.lira-avatar__antenna { fill: var(--lira-shade); }
-.lira-avatar__visor { fill: var(--lira-visor); }
-.lira-avatar__ear { fill: var(--accent); }
-.lira-avatar__eye { fill: var(--lira-eye); transform-box: fill-box; transform-origin: center; animation: lira-blink 4s steps(1, end) infinite; }
-.lira-avatar__face { fill: var(--lira-eye); }
-.lira-avatar__beacon,
-.lira-avatar__core { fill: var(--sun); }
-.lira-avatar__signal { fill: var(--px-blue); animation: lira-signal 1.2s steps(1, end) infinite; }
-.lira-avatar__offline { fill: var(--danger); }
-
-.lira__bubble {
-  position: relative;
-  min-width: 0;
-  padding: var(--gap-3) var(--gap-4);
-  background: var(--space-raised);
-  border: var(--border-w) solid var(--border-strong);
-  box-shadow: var(--shadow-sm);
-  animation: bubble-in 240ms steps(3, end) 120ms backwards;
-}
-
-/* Піксельний «хвостик» репліки */
-.lira__bubble::before {
-  content: '';
+/* Дата та кнопки поверх сцени */
+.day__date {
   position: absolute;
-  top: 18px;
-  left: -10px;
-  width: 8px;
-  height: 8px;
-  background: var(--border-strong);
-  box-shadow: -4px 4px 0 0 var(--border-strong);
+  top: var(--gap-2);
+  right: var(--gap-2);
+  padding: 2px 10px;
+  background: var(--clock-bg);
+  color: var(--clock-text);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-num);
+  font-weight: 800;
+  font-size: var(--fs-sm);
 }
-
-.lira__name {
-  font-family: var(--font-pixel);
-  font-size: var(--fs-px-xs);
-  line-height: var(--lh-pixel);
-  text-transform: uppercase;
-  color: var(--px-blue);
-}
-.lira__role { font-family: var(--font); font-size: var(--fs-xs); text-transform: none; color: var(--text-muted); }
-.lira__text { margin-top: var(--gap-1); font-size: var(--fs-lg); line-height: 1.4; }
-
-/* Немає зв'язку: м'які перешкоди (без різких спалахів — WCAG 2.3.1) */
-.lira[data-comms='off'] .lira-avatar { filter: grayscale(0.85) brightness(0.85); animation: lira-glitch 3s steps(1, end) infinite; }
-.lira[data-comms='off'] .lira-avatar__beacon { fill: var(--text-muted); }
-.lira[data-comms='off'] .lira__bubble { border-style: dashed; }
-.lira[data-comms='off'] .lira__bubble::after {
-  content: '';
+.day__skip {
   position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: repeating-linear-gradient(0deg, rgb(255 255 255 / 0.07) 0 2px, transparent 2px 6px);
-  animation: static-roll 1.2s steps(6, end) infinite;
+  right: var(--gap-2);
+  bottom: var(--gap-2);
+  min-height: 40px;
+  padding: 4px 14px;
+  background: var(--clock-bg);
+  color: var(--clock-text);
+  border: var(--border-w) solid var(--clock-border);
+  border-radius: var(--radius-pill);
+  box-shadow: none;
+  font-weight: var(--fw-bold);
+}
+.day__skip:hover:not(:disabled) { background: var(--accent); color: var(--on-accent); }
+.day__status {
+  position: absolute;
+  left: var(--gap-2);
+  bottom: var(--gap-2);
+  padding: 2px 10px;
+  background: var(--clock-bg);
+  color: var(--clock-text);
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-bold);
 }
 
-@keyframes lira-bob { 50% { transform: translateY(-4px); } }
-@keyframes lira-blink { 0%, 100% { transform: scaleY(1); } 92% { transform: scaleY(0.2); } 96% { transform: scaleY(1); } }
-@keyframes lira-signal { 50% { opacity: 0.2; } }
-@keyframes lira-glitch { 0%, 100% { transform: none; } 70% { transform: translateX(-2px); } 85% { transform: translateX(2px); } }
-@keyframes static-roll { to { background-position: 0 12px; } }
-@keyframes bubble-in { from { opacity: 0; transform: translateX(-8px); } }
+.day__chips { display: flex; flex-wrap: wrap; gap: var(--gap-1); margin-top: var(--gap-2); }
+.chip--danger { color: var(--danger); border-color: var(--danger); background: var(--danger-soft); }
+.chip--warning { color: var(--warning); border-color: var(--warning); background: var(--warning-soft); }
+.chip--ok { color: var(--ok); border-color: var(--ok); background: var(--ok-soft); }
 
-/* Енергія на сьогодні ------------------------------------------------------- */
-.briefing__tokens { display: flex; flex-wrap: wrap; align-items: center; gap: var(--gap-2) var(--gap-3); font-size: var(--fs-sm); }
-.briefing__tokens .chip { color: var(--res-battery); border-color: var(--res-battery); }
-
-/* Картка події -------------------------------------------------------------- */
-.event-card {
-  --level-color: var(--ok);
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: var(--gap-2) var(--gap-4);
-  padding: var(--gap-4);
-  background: var(--space-raised);
-  border: var(--border-w) solid var(--border-strong);
-  border-left: 8px solid var(--level-color);
-  box-shadow: var(--shadow-sm);
-}
-.event-card[data-danger='2'] { --level-color: var(--warning); }
-.event-card[data-danger='3'],
-.event-card[data-danger='4'] { --level-color: var(--danger); }
-
-.event-card__icon {
-  display: grid;
-  place-items: center;
-  width: 64px;
-  height: 64px;
-  background: var(--space-sunken);
-  border: var(--border-w) solid var(--level-color);
-  font-size: 1.75rem;
-  line-height: 1;
-}
-.event-card__icon[data-wide] { font-size: 1.25rem; }
-.event-card[data-danger='4'] .event-card__icon { animation: danger-pulse 1.6s steps(1, end) infinite; }
-
-.event-card__body { display: flex; flex-direction: column; gap: var(--gap-2); min-width: 0; }
-.event-card__title { color: var(--heading); }
-.event-card__text { color: var(--text-muted); }
-.event-card__meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--gap-2) var(--gap-3); font-size: var(--fs-sm); }
-
-.danger-level { display: inline-flex; flex-wrap: wrap; align-items: center; gap: var(--gap-2); font-weight: var(--fw-bold); color: var(--level-color); }
-.danger-meter { display: inline-flex; flex: none; align-items: flex-end; gap: 2px; height: 16px; }
-.danger-meter__bar { width: 6px; background: var(--border-strong); }
-.danger-meter__bar:nth-child(1) { height: 4px; }
-.danger-meter__bar:nth-child(2) { height: 8px; }
-.danger-meter__bar:nth-child(3) { height: 12px; }
-.danger-meter__bar:nth-child(4) { height: 16px; }
-.danger-meter__bar[data-on] { background: var(--level-color); }
-
-.event-card__dose { font-weight: var(--fw-bold); color: var(--text); }
-
-@keyframes danger-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 var(--level-color); }
-  50% { box-shadow: 0 0 0 4px var(--level-color); }
-}
-
-/* Прогноз ------------------------------------------------------------------- */
-.forecast { display: flex; flex-direction: column; gap: var(--gap-2); }
-.forecast__list { display: flex; flex-direction: column; gap: var(--gap-3); padding: 0; list-style: none; }
-.forecast__empty { color: var(--text-muted); }
-
-/* Підпис-джерело (для суддів: дата й ID DONKI) ------------------------------ */
+/* Підпис-джерело (для суддів: дата й ID DONKI) — дрібно й непомітно */
 .source-note {
   display: flex;
-  flex-direction: column;
-  gap: var(--gap-1);
-  padding-top: var(--gap-3);
-  border-top: var(--border-w) dashed var(--border-strong);
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--gap-1) var(--gap-3);
   font-size: var(--fs-xs);
   color: var(--text-muted);
 }
-.source-note__ids { display: flex; flex-wrap: wrap; align-items: center; gap: var(--gap-1); }
+.source-note a { color: inherit; }
+.source-note summary { cursor: pointer; }
+.source-note__ids { display: flex; flex-wrap: wrap; gap: var(--gap-1); margin-top: var(--gap-1); }
 .source-note code {
   max-width: 100%;
   padding: 1px 6px;
   background: var(--space-sunken);
   border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
   color: var(--text);
   overflow-wrap: anywhere;
-}
-
-@media (max-width: 480px) {
-  .lira { --avatar: 72px; gap: var(--gap-3); }
-  .lira__text { font-size: var(--fs-md); }
-  .event-card { gap: var(--gap-2) var(--gap-3); padding: var(--gap-3); border-left-width: 6px; }
-  .event-card__icon { width: 48px; height: 48px; font-size: 1.375rem; }
-  .event-card__icon[data-wide] { font-size: 0.9375rem; }
-}
-
-@media (max-width: 340px) {
-  /* Дуже вузькі екрани: аватар над реплікою, щоб текст мав усю ширину */
-  .lira { grid-template-columns: minmax(0, 1fr); }
-  .lira__bubble::before { top: -10px; left: 18px; box-shadow: 4px -4px 0 0 var(--border-strong); }
 }

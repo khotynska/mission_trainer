@@ -1,0 +1,20 @@
+{
+  "title": "How to play",
+  "name": "Astronaut Nova",
+  "steps": {
+    "hello": "Hi! I'm Nova. Let me show you how to play!",
+    "battery": "⚡ Energy. The Sun charges it in the daytime.",
+    "life": "🫁 Air and food. Don't let them run out!",
+    "dose": "☢️ Radiation. Keep it low!",
+    "science": "🔬 Science. Collect 150 points!",
+    "clock": "🕑 The clock shows when the event happens.",
+    "lira": "🤖 Lira tells you what happened on the Sun.",
+    "choices": "Pick one button! The icons show what will happen."
+  },
+  "tap": "Tap the glowing part",
+  "tap_choice": "Tap a button",
+  "next": "Next",
+  "go": "Let's go",
+  "done": "Done",
+  "skip": "Skip"
+}

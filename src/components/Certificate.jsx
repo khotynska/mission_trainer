@@ -1,105 +1,88 @@
 // Власник: Dev 6 (Progress UI). Пропси за контрактом: { state, dispatch, t } (src/game/contracts.js).
-import { useState } from 'react';
+// Сертифікат після всіх 30 днів: медаль рангу, ім'я, підсумки іконками, усі значки місії.
+import { useEffect, useState } from 'react';
 import { ACTIONS } from '../game/contracts.js';
-import { getRank } from '../game/gameEngine'; // лише імпорт, змінювати не можна
+import { CONFIG } from '../game/config.js';
+import { getRank } from '../game/gameEngine';
 import PatchBadge from './PatchBadge.jsx';
+import Confetti from './Confetti.jsx';
 import { PATCHES } from './patches.js';
 import { getPlayerName, savePlayerName } from '../game/storage';
+import { play } from './sfx.js';
+import '../styles/progress.css';
 
-const RANK_VIEW = {
-    bronze: { icon: '🥉', color: '#cd7f32' },
-    silver: { icon: '🥈', color: '#c0c0c0' },
-    gold: { icon: '🥇', color: '#ffd700' },
-};
+const RANK_ICON = { bronze: '🥉', silver: '🥈', gold: '🥇' };
 
 export default function Certificate({ state, dispatch, t }) {
-    const [name, setName] = useState(getPlayerName);
-    // Дата видачі фіксується один раз (рендер має бути чистим — без new Date() при кожному рендері)
-    const [issuedAt] = useState(() => new Date());
-    const raw = getRank(state);
-    // getRank може повертати 'bronze' | 'silver' | 'gold' (рядок) або об'єкт: підтримуємо обидва.
-    const rankId = String((raw && raw.id) || raw || 'bronze').toLowerCase();
-    const rank = RANK_VIEW[rankId] || RANK_VIEW.bronze;
-    const patches = state.patches || [];
-    const lang = state.lang === 'en' ? 'en-GB' : 'uk-UA';
+  const [name, setName] = useState(getPlayerName);
+  // Дата видачі фіксується один раз (рендер має бути чистим — без new Date() при кожному рендері)
+  const [issuedAt] = useState(() => new Date());
+  const raw = getRank(state);
+  const rankId = String((raw && raw.id) || raw || 'bronze').toLowerCase();
+  const patches = state.patches || [];
+  const earned = PATCHES.filter((p) => patches.includes(p.id)).length;
+  const lang = state.lang === 'en' ? 'en-GB' : 'uk-UA';
+  const dose = new Intl.NumberFormat(lang, { maximumFractionDigits: 1 }).format(state.dose || 0);
 
-    return (
-        <main style={{ maxWidth: 640, margin: '0 auto', padding: 14 }}>
-            <section
-                style={{
-                    border: `4px solid ${rank.color}`,
-                    borderRadius: 20,
-                    padding: 20,
-                    textAlign: 'center',
-                    background: 'var(--card, #161d3d)',
-                }}
-            >
-                <div style={{ fontSize: 56 }}>{rank.icon}</div>
-                <h1 style={{ fontSize: 26, margin: '6px 0' }}>{t('progress.cert.title')}</h1>
-                <h2 style={{ color: rank.color, margin: '4px 0' }}>{t('progress.cert.rank_' + rankId)}</h2>
+  useEffect(() => {
+    play('badge');
+  }, []);
 
-                <input
-                    value={name}
-                    maxLength={30}
-                    placeholder={t('progress.cert.name')}
-                    aria-label={t('progress.cert.name')}
-                    onChange={(e) => {
-                        setName(e.target.value);
-                        savePlayerName(e.target.value);
-                    }}
-                    style={{
-                        font: 'inherit',
-                        fontSize: 20,
-                        textAlign: 'center',
-                        padding: 10,
-                        margin: '12px 0',
-                        width: '100%',
-                        maxWidth: 360,
-                        borderRadius: 10,
-                        border: '2px dashed var(--accent, #ffcc4d)',
-                        background: 'transparent',
-                        color: 'inherit',
-                    }}
-                />
+  return (
+    <main className="cert-wrap" lang={state.lang === 'en' ? 'en-US' : 'uk-UA'}>
+      <Confetti burst="cert" />
+      <section className="cert" data-rank={rankId} aria-labelledby="cert-title">
+        <p className="cert__ribbon">Junior Astronaut</p>
+        <div className="cert__medal" aria-hidden="true">{RANK_ICON[rankId] ?? '🥉'}</div>
+        <h1 id="cert-title" className="cert__title">{t('progress.cert.title')}</h1>
+        <p className="cert__rank">{t('progress.cert.rank_' + rankId)}</p>
 
-                <p>{t('progress.cert.text')}</p>
-                <p>
-                    🔬 {t('progress.cert.science')}: <b>{state.science}</b> · ☢️ {t('progress.cert.dose')}:{' '}
-                    <b>{Math.round((state.dose || 0) * 10) / 10}</b>
-                </p>
+        <input
+          className="cert__name"
+          value={name}
+          maxLength={30}
+          placeholder={t('progress.cert.name')}
+          aria-label={t('progress.cert.name')}
+          onChange={(e) => {
+            setName(e.target.value);
+            savePlayerName(e.target.value);
+          }}
+        />
+        <p className="cert__text">{t('progress.cert.text')}</p>
 
-                <div style={{ display: 'flex', gap: 8, justifyContent: 'center', margin: '10px 0' }}>
-                    {PATCHES.map((p) => (
-                        <PatchBadge key={p.id} id={p.id} earned={patches.includes(p.id)} label={t('progress.patch.' + p.id)} />
-                    ))}
-                </div>
+        <ul className="cert__stats" role="list">
+          <li><span aria-hidden="true">📅</span> <b>{CONFIG.totalDays}</b> <span>{t('progress.cert.days')}</span></li>
+          <li><span aria-hidden="true">🔬</span> <b>{state.science}</b> <span>{t('progress.cert.science')}</span></li>
+          <li><span aria-hidden="true">☢️</span> <b>{dose}</b> <span>{t('progress.cert.dose')}</span></li>
+          <li><span aria-hidden="true">🏅</span> <b>{earned}/{PATCHES.length}</b> <span>{t('progress.cert.badges')}</span></li>
+        </ul>
 
-                <p style={{ opacity: 0.7, fontSize: 14 }}>{issuedAt.toLocaleDateString(lang)}</p>
-                <p style={{ opacity: 0.8, fontSize: 14 }}>{t('progress.cert.mars')}</p>
-            </section>
+        <ul className="cert__badges" role="list" aria-label={t('progress.cert.badges')}>
+          {PATCHES.map((p) => (
+            <li key={p.id} data-earned={patches.includes(p.id) || undefined}>
+              <PatchBadge id={p.id} size={52} earned={patches.includes(p.id)} label={t('progress.patch.' + p.id)} />
+              <span className="cert__badge-name">{t('progress.patch.' + p.id)}</span>
+            </li>
+          ))}
+        </ul>
 
-            <div className="no-print" style={{ display: 'flex', gap: 10, marginTop: 14, flexWrap: 'wrap' }}>
-                <button type="button" style={btn} onClick={() => window.print()}>
-                    🖨️ {t('progress.cert.print')}
-                </button>
-                <button type="button" style={{ ...btn, background: 'var(--space-raised, #2a3366)', color: 'inherit' }} onClick={() => dispatch({ type: ACTIONS.START_GAME })}>
-                    🔁 {t('progress.cert.again')}
-                </button>
-            </div>
+        {rankId !== 'gold' && <p className="cert__hint">🥇 {t('progress.cert.gold_hint', { science: CONFIG.scienceGoal, dose: CONFIG.goldDoseMax })}</p>}
+        <p className="cert__footer">
+          {issuedAt.toLocaleDateString(lang)} · {t('progress.cert.mars')}
+        </p>
+      </section>
 
-            <style>{`@media print{.no-print{display:none!important}body{background:#fff!important;color:#000!important}}`}</style>
-        </main>
-    );
+      <div className="no-print cert__actions">
+        <button type="button" className="btn btn--alt" onClick={() => window.print()}>
+          <span aria-hidden="true">🖨️</span> {t('progress.cert.print')}
+        </button>
+        <button type="button" className="btn btn--secondary" onClick={() => dispatch({ type: ACTIONS.GO, screen: 'map' })}>
+          <span aria-hidden="true">🗺️</span> {t('progress.start.map')}
+        </button>
+        <button type="button" className="btn" onClick={() => dispatch({ type: ACTIONS.START_GAME })}>
+          <span aria-hidden="true">🔁</span> {t('progress.cert.again')}
+        </button>
+      </div>
+    </main>
+  );
 }
-
-const btn = {
-    minHeight: 48,
-    padding: '12px 18px',
-    borderRadius: 12,
-    border: 0,
-    fontWeight: 700,
-    fontSize: 16,
-    cursor: 'pointer',
-    background: 'var(--accent, #ffcc4d)',
-    color: '#111',
-};
