@@ -7,6 +7,7 @@
 // • Невдалий день можна переграти (ACTIONS.RETRY_DAY), значки додаються в state.patches.
 import { ACTIONS } from './contracts.js';
 import { createGame, startDay, resolveChoice, resolveLaunch, checkEnd, checkWeekGoal } from './gameEngine.js';
+import { gameOf } from './levels.js';
 import { CONFIG } from './config.js';
 import facts from '../data/facts.json' with { type: 'json' };
 
@@ -74,9 +75,6 @@ function finishMission(state) {
   return { ...s, screen: 'certificate' };
 }
 
-/** Ключ міні-гри варіанта (для лічильника варіантів). */
-const gameKeyOf = (o) => (o.chore ? o.id : o.game ?? null);
-
 /**
  * Як результат великої міні-гри змінює наслідки вибору — логічно й видимо:
  * погано почищені панелі — менше енергії, недобудована стіна — без захисту,
@@ -110,8 +108,17 @@ function choose(state, { option, ms = null, timedOut = false, game = null }) {
   const level = state.briefing?.level;
   const base = level?.options?.[option];
   if (!base || !base.affordable) return state;
-  const { option: picked, effect } = withGameResult(base, game);
+  const { option: picked, effect: planned } = withGameResult(base, game);
   let s = resolveChoice(state, picked);
+  // Ефект гри — лише те, що реально змінилося (шкали мають межі: на 😊 100 бонус +4 нічого не додає).
+  let effect = null;
+  if (planned) {
+    const stat = Object.keys(planned).find((k) => k !== 'key');
+    const plain = resolveChoice(state, base).result.choiceDeltas[stat] ?? 0;
+    const real = Math.round(((s.result.choiceDeltas[stat] ?? 0) - plain) * 10) / 10;
+    if (real) effect = { key: planned.key, [stat]: real };
+  }
+  const gameLost = Boolean(game && !game.success && effect);
 
   const isBest = level.best === -1 || level.best === option;
   const timed = level.seconds > 0;
@@ -124,8 +131,8 @@ function choose(state, { option, ms = null, timedOut = false, game = null }) {
     result: {
       ...s.result,
       choice: { option, id: picked.id, kind: level.kind, chore: Boolean(picked.chore), best: isBest, timedOut, fast },
-      // програна міні-гра (брудні панелі, запізнився в укриття…) — Ліра хвилюється, можна переграти день
-      mood: timedOut || !isBest || (game && !game.success) ? 'worried' : 'happy',
+      // програна міні-гра, що щось забрала (брудні панелі, запізнився в укриття…) — Ліра хвилюється, можна переграти день
+      mood: timedOut || !isBest || gameLost ? 'worried' : 'happy',
     },
   };
 
@@ -147,7 +154,7 @@ function choose(state, { option, ms = null, timedOut = false, game = null }) {
   // Справа: наступного разу — інший варіант міні-гри. Факт: не більше 2 разів за гру.
   // (Лічильники не входять у знімок дня — переграний день отримує новий варіант і новий факт.)
   const factId = pickFact(state.day, state.factLog);
-  const key = gameKeyOf(picked);
+  const key = gameOf(picked);
   s = {
     ...s,
     choreCount: key && game ? { ...state.choreCount, [key]: (state.choreCount?.[key] ?? 0) + 1 } : state.choreCount,

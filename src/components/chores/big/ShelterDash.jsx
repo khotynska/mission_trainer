@@ -247,9 +247,9 @@ function Game({ t, v, seed, limit, onDone }) {
   const outside = tile(...pos) === 'r';
   const hint = time < 3 ? 'move' : outside ? 'outside' : closed.length < init.hatches.length ? 'hatches' : !medkit ? 'medkit' : 'shelter';
 
-  return (
-    <svg ref={svg} className="bg-svg" viewBox={`0 0 ${W} 600`} tabIndex={0} role="application" aria-label={t('games.dash.title')}
-      onKeyDown={keyDown} onKeyUp={keyUp} onPointerDown={tap}>
+  // Карта, стіни й підписи не змінюються під час гри: малюємо їх один раз, а не 60 разів на секунду.
+  const staticLayer = useMemo(() => (
+    <>
       <SpaceBg seed={seed} id="sd" />
       {/* карта */}
       {MAP.map((row, y) => [...row].map((c, x) => {
@@ -266,17 +266,26 @@ function Game({ t, v, seed, limit, onDone }) {
       }))}
       {/* стіни укриття */}
       {[5, 15, 25].map((o, i) => <rect key={o} x={732 - o} y={112 - o} width={2 * T + 2 * o} height={7 * T + 2 * o} fill="none" stroke={[C.green, '#2fa874', '#1d6b4c'][i]} strokeWidth="5" opacity="0.95" />)}
+    </>
+  ), [seed]);
+  const labels = useMemo(() => (
+    <g fontSize="16" fontWeight="700" fill={C.muted} stroke={C.space0} strokeWidth="4" paintOrder="stroke" textAnchor="middle">
+      <text x={OX + 5 * T + T / 2} y={OY + 0.6 * T}>{t('games.dash.rooms.h')}</text>
+      <text x={OX + 9 * T + T / 2} y={OY + 0.6 * T}>{t('games.dash.rooms.g')}</text>
+      <text x={OX + 5 * T + T / 2} y={OY + 8.6 * T}>{t('games.dash.rooms.l')}</text>
+      <text x={OX + 9 * T + T / 2} y={OY + 8.6 * T}>{t('games.dash.rooms.k')}</text>
+      <text x="228" y="202">{t('games.dash.airlock')}</text>
+      <text x="788" y="84" fill={C.green}>{t('games.dash.shelter')}</text>
+      <text x="788" y="510" fill={C.green}>{t('games.dash.thickWalls')}</text>
+    </g>
+  ), [t]);
+
+  return (
+    <svg ref={svg} className="bg-svg" viewBox={`0 0 ${W} 600`} tabIndex={0} role="application" aria-label={t('games.dash.title')}
+      onKeyDown={keyDown} onKeyUp={keyUp} onPointerDown={tap}>
+      {staticLayer}
       <rect x={OX + 11 * T + 6} y={OY + 4 * T} width={T - 12} height={T} fill="#56649a" stroke={C.green} strokeWidth="3" style={{ transformOrigin: `${OX + 11 * T + T / 2}px ${OY + 4 * T + T / 2}px`, transform: `scaleY(${end?.success ? 1 : 0.08})`, transition: 'transform 450ms ease-out' }} />
-      {/* підписи */}
-      <g fontSize="16" fontWeight="700" fill={C.muted} stroke={C.space0} strokeWidth="4" paintOrder="stroke" textAnchor="middle">
-        <text x={OX + 5 * T + T / 2} y={OY + 0.6 * T}>{t('games.dash.rooms.h')}</text>
-        <text x={OX + 9 * T + T / 2} y={OY + 0.6 * T}>{t('games.dash.rooms.g')}</text>
-        <text x={OX + 5 * T + T / 2} y={OY + 8.6 * T}>{t('games.dash.rooms.l')}</text>
-        <text x={OX + 9 * T + T / 2} y={OY + 8.6 * T}>{t('games.dash.rooms.k')}</text>
-        <text x="228" y="202">{t('games.dash.airlock')}</text>
-        <text x="788" y="84" fill={C.green}>{t('games.dash.shelter')}</text>
-        <text x="788" y="510" fill={C.green}>{t('games.dash.thickWalls')}</text>
-      </g>
+      {labels}
       {/* люки */}
       {init.hatches.map((h) => {
         const [cx, cy] = center(h);

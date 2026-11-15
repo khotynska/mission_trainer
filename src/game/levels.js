@@ -13,6 +13,9 @@
 // Справи 'panels' і 'wall' теж мають великі міні-ігри («Панельний патруль», «Будівник захисту»).
 import { CONFIG } from './config.js';
 
+/** Яку міні-гру грати після вибору (і чий лічильник варіантів рахувати): справа — своя гра, інакше option.game. */
+export const gameOf = (o) => (o.chore ? o.id : o.game ?? null);
+
 /** Справи на базі для спокійних днів: обираєш одну з двох, а потім граєш її міні-гру (src/components/chores). */
 export const CHORES = {
   harvest: { icon: '🍅', fx: { life: 20 } },

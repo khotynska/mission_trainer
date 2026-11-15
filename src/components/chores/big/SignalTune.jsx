@@ -72,8 +72,10 @@ function Game({ t, v, seed, limit, onDone }) {
     if (elapsed >= limit) {
       ended.current = true;
       setEnd({ success: false });
+      setView((vv) => ({ ...vv, time: limit })); // таймер показує 0, а не «1 с»
       play('bad');
-      onDone({ success: false, score: Math.round(s.best * 0.5 * 100) / 100 });
+      const score = Math.round(s.best * 0.5 * 100) / 100;
+      setTimeout(() => onDone({ success: false, score }), 1100); // спершу видно «Сигнал загубився…»
       return;
     }
     // клавіатура: ← → частота, ↑ ↓ амплітуда (утримання прискорює)

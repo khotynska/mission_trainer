@@ -1,11 +1,15 @@
 // Обгортка великої міні-гри (як у MoonShift): вступ «Як грати / Чому це важливо / час / Почати»,
 // потім сама гра на сцені 960×600. «Ривок до укриття» починається з червоної радіаційної тривоги й кнопки «БІЖИ!».
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { play } from '../../sfx.js';
 import '../../../styles/big-games.css';
 
 export default function BigGame({ id, t, seconds, urgent = false, title, children }) {
   const [started, setStarted] = useState(false);
+  const box = useRef(null);
+  useEffect(() => {
+    if (started) box.current?.querySelector('svg')?.focus({ preventScroll: true });
+  }, [started]);
   const howTo = [1, 2, 3].map((n) => t(`games.${id}.how${n}`));
 
   if (!started) {
@@ -49,7 +53,7 @@ export default function BigGame({ id, t, seconds, urgent = false, title, childre
   return (
     <section className="bg-stage" aria-label={title}>
       <p className="bg-stage__title">{title}</p>
-      <div className="bg-stage__box">{children}</div>
+      <div className="bg-stage__box" ref={box}>{children}</div>
     </section>
   );
 }

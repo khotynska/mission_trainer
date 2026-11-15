@@ -11,6 +11,7 @@ import Lira from './Lira.jsx';
 import ChoreGame from './chores/ChoreGame.jsx';
 import { play, buzz } from './sfx.js';
 import { levelText, optionLabel } from './levelText.js';
+import { gameOf } from '../game/levels.js';
 import '../styles/dilemma.css';
 
 const LOCALES = Object.freeze({ ua: 'uk-UA', en: 'en-US' });
@@ -18,9 +19,6 @@ const LOCALES = Object.freeze({ ua: 'uk-UA', en: 'en-US' });
 const HINT_UNTIL_DAY = 10;
 /** Коротка мить, щоб побачити натиск кнопки; далі — одразу результат. */
 const PICK_DELAY_MS = 120;
-
-/** Яку міні-гру грати перед наслідками: справа — своя гра, укриття / антена — велика гра з MoonShift. */
-const gameOf = (o) => (o.chore ? o.id : o.game ?? null);
 
 /** Іконки-наслідки варіанта: рівно ті числа, які отримає гравець. */
 function chipsOf(o) {
@@ -43,6 +41,7 @@ export default function Decision({ state, dispatch, t, embedded = false }) {
   const [picked, setPicked] = useState(null);
   const [task, setTask] = useState(null);
   const startedAt = useRef(0);
+  const pickedAt = useRef(null); // мить натиску: час гри після вибору не рахується як «думав»
   const pending = useRef(null);
 
   const fmt = useMemo(() => new Intl.NumberFormat(locale, { maximumFractionDigits: 1, signDisplay: 'exceptZero' }), [locale]);
@@ -59,7 +58,7 @@ export default function Decision({ state, dispatch, t, embedded = false }) {
   const hideDose = b.comms === false && lv.kind !== 'chore';
 
   const send = (option, timedOut = false, game = null) => {
-    const ms = performance.now() - startedAt.current;
+    const ms = (pickedAt.current ?? performance.now()) - startedAt.current;
     dispatch({ type: ACTIONS.CHOOSE, option, ms, timedOut, game });
   };
 
@@ -68,6 +67,7 @@ export default function Decision({ state, dispatch, t, embedded = false }) {
     const o = lv.options[option];
     if (!o?.affordable) return;
     setPicked(option);
+    pickedAt.current = performance.now();
     buzz();
     if (viaTimeout) {
       play('bad');

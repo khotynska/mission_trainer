@@ -74,7 +74,7 @@
   overflow: hidden;
   border: 3px solid var(--border-strong);
   box-shadow: var(--shadow-sm);
-  background: #050714;
+  background: var(--px-ink);
 }
 .bg-svg {
   display: block;

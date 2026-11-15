@@ -15,7 +15,7 @@ const CELL = 12;
 const ROWS = 6;
 const MAX_TILT = (85 * Math.PI) / 180;
 const KNOB = 18;
-const WIN = 0.8;
+const WIN = CONFIG.games.patrolGoal; // від 80 % — уся енергія (див. withGameResult у reducer.js)
 const R = 24; // радіус щітки
 
 const VARIANTS = [
