@@ -1,0 +1,67 @@
+/* Маленьке завдання спокійного дня (TapTask.jsx). Лише токени з theme.css. */
+
+.tap-task { display: flex; flex-direction: column; gap: var(--gap-2); animation: dilemma-in 300ms var(--ease-bounce) backwards; }
+.tap-task__title { font-size: var(--fs-xl); font-weight: var(--fw-bold); text-align: center; color: var(--heading); }
+
+.tap-task__field {
+  position: relative;
+  height: 200px;
+  overflow: hidden;
+  background: var(--space-sunken);
+  border: var(--frame-w) solid var(--border-strong);
+  border-radius: var(--radius-lg);
+}
+.tap-task__item {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 60px;
+  height: 60px;
+  padding: 0;
+  margin: -30px 0 0 -30px;
+  background: var(--space-raised);
+  border: var(--border-w) solid var(--border-strong);
+  border-radius: 50%;
+  box-shadow: 0 4px 0 var(--border-strong);
+  font-size: 2rem;
+  line-height: 1;
+  animation: tap-wobble 1.6s ease-in-out infinite;
+}
+.tap-task__item:hover:not(:disabled) { background: var(--accent-soft); border-color: var(--accent); }
+.tap-task__item[data-gone] { animation: tap-pop 300ms var(--ease) forwards; pointer-events: none; }
+.tap-task__done {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 4rem;
+  animation: tap-done 400ms var(--ease-bounce) backwards;
+}
+
+.tap-task__progress {
+  position: relative;
+  height: 28px;
+  overflow: hidden;
+  background: var(--space-sunken);
+  border: var(--border-w) solid var(--border-strong);
+  border-radius: var(--radius-pill);
+}
+.tap-task__progress span {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: calc(var(--p, 0) * 100%);
+  background: var(--ok);
+  transition: width 200ms var(--ease);
+}
+.tap-task__progress b {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: 100%;
+  font-size: var(--fs-sm);
+  color: var(--text);
+}
+
+@keyframes tap-wobble { 50% { transform: translateY(-5px) rotate(-6deg); } }
+@keyframes tap-pop { to { transform: scale(1.8); opacity: 0; } }
+@keyframes tap-done { from { transform: scale(0.2); opacity: 0; } }

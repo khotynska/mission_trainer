@@ -1,0 +1,180 @@
+{
+  "q": {
+    "chore_day": "☀️ A quiet day at the base. Which chore will you pick?",
+    "chore_night": "🌙 A quiet night at the base. Which chore will you pick?",
+    "day5": "🌊 A cloud arrives in {h} h, and two astronauts are fixing the antenna!",
+    "day10": "🌊 The cloud is close, and the rover is far from the base!",
+    "day17": "💥 A strong flare! Radio contact with Earth will be lost tomorrow.",
+    "day19": "💥 Two flares in a row! And the greenhouse has a glass roof.",
+    "day20": "🌊 The cloud is coming and there's no radio. Remember the forecast?",
+    "day22": "💥 The big spot flared. The strongest storm is coming soon!",
+    "day23": "☢️ Radiation storm in {h} h, and two astronauts are outside!",
+    "day24": "☢️ The storm goes on, and the shelter is running out of water!",
+    "day25": "☢️ The strongest flare! The radiation sensor is beeping.",
+    "day26": "💥 Another flare, and the crew feels sad in the shelter.",
+    "day27": "☢️ A new storm, and the antenna is out of tune!",
+    "day28": "💥 The strongest flare since 2017 — in {h} h!",
+    "day29": "🚀 Home tomorrow, but a flare hits in {h} h!"
+  },
+  "opt": {
+    "day5": {
+      "shelter": "Everyone to the shelter",
+      "antenna": "Finish fixing the antenna"
+    },
+    "day10": {
+      "garage": "Drive into the garage",
+      "rocks": "Collect more rocks"
+    },
+    "day17": {
+      "callnow": "Call home today",
+      "record": "Record the flare"
+    },
+    "day19": {
+      "cover": "Cover the greenhouse",
+      "save": "Save energy"
+    },
+    "day20": {
+      "shelter": "Hide in advance",
+      "finish": "Finish the experiment outside"
+    },
+    "day22": {
+      "wall": "Strengthen the shelter",
+      "lab": "Experiment in the lab"
+    },
+    "day23": {
+      "run": "Into the shelter now",
+      "boxes": "Bring the food in first"
+    },
+    "day24": {
+      "water": "Run for water quickly",
+      "wait": "Sit still and save"
+    },
+    "day25": {
+      "deep": "Hide in the deepest corner",
+      "photo": "Photograph the Sun"
+    },
+    "day26": {
+      "boardgame": "Play a board game",
+      "record": "Record the flare for scientists"
+    },
+    "day27": {
+      "stay": "Wait it out in the shelter",
+      "tune": "Go out and fix the antenna"
+    },
+    "day28": {
+      "shelter": "Quick, to the shelter",
+      "record": "Record the flare for science"
+    },
+    "day29": {
+      "fuel": "Fuel the rocket",
+      "hide": "Hide, the rocket can wait"
+    }
+  },
+  "react": {
+    "day5": {
+      "shelter": "Everyone is safe! The shelter protected the crew.",
+      "antenna": "The antenna works, but the crew got radiation."
+    },
+    "day10": {
+      "garage": "The rover and the crew are safe!",
+      "rocks": "Cool rocks, but lots of radiation."
+    },
+    "day17": {
+      "callnow": "Just in time! Your family is happy to hear you.",
+      "record": "Great data for scientists!"
+    },
+    "day19": {
+      "cover": "The plants are safe!",
+      "save": "Energy saved, but some plants wilted."
+    },
+    "day20": {
+      "shelter": "Smart! You remembered the forecast.",
+      "finish": "Experiment done, but the cloud hit the crew."
+    },
+    "day22": {
+      "wall": "A stronger shelter — less radiation in the storm.",
+      "lab": "Great results from the lab!"
+    },
+    "day23": {
+      "run": "Made it! Everyone is safe.",
+      "boxes": "The food is in, but particles reached the crew."
+    },
+    "day24": {
+      "water": "Water's here, but going out in a storm is risky.",
+      "wait": "Safe, but everyone is a bit hungry."
+    },
+    "day25": {
+      "deep": "Deep in the shelter is safest!",
+      "photo": "Great photos, but lots of radiation!"
+    },
+    "day26": {
+      "boardgame": "Laughing in the shelter — mood is better!",
+      "record": "More useful data!"
+    },
+    "day27": {
+      "stay": "Patience is the best shield!",
+      "tune": "The antenna works, but the storm reached the crew."
+    },
+    "day28": {
+      "shelter": "Storm survived — well done!",
+      "record": "Rare data, but radiation too."
+    },
+    "day29": {
+      "fuel": "The rocket is fueled — we fly tomorrow!",
+      "hide": "Safe, but the rocket isn't ready — this day repeats."
+    }
+  },
+  "chore": {
+    "harvest": {
+      "label": "Harvest the greenhouse",
+      "task": "Pick the vegetables!",
+      "react": "Yum! More food now."
+    },
+    "cook": {
+      "label": "Cook lunch",
+      "task": "Put the food in the pot!",
+      "react": "A tasty lunch — everyone is full and happy!"
+    },
+    "call": {
+      "label": "Call your family",
+      "task": "Send hearts to your family!",
+      "react": "Your family sends hugs from Earth!"
+    },
+    "clean": {
+      "label": "Tidy the station",
+      "task": "Pick up the stuff lying around!",
+      "react": "Clean and fresh — everyone feels good!"
+    },
+    "panels": {
+      "label": "Clean the solar panels",
+      "task": "Blow the dust off the panels!",
+      "react": "Shiny panels — more energy!"
+    },
+    "experiment": {
+      "label": "Experiment outside",
+      "task": "Collect rocks for the experiment!",
+      "react": "New discoveries! Scientists on Earth are thrilled."
+    },
+    "telescope": {
+      "label": "Look through the telescope",
+      "task": "Find the stars in the sky!",
+      "react": "Stars look best at night!"
+    },
+    "wall": {
+      "label": "Strengthen the shelter",
+      "task": "Lay bricks made of Moon soil!",
+      "react": "A stronger shelter — less radiation in a storm."
+    },
+    "generator": {
+      "label": "Turn on the generator",
+      "task": "Start the generator!",
+      "react": "The battery is charged, though it was noisy."
+    },
+    "games": {
+      "label": "Board game night",
+      "task": "Roll the dice!",
+      "react": "Everyone laughed — great mood!"
+    }
+  },
+  "timeout": "⏰ Too slow — the crew decided on their own."
+}

@@ -11,6 +11,7 @@ const STEPS = [
   { id: 'hello' },
   { id: 'battery', target: '[data-tour="battery"]' },
   { id: 'life', target: '[data-tour="life"]' },
+  { id: 'mood', target: '[data-tour="mood"]' },
   { id: 'dose', target: '[data-tour="dose"]' },
   { id: 'science', target: '[data-tour="science"]' },
   { id: 'clock', target: '[data-tour="clock"]' },

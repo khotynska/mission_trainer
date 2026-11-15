@@ -4,11 +4,12 @@
   "start": "Start mission",
   "day": "Day {n}",
   "battery": "Energy",
-  "life": "Life support",
+  "life": "Food & air",
   "dose": "Radiation dose",
   "science": "Science",
   "phase_day": "Lunar day",
   "phase_night": "Lunar night",
   "sources": "NASA data",
-  "map": "Mission map"
+  "map": "Mission map",
+  "mood": "Mood"
 }

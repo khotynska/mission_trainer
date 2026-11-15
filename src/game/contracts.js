@@ -44,58 +44,56 @@ export const EVENT_TYPES = ['QUIET', 'M', 'X', 'X5', 'CME', 'EXTREME', 'SEP'];
 export const SCREENS = [
   'start', 'map', 'briefing', 'decision', 'result', 'fact',
   'weekComplete', 'evacuation', 'launch', 'certificate', 'sources',
-  'calm', // картка-підсумок спокійних днів, що пройшли на автопілоті (state.calmLog)
 ];
 
-/* ---------- 2a. НОВІ ПОЛЯ СТАНУ (темп гри, відгук тестувальників) ----------
-  timerOn: true,                 // дилеми з таймером
-  theme: 'dark' | 'light',       // тема ігрових екранів (кнопка ☀️/🌙 на панелі)
-  sound: true,                   // звуки кліків і реакцій
-  tutorial: false,               // зараз іде інтерактивна інструкція з астронавтом
-  tutorialDone: false,
-  daySnapshot: {...} | null,     // стан на початок зіграного дня (RETRY_DAY)
-  history: [{ day, date, event, choice, best, doseGain, stars, snap }],  // зіграні дні (RETRY_DAY { day }); stars 1–3 — для «Зоряного шляху»
-  calmLog: [{ day, date, phase, event, detail, warnings, deltas }],  // для екрана 'calm'
+/* ---------- 2a. НОВІ ПОЛЯ СТАНУ (логіка «причина → наслідок») ----------
+  mood: 70,                      // 😊 настрій екіпажу 0–100 (нижче 30 — наука вдвічі менша)
+  wall: 0,                       // 🧱 укріплення укриття 0–2 (кожен рівень −1 ☢️, коли ховаєшся)
+  timerOn: true,                 // таймер у днях із бурями
+  theme: 'dark' | 'light',       // тема (кнопка ☀️/🌙 на старті, мапі й панелі гри)
+  sound: true,
+  tutorial: false, tutorialDone: false,   // інтерактивна інструкція з астронавткою Новою
+  daySnapshot: {...} | null,     // стан на початок дня (RETRY_DAY)
+  history: [{ day, date, event, choice, best, doseGain, stars, snap }],  // зіграні дні; stars 1–3 для «Зоряного шляху»
   stats: { sheltered: 0, fast: 0 },
-  resume: 'result' | null,       // останній ігровий екран (GO 'briefing' повертає сюди)
-  patches: [...]                 // крім нашивок тижнів тут і значки досягнень:
-                                 // 'first_steps' | 'shelter_pro' | 'quick' | 'may_storm' | 'low_dose' | 'graduate'
+  resume: 'briefing' | 'result' | … | null,  // останній ігровий екран (GO 'briefing' повертає сюди)
+  patches: [...]                 // нашивки тижнів і значки: 'first_steps' | 'shelter_pro' | 'quick' | 'may_storm' | 'low_dose' | 'graduate'
+  (lastAllocation більше не використовується: жетонів у грі немає.)
 */
 
-/* ---------- ALLOCATION — що відправляє Decision ----------
-{ life: 1, shield: 2, science: 1, launch: 0 }
-- цілі числа ≥ 0; shield ≤ 3; сума ≤ briefing.tokens
-- launch: лише в день 29, значення 0 або CONFIG.launchPrepTokens (4); в інші дні 0 або відсутнє
-*/
+/* ---------- ВИБІР — що відправляє Decision ----------
+{ type: 'CHOOSE', option: 0 | 1, ms, timedOut }  — індекс варіанта з briefing.level.options.
+Наслідки варіанта (fx) вже пораховані в buildLevel з урахуванням меж шкал і модифікаторів —
+рушій застосовує саме їх, а потім щоденні правила CONFIG.daily.
 
-/* ---------- ВІДЛІТ (дні 29–30) ----------
-День 29: якщо allocation.launch === 4 → launchReady = true. Якщо ні — день 29 повторюється.
-День 30: після факту дня → екран 'launch' → LAUNCH_CHOICE:
-  'now'  → доза +5 → сертифікат (або евакуація, якщо доза ≥ 100)
-  'wait' → життєзабезпечення −15, доза + фон → сертифікат (або евакуація, якщо життя ≤ 0)
+---------- ВІДЛІТ (дні 29–30) ----------
+День 29 (рівень 'rocket'): варіант «заправити ракету» (⚡ −4) → launchReady = true. Інакше день 29 повторюється.
+День 30: одразу екран 'launch' → LAUNCH_CHOICE:
+  'now'  → ☢️ +5 → сертифікат (або евакуація, якщо доза ≥ 100)
+  'wait' → 🫁 −15, ☢️ +1 → сертифікат (або евакуація, якщо 🫁 = 0)
 */
 
 /* ---------- 3. BRIEFING — що бачать Briefing і Decision ----------
 {
   day: 25, date: '2024-05-11', week: 4, phase: 'night',
-  tokens: 7,                     // скільки жетонів можна розподілити сьогодні
   comms: true,                   // false = вчора був X-спалах, немає зв'язку й прогнозу
   event: { type: 'SEP', detail: 'X5.8', donkiIds: [...] },
   warnings: [{ type: 'CME', inDays: 2 }],   // порожньо, якщо comms === false
   textKey: 'day25',              // ключ тексту дня в i18n days.json
   eventHour: 13.98,              // година події (UTC) з ID DONKI — для годинника дня
-  dilemma: DILEMMA               // див. src/game/dilemmas.js
+  level: LEVEL                   // що питають і які наслідки — див. src/game/levels.js (buildLevel)
 }
 */
 
 /* ---------- 4. RESULT — що бачить Result ----------
 {
-  deltas: { battery: -3, life: 0, dose: 2.5, science: 0 },
-  damage: 26,                    // шкода до захисту
-  protection: 0.9,               // частка захисту укриття
-  explanationKey: 'shield_saved',// ключ у i18n result.json
-  params: { percent: 90 },
-  choice: { option: 0, id: 'shelter', kind: 'storm', best: true, timedOut: false, fast: true }, // лише після CHOOSE
+  choiceDeltas: { battery: 0, life: 0, mood: -5, science: 0, dose: 3, wall: 0 },  // від вибору
+  dailyDeltas: { battery: -1, life: -5, dose: 1 },                               // щоденні правила
+  deltas: { battery, life, mood, science, dose },                                // разом
+  cold: false,                   // енергії не було — холодно (ще 🫁 −5)
+  notes: ['wall' | 'sad'],       // які модифікатори спрацювали
+  launchReady: true | undefined, // лише день 29
+  choice: { option: 0, id: 'run', kind: 'storm', chore: false, best: true, timedOut: false, fast: true },
   mood: 'happy' | 'worried'
 }
 */
@@ -104,14 +102,14 @@ export const SCREENS = [
 export const ACTIONS = {
   START_GAME: 'START_GAME',               // { type }
   OPEN_DECISION: 'OPEN_DECISION',         // { type }  briefing -> decision
-  SUBMIT_ALLOCATION: 'SUBMIT_ALLOCATION', // { type, allocation: { life, shield, science } }
+  SUBMIT_ALLOCATION: 'SUBMIT_ALLOCATION', // застаріле: жетонів більше немає (рушій ігнорує)
   NEXT: 'NEXT',                           // { type }  result -> fact -> далі
   RESTART_WEEK: 'RESTART_WEEK',           // { type }
   GO: 'GO',                               // { type, screen }  напр. 'map', 'sources'
   SET_LANG: 'SET_LANG',                   // { type, lang }
   TOGGLE_TIMER: 'TOGGLE_TIMER',           // { type }  вмикає/вимикає таймер
   LAUNCH_CHOICE: 'LAUNCH_CHOICE',         // { type, choice: 'now' | 'wait' }  лише на екрані 'launch'
-  CHOOSE: 'CHOOSE',                       // { type, option: 0 | 1, ms, timedOut }  вибір у дилемі дня
+  CHOOSE: 'CHOOSE',                       // { type, option: 0 | 1, ms, timedOut }  вибір у рівні дня
   RETRY_DAY: 'RETRY_DAY',                 // { type, day? }  переграти зіграний день (типово — останній)
   TOGGLE_THEME: 'TOGGLE_THEME',           // { type }  ☀️ / 🌙
   TOGGLE_SOUND: 'TOGGLE_SOUND',           // { type }

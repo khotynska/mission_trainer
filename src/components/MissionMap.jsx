@@ -1,17 +1,18 @@
 // Власник: Dev 6 (Progress UI). Пропси за контрактом: { state, dispatch, t } (src/game/contracts.js).
 // «Зоряний шлях» у стилі MoonShift: 30 днів — 30 піксельних зірок на звивистій стежці від старту до Землі,
-// поділені на тижні. Пройдені — золоті (з рейтингом ★ для зіграних днів), поточна — блакитна з «▶ Грати»,
-// попереду — темні. Збоку — командир, ресурси бази, значки й порада Ліри.
+// поділені на тижні. Пройдені — золоті з рейтингом ★1–3, поточна — блакитна з «▶ Грати», попереду — темні.
+// Збоку — командир, стан бази (ті самі плитки, що й на панелі гри), значки й порада Ліри.
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ACTIONS } from '../game/contracts.js';
 import { CONFIG } from '../game/config.js';
-import { isCalmDay } from '../game/gameEngine.js';
 import { getPlayerName } from '../game/storage';
 import days from '../data/days.json';
 import { LiraAvatar } from './Lira.jsx';
 import PatchBadge from './PatchBadge.jsx';
+import StatTiles from './StatTiles.jsx';
 import { PATCHES, PATCH_BY_WEEK } from './patches.js';
 import { MsLogo, PixelEarth, PixelRocket, PixelStar, StarRating } from './PixelArt.jsx';
+import '../styles/meters.css';
 import '../styles/moonshift.css';
 
 const WEEKS = [
@@ -25,32 +26,8 @@ const NODE_H = 112;
 const NOW_H = 140;
 const BANNER_H = 108;
 const TOAST_MS = 2800;
-
-/** Скільки зірок можна зібрати: 3 за кожен зіграний (не спокійний) день. */
-const MAX_STARS = 3 * days.filter((d) => !isCalmDay(days, d.day)).length;
-
-function tone(frac) {
-    if (frac < 0.25) return 'bad';
-    if (frac < 0.5) return 'warn';
-    return 'ok';
-}
-
-function Resource({ icon, label, value, max, s, note }) {
-    return (
-        <div className="ms-res" data-s={s}>
-            <div className="ms-row">
-                <span aria-hidden="true">{icon}</span>
-                <span>{label}</span>
-                <span className="ms-spacer" />
-                <strong className="ms-res__val">{value} / {max}</strong>
-            </div>
-            <div className="ms-bar" role="meter" aria-label={label} aria-valuemin={0} aria-valuemax={max} aria-valuenow={value}>
-                <i style={{ width: `${Math.max(0, Math.min(100, (value / max) * 100))}%` }} />
-            </div>
-            {note && <p className="ms-dim ms-small">{note}</p>}
-        </div>
-    );
-}
+/** Зірки дають дні 1–29 (день 30 — старт ракети). */
+const MAX_STARS = 3 * (CONFIG.totalDays - 1);
 
 export default function MissionMap({ state, dispatch, t }) {
     const [toast, setToast] = useState(null);
@@ -58,6 +35,7 @@ export default function MissionMap({ state, dispatch, t }) {
     const nowRef = useRef(null);
     const lang = state.lang === 'en' ? 'en-US' : 'uk-UA';
     const patches = state.patches || [];
+    const light = state.theme === 'light';
 
     const started = Boolean(state.resume);
     const finished = state.resume === 'certificate';
@@ -91,9 +69,8 @@ export default function MissionMap({ state, dispatch, t }) {
             return;
         }
         if (st === 'done') {
-            say(ratings[n] !== undefined
-                ? t('progress.path.doneToast', { n, stars: '★'.repeat(ratings[n]) + '☆'.repeat(3 - ratings[n]) })
-                : t('progress.path.calmToast', { n }));
+            const stars = ratings[n] ?? 0;
+            say(t('progress.path.doneToast', { n, stars: '★'.repeat(stars) + '☆'.repeat(3 - stars) }));
             return;
         }
         say(t('progress.path.lockedToast', { n: current }));
@@ -121,9 +98,8 @@ export default function MissionMap({ state, dispatch, t }) {
 
     for (const w of WEEKS) {
         const patch = PATCH_BY_WEEK[w.n];
-        const top = y;
         nodes.push(
-            <div key={`week-${w.n}`} className="ms-banner" style={{ top }}>
+            <div key={`week-${w.n}`} className="ms-banner" style={{ top: y }}>
                 <span className="ms-banner__num">{w.n === 5 ? t('progress.path.finale') : t('progress.path.week', { n: w.n })}</span>
                 <strong>{t(`progress.path.weeks.${w.n}`)}</strong>
                 <span className="ms-banner__goal">
@@ -136,7 +112,6 @@ export default function MissionMap({ state, dispatch, t }) {
         for (let n = w.from; n <= w.to; n++) {
             const d = days[n - 1];
             const st = dayState(n);
-            const calm = isCalmDay(days, n);
             place(`d${n}`, (key, x, nodeTop) => (
                 <button
                     key={key}
@@ -154,7 +129,6 @@ export default function MissionMap({ state, dispatch, t }) {
                     {st === 'done' && ratings[n] !== undefined && (
                         <StarRating n={ratings[n]} label={t('progress.path.starsAria', { n: ratings[n], of: 3 })} />
                     )}
-                    {st === 'done' && ratings[n] === undefined && calm && <span className="ms-node__calm">😴 {t('progress.path.autopilot')}</span>}
                 </button>
             ), st === 'now' ? NOW_H : NODE_H);
         }
@@ -171,7 +145,6 @@ export default function MissionMap({ state, dispatch, t }) {
 
     const H = y + 10;
     const line = pts.map(([x, py]) => `${x.toFixed(1)},${py}`).join(' ');
-    const doseBand = state.dose >= CONFIG.goldDoseMax ? 'bad' : state.dose >= CONFIG.doseLimit * 0.4 ? 'warn' : 'ok';
     const tip = current >= 22 && current <= 28 ? 'tipStorm' : current >= 15 && current < 29 ? 'tipNight' : 'tipStart';
     const earned = PATCHES.filter((p) => patches.includes(p.id));
 
@@ -187,6 +160,16 @@ export default function MissionMap({ state, dispatch, t }) {
                     <span className="ms-spacer" />
                     <button type="button" className="ms-btn ms-btn--ghost" onClick={() => dispatch({ type: ACTIONS.GO, screen: 'sources' })}>
                         <span className="ms-emoji" aria-hidden="true">📡</span> {t('progress.start.sources')}
+                    </button>
+                    <button
+                        type="button"
+                        className="ms-btn ms-btn--icon"
+                        aria-pressed={light}
+                        aria-label={t(light ? 'briefing.hud.theme_dark' : 'briefing.hud.theme_light')}
+                        title={t(light ? 'briefing.hud.theme_dark' : 'briefing.hud.theme_light')}
+                        onClick={() => dispatch({ type: ACTIONS.TOGGLE_THEME })}
+                    >
+                        <span className="ms-emoji" aria-hidden="true">{light ? '🌙' : '☀️'}</span>
                     </button>
                 </header>
 
@@ -205,11 +188,8 @@ export default function MissionMap({ state, dispatch, t }) {
                                 <span className="ms-spacer" />
                                 <span className="ms-chip">⭐ {totalStars} / {MAX_STARS}</span>
                             </div>
-                            <Resource icon="🫁" label={t('briefing.meters.short.life')} value={state.life} max={CONFIG.lifeMax} s={tone(state.life / CONFIG.lifeMax)} />
-                            <Resource icon="⚡" label={t('briefing.meters.short.battery')} value={state.battery} max={CONFIG.batteryMax} s={tone(state.battery / CONFIG.batteryMax)} />
-                            <Resource icon="🔬" label={t('briefing.meters.short.science')} value={state.science} max={CONFIG.scienceGoal} s="ok" />
-                            <Resource icon="☢️" label={t('briefing.meters.short.dose')} value={Math.round(state.dose * 10) / 10} max={CONFIG.doseLimit} s={doseBand}
-                                note={t('progress.path.doseLimit', { n: CONFIG.doseLimit })} />
+                            {/* Ті самі плитки, що й на панелі гри */}
+                            <StatTiles state={state} t={t} layout="grid" />
                             <div className="ms-stack" style={{ gap: 8 }}>
                                 <div className="ms-row">
                                     <span>🏅 {t('progress.path.badges')}</span>

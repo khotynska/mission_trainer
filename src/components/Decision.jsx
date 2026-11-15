@@ -1,44 +1,43 @@
-// Власник: Dev 4. Дилема дня: одне коротке питання, дві великі кнопки й таймер.
-// Напр. «☢️ Радіаційна буря — за 1 год!» → [🛡️ Бігти в укриття] [🔬 Закінчити дослід].
-// Іконки на кнопках показують, що буде (☢️ +2,6 · 🔬 +20). Без зв'язку — лише «❓».
-// Пропси за контрактом: { state, dispatch, t } (+ embedded — коли дилема всередині брифінгу).
+// Власник: Dev 4. Рівень дня: одне коротке питання й дві великі кнопки.
+// На кожній кнопці — що саме зміниться (☢️ +3 · 😊 −5 …): гравець отримає рівно ці числа.
+// Спокійний день: обираєш справу на базі, а потім робиш маленьке завдання (TapTask).
+// День із бурею: таймер (можна вимкнути 🐢). Без зв'язку радіацію не видно («☢️ ?»).
+// Пропси за контрактом: { state, dispatch, t } (+ embedded — коли рівень усередині брифінгу).
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ACTIONS } from '../game/contracts.js';
 import Timer from './Timer.jsx';
 import Lira from './Lira.jsx';
+import TapTask from './TapTask.jsx';
 import { play, buzz } from './sfx.js';
+import { levelText, optionLabel } from './levelText.js';
 import '../styles/dilemma.css';
 
 const LOCALES = Object.freeze({ ua: 'uk-UA', en: 'en-US' });
 /** Підказка Ліри світиться на розумнішій кнопці перші дні, поки дитина вчиться. */
 const HINT_UNTIL_DAY = 10;
-/** Коротка мить, щоб побачити натиск кнопки; далі — одразу результат (без зайвого чекання). */
+/** Коротка мить, щоб побачити натиск кнопки; далі — одразу результат. */
 const PICK_DELAY_MS = 120;
-/** «Час вийшов» показує вже екран результату, тож тут не чекаємо. */
-const TIMEOUT_DELAY_MS = 0;
 
-/** Іконки-наслідки варіанта. */
-function previewChips(p, allocation) {
-  const chips = [];
-  const doseTone = p.dose >= 5 ? 'bad' : p.dose >= 2 ? 'warn' : 'good';
-  chips.push({ key: 'dose', icon: '☢️', value: p.dose, sign: true, tone: doseTone });
-  if (p.science > 0) chips.push({ key: 'science', icon: '🔬', value: p.science, sign: true, tone: 'good' });
-  if (p.life !== 0) chips.push({ key: 'life', icon: '🫁', value: p.life, sign: true, tone: p.life > 0 ? 'good' : 'bad' });
-  if (allocation.launch) chips.push({ key: 'rocket', icon: '🚀', text: '✓', tone: 'good' });
-  return chips;
-}
-
-function questionKey(d) {
-  if (d.kind === 'storm') return `decision.q.storm.${d.event}`;
-  return `decision.q.${d.kind}`;
+/** Іконки-наслідки варіанта: рівно ті числа, які отримає гравець. */
+function chipsOf(o) {
+  const fx = o.fx;
+  const c = [];
+  if (fx.dose) c.push({ key: 'dose', icon: '☢️', value: fx.dose, tone: fx.dose >= 8 ? 'bad' : fx.dose >= 3 ? 'warn' : 'good' });
+  if (fx.life) c.push({ key: 'life', icon: '🫁', value: fx.life, tone: fx.life > 0 ? 'good' : 'bad' });
+  if (fx.mood) c.push({ key: 'mood', icon: '😊', value: fx.mood, tone: fx.mood > 0 ? 'good' : 'bad' });
+  if (fx.battery) c.push({ key: 'battery', icon: '⚡', value: fx.battery, tone: fx.battery > 0 ? 'good' : 'neutral' });
+  if (fx.science) c.push({ key: 'science', icon: '🔬', value: fx.science, tone: 'good' });
+  if (fx.wall) c.push({ key: 'wall', icon: '🧱', text: `+${fx.wall}`, tone: 'good' });
+  if (o.launch) c.push({ key: 'rocket', icon: '🚀', text: '✓', tone: 'good' });
+  return c;
 }
 
 export default function Decision({ state, dispatch, t, embedded = false }) {
   const b = state.briefing;
-  const d = b?.dilemma;
+  const lv = b?.level;
   const locale = LOCALES[state.lang] ?? LOCALES.ua;
   const [picked, setPicked] = useState(null);
-  const [timedOut, setTimedOut] = useState(false);
+  const [task, setTask] = useState(null);
   const startedAt = useRef(0);
   const pending = useRef(null);
 
@@ -49,75 +48,92 @@ export default function Decision({ state, dispatch, t, embedded = false }) {
     return () => clearTimeout(pending.current);
   }, []);
 
-  if (!d) return null;
+  if (!lv || !lv.options?.length) return null;
 
-  const seconds = state.timerOn ? d.seconds : 0;
-  const showHint = b.day <= HINT_UNTIL_DAY && d.best >= 0 && picked === null;
-  const comms = b.comms !== false;
+  const seconds = state.timerOn ? lv.seconds : 0;
+  const showHint = b.day <= HINT_UNTIL_DAY && lv.best >= 0 && picked === null;
+  const hideDose = b.comms === false && lv.kind !== 'chore';
+
+  const send = (option, timedOut = false) => {
+    const ms = performance.now() - startedAt.current;
+    dispatch({ type: ACTIONS.CHOOSE, option, ms, timedOut });
+  };
 
   const choose = (option, viaTimeout = false) => {
     if (picked !== null) return;
+    const o = lv.options[option];
+    if (!o?.affordable) return;
     setPicked(option);
-    if (viaTimeout) {
-      setTimedOut(true);
-      play('bad');
-    } else {
-      play('select');
-    }
     buzz();
-    const ms = performance.now() - startedAt.current;
-    pending.current = setTimeout(
-      () => dispatch({ type: ACTIONS.CHOOSE, option, ms, timedOut: viaTimeout }),
-      viaTimeout ? TIMEOUT_DELAY_MS : PICK_DELAY_MS,
-    );
+    if (viaTimeout) {
+      play('bad');
+      send(option, true);
+      return;
+    }
+    play('select');
+    if (o.chore && o.targets?.length) {
+      setTask(option); // спершу маленьке завдання
+      return;
+    }
+    pending.current = setTimeout(() => send(option), PICK_DELAY_MS);
   };
 
-  const question = t(questionKey(d), { h: d.leadHours });
+  if (task !== null) {
+    const o = lv.options[task];
+    return (
+      <TapTask
+        key={o.id}
+        icon={o.icon}
+        title={t(`levels.chore.${o.id}.task`)}
+        targets={o.targets}
+        t={t}
+        onDone={() => send(task)}
+      />
+    );
+  }
 
   const body = (
-    <div className="dilemma" data-kind={d.kind} data-picked={picked ?? undefined}>
-      <p className="dilemma__q">{question}</p>
+    <div className="dilemma" data-kind={lv.kind} data-picked={picked ?? undefined}>
+      <p className="dilemma__q">{levelText(t, b)}</p>
       <div className="dilemma__options" data-tour="choices">
-        {d.options.map((o, i) => {
-          const chips = previewChips(o.preview, o.allocation);
-          const label = t(`decision.option.${o.id}`);
-          const aria = comms
-            ? `${label}: ${chips.map((c) => `${t(`decision.preview.${c.key}`)} ${c.text ?? fmt.format(c.value)}`).join(', ')}`
-            : `${label}: ${t('decision.preview.unknown')}`;
+        {lv.options.map((o, i) => {
+          const chips = chipsOf(o);
+          const label = optionLabel(t, b, o);
+          const chipText = (c) => (c.key === 'dose' && hideDose ? '?' : c.text ?? fmt.format(c.value));
+          const aria = `${label}: ${chips.map((c) => `${t(`decision.preview.${c.key}`)} ${chipText(c)}`).join(', ')}${o.affordable ? '' : `, ${t('decision.no_energy')}`}`;
           return (
             <button
               key={o.id}
               type="button"
               className="choice"
               data-sfx="none"
-              data-safe={d.best === i || undefined}
-              data-hint={(showHint && d.best === i) || undefined}
+              data-hint={(showHint && lv.best === i) || undefined}
               data-state={picked === null ? undefined : picked === i ? 'picked' : 'dropped'}
-              disabled={picked !== null}
+              disabled={picked !== null || !o.affordable}
               aria-label={aria}
               onClick={() => choose(i)}
             >
               <span className="choice__icon" aria-hidden="true">{o.icon}</span>
               <span className="choice__label">{label}</span>
               <span className="choice__chips" aria-hidden="true">
-                {comms
-                  ? chips.map((c) => (
-                    <span key={c.key} className="choice__chip" data-tone={c.tone}>
-                      {c.icon} {c.text ?? fmt.format(c.value)}
-                    </span>
-                  ))
-                  : <span className="choice__chip" data-tone="unknown">❓ {t('decision.preview.no_signal')}</span>}
+                {chips.map((c) => (
+                  <span key={c.key} className="choice__chip" data-tone={c.key === 'dose' && hideDose ? 'unknown' : c.tone}>
+                    {c.icon} {chipText(c)}
+                  </span>
+                ))}
               </span>
-              {showHint && d.best === i && <span className="choice__hint" aria-hidden="true">💡</span>}
+              {o.notes?.includes('wall') && <span className="choice__note">{t('decision.note_wall')}</span>}
+              {o.notes?.includes('sad') && <span className="choice__note">{t('decision.note_sad')}</span>}
+              {!o.affordable && <span className="choice__note choice__note--bad">{t('decision.no_energy')}</span>}
+              {showHint && lv.best === i && <span className="choice__hint" aria-hidden="true">💡</span>}
             </button>
           );
         })}
       </div>
       {seconds > 0 && picked === null && (
-        <Timer key={`${b.day}-${seconds}`} seconds={seconds} paused={state.tutorial} onTimeout={() => choose(d.timeoutOption, true)} t={t} />
+        <Timer key={`${b.day}-${seconds}`} seconds={seconds} paused={state.tutorial} onTimeout={() => choose(lv.timeout, true)} t={t} />
       )}
-      {timedOut && <p className="dilemma__timeout" role="alert">{t('decision.timeout')}</p>}
-      {d.seconds > 0 && picked === null && (
+      {lv.seconds > 0 && picked === null && (
         <button
           type="button"
           className="dilemma__timer-toggle"
@@ -132,11 +148,10 @@ export default function Decision({ state, dispatch, t, embedded = false }) {
 
   if (embedded) return body;
 
-  // Окремий екран 'decision' (напр. ?screen=decision): Ліра + дилема.
-  const dayText = t(`days.${b.textKey}.text`);
+  // Окремий екран 'decision' (напр. ?screen=decision): Ліра + рівень.
   return (
     <section className="screen day" lang={locale}>
-      <Lira mood={comms ? 'alert' : 'offline'} text={dayText} t={t} tour="lira" />
+      <Lira mood={b.comms ? 'alert' : 'offline'} text={t(`days.${b.textKey}.text`)} t={t} tour="lira" />
       {body}
     </section>
   );

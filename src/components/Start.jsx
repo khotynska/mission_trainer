@@ -1,6 +1,6 @@
 // Власник: Dev 6 (Progress UI). Пропси за контрактом: { state, dispatch, t } (src/game/contracts.js).
 // Стартовий екран у стилі MoonShift: великий піксельний логотип, піксельні Місяць, Земля й ракета,
-// помічник у бульбашці. «Продовжити» веде на «Зоряний шлях» (мапу рівнів), «Нова місія» — одразу в день 1.
+// помічник у бульбашці, перемикач теми ☀️/🌙. І «Продовжити», і «Нова місія» відкривають «Зоряний шлях» (мапу рівнів).
 //
 // Розкладка (ноутбук):            Телефон:
 //   ┌─────────────────[UA][EN]┐     ┌──────[UA][EN]┐
@@ -61,6 +61,16 @@ export default function Start({ state, dispatch, t }) {
                             </button>
                         ))}
                     </span>
+                    <button
+                        type="button"
+                        className="ms-btn ms-btn--icon"
+                        aria-pressed={state.theme === 'light'}
+                        aria-label={t(state.theme === 'light' ? 'briefing.hud.theme_dark' : 'briefing.hud.theme_light')}
+                        title={t(state.theme === 'light' ? 'briefing.hud.theme_dark' : 'briefing.hud.theme_light')}
+                        onClick={() => dispatch({ type: ACTIONS.TOGGLE_THEME })}
+                    >
+                        <span className="ms-emoji" aria-hidden="true">{state.theme === 'light' ? '🌙' : '☀️'}</span>
+                    </button>
                 </div>
 
                 <section className="ms-menu__hero">

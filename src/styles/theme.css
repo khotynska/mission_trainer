@@ -1,15 +1,14 @@
 /* ==========================================================================
    Junior Astronaut — дизайн-система «піксель-арт»
    Власник: Dev 5 (Briefing UI). Візуальна мова взята зі стартового екрана (гілка role6):
-   Pixelify Sans, нічне небо з червоним горизонтом, піксельний пейзаж,
+   Handjet, нічне небо з червоним горизонтом, піксельний пейзаж,
    квадратні рамки й жорсткі тіні. Довідка для команди: src/styles/README.md
 
    Принципи:
    • Базові стилі елементів (button, h1–h4, a) обгорнуті в :where(): нульова
      специфічність, тож класи й inline-стилі будь-якого екрана завжди сильніші.
-   • Піксельний шрифт лише для коротких рядків (заголовки екранів, .btn, числа).
-     Довгий текст набирається Nunito: округлий, дуже читабельний і з правильною українською
-     кирилицею (у піксельних шрифтах «д», «в», «з» легко сплутати з іншими літерами), тож нічого не вилазить за край.
+   • Увесь текст — піксельний Handjet: на відміну від Pixelify Sans, у ньому українські «ґ», «д», «в», «з»
+     не схожі на латинські літери. Він вузький, тому базовий розмір шрифту трохи більший.
    • Скидання відступів (p, h*, ul…) діє лише всередині .screen / .meters,
      щоб не ламати верстку екранів, які на нього не розраховують.
    • Нічний режим: App.jsx ставить .phase-night на .app, і перевизначаються токени.
@@ -19,8 +18,9 @@
           8 адаптив / доступність / друк
    ========================================================================== */
 
-/* Шрифти (OFL). Порада на майбутнє: self-host у src/styles/fonts, щоб не звертатися до Google (GDPR). */
-@import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&family=Nunito:wght@400;600;700;800;900&family=Lexend:wght@400;600;700;800&family=Manrope:wght@400;600;700;800&display=swap');
+/* Шрифт (OFL): Handjet — піксельний і з правильною українською (ґ, ї, є, д, в, з не плутаються).
+   Порада на майбутнє: self-host у src/styles/fonts, щоб не звертатися до Google (GDPR). */
+@import url('https://fonts.googleapis.com/css2?family=Handjet:wght@400..800&display=swap');
 
 /* 1. Токени ---------------------------------------------------------------- */
 :root {
@@ -83,14 +83,15 @@
   --res-battery: var(--px-gold);
   --res-life: #5fd8ee;
   --res-science: #c39bff;
+  --res-mood: #ff9ad5;
   --res-dose-ok: var(--ok);
   --res-dose-warn: var(--warning);
   --res-dose-danger: var(--danger);
 
   /* Шрифти */
-  --font: 'Nunito', ui-rounded, 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
-  --font-pixel: 'Pixelify Sans', ui-rounded, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --font-num: 'Nunito', ui-rounded, system-ui, sans-serif; /* числа: у піксельному шрифті «5» схожа на «S» */
+  --font: 'Handjet', ui-rounded, 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+  --font-pixel: 'Handjet', ui-rounded, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-num: 'Handjet', ui-rounded, system-ui, sans-serif;
   --font-mono: ui-monospace, 'SF Mono', 'Cascadia Mono', 'Roboto Mono', Menlo, Consolas, monospace;
 
   /* Розміри: основний текст (Nunito) */
@@ -309,6 +310,7 @@
   --res-battery: #c98500;
   --res-life: #0a86a6;
   --res-science: #7140de;
+  --res-mood: #c2408f;
   --res-dose-warn: #d08a00;
   --bubble-border: #2b1838;
   --scene-frame: #2b1838;
@@ -350,7 +352,8 @@
 *::before,
 *::after { box-sizing: border-box; }
 
-html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+/* Handjet вузький: базовий розмір трохи більший, щоб дітям було легко читати */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; font-size: 118.75%; }
 
 body {
   margin: 0;
@@ -360,6 +363,7 @@ body {
   color: var(--text);
   font-family: var(--font);
   font-size: var(--fs-md);
+  font-weight: 500;
   line-height: var(--lh);
   overflow-wrap: break-word;
   -webkit-font-smoothing: antialiased;
@@ -446,7 +450,7 @@ body {
 .screen :where(h1, h2) {
   font-family: var(--font-pixel);
   font-size: var(--fs-px-xl);
-  font-weight: 400;
+  font-weight: 800;
   line-height: var(--lh-pixel);
   color: var(--heading);
   text-shadow: 2px 2px 0 var(--frame-shadow);
@@ -455,7 +459,7 @@ body {
 .screen :where(h3) {
   font-family: var(--font-pixel);
   font-size: var(--fs-px-md);
-  font-weight: 400;
+  font-weight: 700;
   line-height: var(--lh-pixel);
 }
 
@@ -502,10 +506,11 @@ body {
   border-width: var(--frame-w);
   border-radius: var(--radius);
   font-family: var(--font-pixel);
-  font-size: var(--fs-px-sm);
-  font-weight: 400;
+  font-size: var(--fs-px-md);
+  font-weight: 700;
   line-height: var(--lh-pixel);
   text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
 :where(button:hover:not(:disabled)),

@@ -1,6 +1,8 @@
 // Ігровий рушій: чисті функції, без React. Власник: Tech Lead.
+// Логіка «причина → наслідок»: вибір дає рівно ті зміни, що показані на кнопці (levels.js),
+// а потім діють щоденні правила (CONFIG.daily), які теж показуються окремим рядком.
 import { CONFIG, WEEK_GOALS } from './config.js';
-import { makeDilemma } from './dilemmas.js';
+import { buildLevel } from './levels.js';
 
 export function createGame(lang = 'ua') {
   return {
@@ -8,42 +10,36 @@ export function createGame(lang = 'ua') {
     day: 1,
     battery: CONFIG.startBattery,
     life: CONFIG.startLife,
+    mood: CONFIG.startMood,
     dose: 0,
     science: 0,
+    wall: 0,                // рівень укріплення укриття (0…CONFIG.wallMax)
     patches: [],
     lang,
     briefing: null,
     result: null,
-    lastAllocation: { life: 1, shield: 0, science: 0 },
     weekSnapshot: null,
     weekLog: [],
     endReason: null,
     lastWeekResult: null,
     launchReady: false,
-    // ---- темп і досвід дитини ----
-    timerOn: true,          // дилеми з таймером (можна вимкнути 🐢)
+    // ---- досвід дитини ----
+    timerOn: true,          // таймер у днях із бурями (можна вимкнути 🐢)
     theme: 'dark',          // 'dark' | 'light'
     sound: true,
     tutorial: false,        // true = зараз іде інтерактивна інструкція
-    tutorialDone: false,    // інструкцію вже пройдено (зберігається)
-    daySnapshot: null,      // стан на початок зіграного дня (для «Переграти день»)
-    history: [],            // зіграні дні: { day, date, event, choice, best, doseGain, snap } — можна переграти будь-який
-    calmLog: [],            // спокійні дні, що пройшли на автопілоті (картка-підсумок)
+    tutorialDone: false,
+    daySnapshot: null,      // стан на початок дня (для «Переграти день»)
+    history: [],            // зіграні дні: { day, date, event, choice, best, doseGain, stars, snap }
     stats: { sheltered: 0, fast: 0 },
-    resume: null,           // останній ігровий екран (для «Продовжити» зі старту)
+    resume: null,           // останній ігровий екран (для «Продовжити»)
   };
 }
 
 const getDay = (days, n) => days.find((d) => d.day === n);
 const isX = (type) => type === 'X' || type === 'X5';
-
-/** Спокійний день — граємо його на автопілоті (див. CONFIG.calmEvents). */
-export function isCalmDay(days, n) {
-  const day = getDay(days, n);
-  if (!day) return false;
-  if (n === CONFIG.tutorialDay || n === CONFIG.launchPrepDay) return false;
-  return CONFIG.calmEvents.includes(day.mainEvent);
-}
+const clamp = (v, max) => Math.max(0, Math.min(max, v));
+const round1 = (v) => Math.round(v * 10) / 10;
 
 // Тип DONKI в ID ('…T13:59:00-SEP-001') для кожної головної події.
 const ID_TYPE = { SEP: ['SEP'], CME: ['GST', 'IPS'], EXTREME: ['GST', 'IPS'], X: ['FLR'], X5: ['FLR'], M: ['FLR'], QUIET: ['FLR'] };
@@ -59,11 +55,10 @@ export function eventHourOf(day) {
   return hit ? hit.hour : CONFIG.defaultEventHour;
 }
 
+/** Брифінг дня: дані NASA + рівень (питання й варіанти з наслідками). */
 export function startDay(state, days) {
   const day = getDay(days, state.day);
   if (!day) throw new Error(`days.json: no day ${state.day}`);
-
-  const income = day.phase === 'day' ? CONFIG.incomeDay : CONFIG.incomeNight;
   const prev = getDay(days, state.day - 1);
   const comms = !(prev && isX(prev.mainEvent));
 
@@ -79,90 +74,96 @@ export function startDay(state, days) {
       );
   }
 
-  const briefing = {
+  return {
     day: day.day,
     date: day.date,
     week: day.week,
     phase: day.phase,
-    tokens: Math.min(state.battery + income, CONFIG.batteryMax + income),
     comms,
     event: { type: day.mainEvent, detail: day.detail || '', donkiIds: day.donkiIds || [] },
     warnings,
     textKey: `day${day.day}`,
     eventHour: eventHourOf(day),
+    level: buildLevel(state, day),
   };
-  return { ...briefing, dilemma: makeDilemma(state, briefing) };
 }
 
-const spentOf = (a) => a.life + a.shield + a.science + (a.launch || 0);
-
-export function validateAllocation(briefing, a) {
-  const spent = spentOf(a);
-  if ([a.life, a.shield, a.science, a.launch || 0].some((v) => v < 0 || !Number.isInteger(v))) return 'bad_value';
-  if (a.shield > CONFIG.maxShieldTokens) return 'shield_max';
-  if (a.launch && (briefing.day !== 29 || a.launch !== CONFIG.launchPrepTokens)) return 'bad_launch';
-  if (spent > briefing.tokens) return 'too_many';
-  return null;
+/** Щоденні правила після вибору. Повертає новий стан і що саме змінилося. */
+function applyDaily(s, phase) {
+  const d = CONFIG.daily;
+  const daily = { life: 0, dose: d.dose, battery: 0 };
+  let battery = s.battery + (phase === 'night' ? d.batteryNight : d.batteryDay);
+  let cold = false;
+  if (battery < 0) {
+    cold = true;
+    battery = 0;
+  }
+  battery = clamp(battery, CONFIG.batteryMax);
+  daily.battery = battery - s.battery;
+  const life = clamp(s.life + d.life + (cold ? d.coldLife : 0), CONFIG.lifeMax);
+  daily.life = life - s.life;
+  return { state: { ...s, battery, life, dose: round1(s.dose + d.dose) }, daily, cold };
 }
 
-export function resolveDay(state, days, allocation) {
+/** Вибір варіанта: наслідки вибору + щоденні правила. */
+export function resolveChoice(state, option) {
   const b = state.briefing;
-  const error = validateAllocation(b, allocation);
-  if (error) throw new Error(`Invalid allocation: ${error}`);
-
-  const spent = spentOf(allocation);
-  const battery = Math.min(b.tokens - spent, CONFIG.batteryMax);
-  const life = Math.max(0, Math.min(CONFIG.lifeMax, state.life - CONFIG.lifeDecay + allocation.life * CONFIG.lifePerToken));
-  const science = state.science + allocation.science * CONFIG.sciencePerToken;
-
-  const damage = CONFIG.background + (CONFIG.dose[b.event.type] ?? 0);
-  const protection = CONFIG.shield[allocation.shield];
-  const doseGain = Math.round(damage * (1 - protection) * 10) / 10;
-  const dose = Math.round((state.dose + doseGain) * 10) / 10;
-
-  let explanationKey = 'normal';
-  if (damage >= 10 && allocation.shield >= 2) explanationKey = 'shield_saved';
-  else if (damage >= 10) explanationKey = 'shield_weak';
-  else if (life < 40) explanationKey = 'life_low';
-  else if (damage <= 2 && allocation.science > 0) explanationKey = 'quiet_science';
-
-  const result = {
-    deltas: { battery: battery - state.battery, life: life - state.life, dose: doseGain, science: science - state.science },
-    damage,
-    protection,
-    explanationKey,
-    params: { percent: Math.round(protection * 100), damage, doseGain },
+  const fx = option.fx ?? {};
+  let s = {
+    ...state,
+    battery: clamp(state.battery + (fx.battery ?? 0), CONFIG.batteryMax),
+    life: clamp(state.life + (fx.life ?? 0), CONFIG.lifeMax),
+    mood: clamp(state.mood + (fx.mood ?? 0), CONFIG.moodMax),
+    science: state.science + (fx.science ?? 0),
+    dose: round1(state.dose + (fx.dose ?? 0)),
+    wall: Math.min(CONFIG.wallMax, (state.wall ?? 0) + (fx.wall ?? 0)),
+    launchReady: state.launchReady || Boolean(option.launch),
   };
-
-  if (b.day === 29) result.params.launchReady = allocation.launch === CONFIG.launchPrepTokens;
+  const choiceDeltas = {
+    battery: s.battery - state.battery,
+    life: s.life - state.life,
+    mood: s.mood - state.mood,
+    science: s.science - state.science,
+    dose: round1(s.dose - state.dose),
+    wall: s.wall - (state.wall ?? 0),
+  };
+  const { state: after, daily, cold } = applyDaily(s, b.phase);
+  s = after;
 
   return {
-    ...state,
-    battery, life, dose, science,
-    launchReady: state.launchReady || (b.day === 29 && allocation.launch === CONFIG.launchPrepTokens),
-    result,
-    lastAllocation: allocation,
-    weekLog: [...state.weekLog, { day: state.day, battery, life, dose, science }],
+    ...s,
+    result: {
+      choiceDeltas,
+      dailyDeltas: daily,
+      deltas: {
+        battery: s.battery - state.battery,
+        life: s.life - state.life,
+        mood: s.mood - state.mood,
+        science: s.science - state.science,
+        dose: round1(s.dose - state.dose),
+      },
+      cold,
+      notes: option.notes ?? [],
+      launchReady: b.day === CONFIG.launchPrepDay ? s.launchReady : undefined,
+    },
+    weekLog: [...state.weekLog, { day: state.day, battery: s.battery, life: s.life, mood: s.mood, dose: s.dose, science: s.science }],
   };
 }
 
-// 'evacuated' | 'weekComplete' | 'repeatDay' | 'launch' | 'continue'
+// 'evacuated' | 'weekComplete' | 'repeatDay' | 'continue'
 export function checkEnd(state) {
   if (state.dose >= CONFIG.doseLimit) return 'evacuated';
   if (state.life <= 0) return 'evacuated';
-  if (state.day === 29 && !state.launchReady) return 'repeatDay';
-  if (state.day >= CONFIG.totalDays) return 'launch';
+  if (state.day === CONFIG.launchPrepDay && !state.launchReady) return 'repeatDay';
   if (state.day % 7 === 0 && state.day <= 28) return 'weekComplete';
   return 'continue';
 }
 
 // Вибір на екрані 'launch' (день 30)
 export function resolveLaunch(state, choice) {
-  const dose = choice === 'now'
-    ? state.dose + CONFIG.launchNowDose
-    : state.dose + CONFIG.background;
-  const life = choice === 'wait' ? Math.max(0, state.life - CONFIG.launchWaitLife) : state.life;
-  return { ...state, dose, life };
+  const L = CONFIG.launch;
+  if (choice === 'now') return { ...state, dose: round1(state.dose + L.nowDose) };
+  return { ...state, dose: round1(state.dose + L.waitDose), life: clamp(state.life - L.waitLife, CONFIG.lifeMax) };
 }
 
 export function checkWeekGoal(state) {

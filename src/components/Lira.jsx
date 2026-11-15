@@ -1,6 +1,6 @@
 // Робот Ліра з ЦУП: піксельний аватар із настроєм + маленька репліка-бульбашка.
 // Ліра пояснює подію саме тоді, коли це важливо (а не великим текстом перед днем).
-// Використовують Briefing, Decision, Result, CalmSummary, Launch, Evacuation.
+// Використовують Briefing, Decision, Result, Launch, Evacuation, Start, MissionMap.
 import '../styles/lira.css';
 
 /** Піксельний прямокутник у сітці 24×24. */

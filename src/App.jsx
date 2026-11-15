@@ -14,7 +14,6 @@ import Briefing from './components/Briefing.jsx';
 import Decision from './components/Decision.jsx';
 import Result from './components/Result.jsx';
 import FactCard from './components/FactCard.jsx';
-import CalmSummary from './components/CalmSummary.jsx';
 import WeekComplete from './components/WeekComplete.jsx';
 import Evacuation from './components/Evacuation.jsx';
 import Certificate from './components/Certificate.jsx';
@@ -37,15 +36,13 @@ if (import.meta.env.DEV) {
 
 const SCREENS = {
   start: Start, map: MissionMap, briefing: Briefing, decision: Decision,
-  result: Result, fact: FactCard, calm: CalmSummary, weekComplete: WeekComplete,
+  result: Result, fact: FactCard, weekComplete: WeekComplete,
   evacuation: Evacuation, launch: Launch, certificate: Certificate, sources: Sources,
 };
 /** Панель гри (шкали + кнопки) — над екранами дня. */
-const WITH_METERS = ['briefing', 'decision', 'result', 'calm'];
+const WITH_METERS = ['briefing', 'decision', 'result'];
 /** Інші ігрові екрани: лише кнопки 🔊 ☀️ 🏠 у кутку. */
 const WITH_FLOAT_HUD = ['fact', 'weekComplete', 'evacuation', 'launch', 'certificate'];
-/** Старт і мапа мають власний вигляд — тема їх не змінює. */
-const THEMELESS = ['start', 'map'];
 /** Інструкція з Новою — на екранах із дилемою. */
 const WITH_TUTORIAL = ['briefing', 'decision'];
 
@@ -92,9 +89,8 @@ export default function App() {
   }, []);
 
   const Screen = SCREENS[state.screen] ?? Start;
-  const themed = !THEMELESS.includes(state.screen);
   return (
-    <div className={`app phase-${state.briefing?.phase ?? 'day'}`} data-theme={themed ? state.theme : undefined}>
+    <div className={`app phase-${state.briefing?.phase ?? 'day'}`} data-theme={state.theme}>
       {WITH_METERS.includes(state.screen) && <Meters state={state} dispatch={dispatch} t={t} />}
       {WITH_FLOAT_HUD.includes(state.screen) && (
         <div className="hud-float no-print">
