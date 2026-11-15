@@ -4,6 +4,7 @@
 // Великі ігри з MoonShift (сцена 960×600): 🧽 «Протри панелі» · 🧱 «Збудуй стіну» · 🏃 «Біжи в укриття» · 📡 «Налаштуй зв'язок».
 // variant — скільки разів гравець уже грав цю гру: щоразу інший набір продуктів, страва, матеріал, повідомлення…
 // onDone({ success, score }) — результат іде в CHOOSE і може змінити наслідки дня (див. withGameResult у reducer.js).
+import { useEffect, useRef } from 'react';
 import Harvest from './Harvest.jsx';
 import Pot from './Pot.jsx';
 import Dial from './Dial.jsx';
@@ -37,5 +38,14 @@ const DONE = Object.freeze({ success: true, score: 1 });
 
 export default function ChoreGame({ id, t, variant = 0, onDone }) {
   const Game = GAMES[id] ?? Harvest;
-  return <Game t={t} variant={variant} onDone={(result) => onDone(result && typeof result === 'object' ? result : DONE)} />;
+  // Ігри завершуються з короткою паузою; якщо за цей час гравець пішов (напр. на мапу), результат не надсилаємо.
+  const alive = useRef(true);
+  useEffect(() => {
+    alive.current = true;
+    return () => { alive.current = false; };
+  }, []);
+  const done = (result) => {
+    if (alive.current) onDone(result && typeof result === 'object' ? result : DONE);
+  };
+  return <Game t={t} variant={variant} onDone={done} />;
 }

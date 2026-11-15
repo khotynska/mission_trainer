@@ -93,7 +93,7 @@ function Game({ t, v, seed, limit, onDone }) {
     if (ended.current) return;
     ended.current = true;
     const cov = statsRef.current.filled / ZONE.length;
-    const success = win || cov >= 0.7;
+    const success = win || cov >= CONFIG.games.wallGoal;
     const score = clamp(cov - Math.min(0.1, 0.01 * statsRef.current.wasted), 0, 1);
     setEnd({ win, success });
     setHint(win ? t('games.bricks.win') : why);
